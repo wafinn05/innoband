@@ -54,9 +54,9 @@ var state = {
 /** Redirect to landing page if not logged in */
 function checkAuth() {
     var loggedIn = localStorage.getItem(STORAGE_KEYS.LOGGED_IN);
-    if (loggedIn !== 'true') {
-        window.location.href = 'index.html';
-    }
+    // if (loggedIn !== 'true') {
+    //     window.location.href = 'index.html';
+    // }
 }
 
 /** Apply saved theme */

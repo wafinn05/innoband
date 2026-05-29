@@ -144,18 +144,18 @@ function scrollToSection(id) {
     clientLink.addEventListener('click', function(e) {
         var isLoggedIn = localStorage.getItem('innoband-loggedin') === 'true';
         
-        if (!isLoggedIn) {
-            e.preventDefault();
+        // if (!isLoggedIn) {
+        //     e.preventDefault();
             
-            var hero = document.getElementById('hero');
-            if (hero) hero.scrollIntoView({ behavior: 'smooth' });
+        //     var hero = document.getElementById('hero');
+        //     if (hero) hero.scrollIntoView({ behavior: 'smooth' });
             
-            if (typeof window.showAuthCard === 'function') {
-                window.showAuthCard();
-            }
+        //     if (typeof window.showAuthCard === 'function') {
+        //         window.showAuthCard();
+        //     }
             
-            alert('Anda harus mendaftar atau login terlebih dahulu untuk mengakses halaman Client.');
-        }
+        //     alert('Anda harus mendaftar atau login terlebih dahulu untuk mengakses halaman Client.');
+        // }
     });
 }());
 
@@ -266,23 +266,7 @@ window.showAuthCard = function() {
 
 /* ── Order Product (called from pricing buttons) ── */
 window.orderProduct = function (productKey) {
-    var isLoggedIn = localStorage.getItem('innoband-loggedin') === 'true';
-
-    if (isLoggedIn) {
-        /* Logged in → go directly to client page with product */
-        window.location.href = 'client.html?action=order&product=' + productKey;
-    } else {
-        /* Not logged in → save pending order and show auth */
-        localStorage.setItem('innoband-order', productKey);
-
-        /* Scroll to hero */
-        var hero = document.getElementById('hero');
-        if (hero) hero.scrollIntoView({ behavior: 'smooth' });
-
-        /* Show the auth card */
-        if (typeof window.showAuthCard === 'function') {
-            window.showAuthCard();
-        }
-    }
+    /* Go directly to client page with product regardless of login state */
+    window.location.href = 'client.html?action=order&product=' + productKey;
 };
 
