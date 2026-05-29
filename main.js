@@ -145,24 +145,15 @@ function scrollToSection(id) {
         var isLoggedIn = localStorage.getItem('innoband-loggedin') === 'true';
         
         if (!isLoggedIn) {
-            e.preventDefault(); // Prevent navigating to client.html
+            e.preventDefault();
             
-            // Scroll to hero section where auth form is located
             var hero = document.getElementById('hero');
             if (hero) hero.scrollIntoView({ behavior: 'smooth' });
             
-            // Show the auth card (hide the product image)
             if (typeof window.showAuthCard === 'function') {
                 window.showAuthCard();
             }
             
-            // Switch to Register tab automatically
-            var registerTab = document.querySelector('.auth-tab[data-target="register"]');
-            if (registerTab) {
-                registerTab.click();
-            }
-            
-            // Inform the user
             alert('Anda harus mendaftar atau login terlebih dahulu untuk mengakses halaman Client.');
         }
     });
@@ -175,10 +166,123 @@ window.showAuthCard = function() {
     if (img) img.style.display = 'none';
     if (card) {
         card.style.display = 'block';
-        // Small delay to ensure display:block is rendered before focusing
         setTimeout(function() {
             var emailInput = document.getElementById('login-email');
             if (emailInput) emailInput.focus();
         }, 50);
     }
 };
+
+/* ── Auth Form Handlers ── */
+(function initAuth() {
+    var loginForm = document.getElementById('form-login');
+    var registerForm = document.getElementById('form-register');
+
+    /* -- Login -- */
+    if (loginForm) {
+        loginForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            var email    = document.getElementById('login-email').value.trim();
+            var password = document.getElementById('login-password').value;
+
+            /* Check credentials from localStorage */
+            var users = JSON.parse(localStorage.getItem('innoband-users') || '[]');
+            var found = users.find(function (u) {
+                return u.email === email && u.password === password;
+            });
+
+            if (found) {
+                localStorage.setItem('innoband-loggedin', 'true');
+                localStorage.setItem('innoband-user', JSON.stringify({
+                    name:  found.name,
+                    email: found.email,
+                    phone: found.phone,
+                    type:  found.type
+                }));
+
+                /* Check if there's a pending order */
+                var pendingOrder = localStorage.getItem('innoband-order');
+                if (pendingOrder) {
+                    window.location.href = 'client.html?action=order&product=' + pendingOrder;
+                } else {
+                    window.location.href = 'client.html';
+                }
+            } else {
+                alert('Email atau password salah. Silakan coba lagi atau daftar terlebih dahulu.');
+            }
+        });
+    }
+
+    /* -- Register -- */
+    if (registerForm) {
+        registerForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            var name     = document.getElementById('reg-name').value.trim();
+            var email    = document.getElementById('reg-email').value.trim();
+            var phone    = document.getElementById('reg-phone').value.trim();
+            var password = document.getElementById('reg-password').value;
+            var type     = document.querySelector('input[name="account-type"]:checked').value;
+
+            /* Check if email already exists */
+            var users = JSON.parse(localStorage.getItem('innoband-users') || '[]');
+            var exists = users.find(function (u) { return u.email === email; });
+
+            if (exists) {
+                alert('Email sudah terdaftar. Silakan login atau gunakan email lain.');
+                return;
+            }
+
+            /* Save new user */
+            users.push({
+                name:     name,
+                email:    email,
+                phone:    phone,
+                password: password,
+                type:     type
+            });
+            localStorage.setItem('innoband-users', JSON.stringify(users));
+
+            /* Auto-login */
+            localStorage.setItem('innoband-loggedin', 'true');
+            localStorage.setItem('innoband-user', JSON.stringify({
+                name:  name,
+                email: email,
+                phone: phone,
+                type:  type
+            }));
+
+            /* Check pending order */
+            var pendingOrder = localStorage.getItem('innoband-order');
+            if (pendingOrder) {
+                window.location.href = 'client.html?action=order&product=' + pendingOrder;
+            } else {
+                window.location.href = 'client.html';
+            }
+        });
+    }
+}());
+
+/* ── Order Product (called from pricing buttons) ── */
+window.orderProduct = function (productKey) {
+    var isLoggedIn = localStorage.getItem('innoband-loggedin') === 'true';
+
+    if (isLoggedIn) {
+        /* Logged in → go directly to client page with product */
+        window.location.href = 'client.html?action=order&product=' + productKey;
+    } else {
+        /* Not logged in → save pending order and show auth */
+        localStorage.setItem('innoband-order', productKey);
+
+        /* Scroll to hero */
+        var hero = document.getElementById('hero');
+        if (hero) hero.scrollIntoView({ behavior: 'smooth' });
+
+        /* Show the auth card */
+        if (typeof window.showAuthCard === 'function') {
+            window.showAuthCard();
+        }
+    }
+};
+
