@@ -865,6 +865,236 @@ a {
 }
 
 /* ============================================================
+   TRACKING DASHBOARD
+   ============================================================ */
+.tracking-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.tracking-card {
+    background:    var(--card-bg);
+    border:        1px solid var(--card-border);
+    border-radius: 20px;
+    overflow:      hidden;
+    transition:    border-color 0.3s, transform 0.3s;
+}
+
+.tracking-card:hover {
+    border-color: rgba(44, 255, 110, 0.2);
+}
+
+/* Tracking Map */
+.tracking-map-container {
+    width: 100%;
+    height: 250px;
+    background: var(--gray);
+    position: relative;
+    border-bottom: 1px solid var(--card-border);
+}
+
+.tracking-map-container iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+.tracking-map-overlay {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    background: var(--nav-bg);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(44, 255, 110, 0.25);
+    padding: 0.5rem 1rem;
+    border-radius: 100px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--green);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.tracking-map-overlay-pulse {
+    width: 8px;
+    height: 8px;
+    background: var(--green);
+    border-radius: 50%;
+    box-shadow: 0 0 0 0 rgba(44, 255, 110, 0.7);
+    animation: pulseMap 1.5s infinite cubic-bezier(0.66, 0, 0, 1);
+}
+
+@keyframes pulseMap {
+    to {
+        box-shadow: 0 0 0 10px rgba(44, 255, 110, 0);
+    }
+}
+
+/* Tracking Details */
+.tracking-details {
+    padding: 1.5rem 2rem;
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+.tracking-info {
+    flex: 1;
+    min-width: 250px;
+}
+
+.tracking-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.tracking-id {
+    font-size: 0.8rem;
+    color: var(--gray-text);
+    font-family: var(--font-head);
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.tracking-product {
+    font-family: var(--font-head);
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-top: 0.2rem;
+}
+
+.tracking-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+    background: rgba(255, 255, 255, 0.02);
+    padding: 1rem;
+    border-radius: 12px;
+    border: 1px solid var(--card-border);
+}
+
+.tracking-meta-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+}
+
+/* Tracking Timeline */
+.tracking-timeline {
+    flex: 1.2;
+    min-width: 300px;
+    border-left: 1px solid var(--card-border);
+    padding-left: 2rem;
+}
+
+.timeline-container {
+    position: relative;
+    padding: 0.5rem 0;
+}
+
+.timeline-line {
+    position: absolute;
+    top: 1rem;
+    bottom: 1.5rem;
+    left: 11px;
+    width: 2px;
+    background: var(--card-border);
+    z-index: 1;
+}
+
+.timeline-line-progress {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: var(--green);
+    z-index: 2;
+    transition: height 0.5s ease;
+}
+
+.timeline-step {
+    position: relative;
+    padding-left: 2.5rem;
+    margin-bottom: 1.5rem;
+    z-index: 3;
+}
+
+.timeline-step:last-child {
+    margin-bottom: 0;
+}
+
+.timeline-icon {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--card-bg);
+    border: 2px solid var(--card-border);
+    display: grid;
+    place-items: center;
+    transition: border-color 0.3s, background 0.3s;
+}
+
+.timeline-icon svg {
+    width: 12px;
+    height: 12px;
+    color: var(--gray-text);
+    transition: color 0.3s;
+}
+
+.timeline-step.active .timeline-icon {
+    border-color: var(--green);
+    background: var(--green-dim);
+}
+
+.timeline-step.active .timeline-icon svg {
+    color: var(--green);
+}
+
+.timeline-step.completed .timeline-icon {
+    border-color: var(--green);
+    background: var(--green);
+}
+
+.timeline-step.completed .timeline-icon svg {
+    color: var(--black);
+}
+
+.timeline-content h4 {
+    font-family: var(--font-head);
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--gray-text);
+    margin-bottom: 0.2rem;
+}
+
+.timeline-step.active .timeline-content h4,
+.timeline-step.completed .timeline-content h4 {
+    color: var(--white);
+}
+
+.timeline-content p {
+    font-size: 0.8rem;
+    color: var(--gray-text);
+}
+
+.timeline-time {
+    font-size: 0.75rem;
+    color: var(--gray-text);
+    margin-top: 0.2rem;
+    font-weight: 500;
+}
+
+/* ============================================================
    MODAL
    ============================================================ */
 .modal-overlay {
@@ -1309,5 +1539,18 @@ a {
 
     .order-success-card {
         padding: 2rem 1.5rem;
+    }
+    
+    .tracking-details {
+        padding: 1.2rem;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+    
+    .tracking-timeline {
+        border-left: none;
+        border-top: 1px solid var(--card-border);
+        padding-left: 0;
+        padding-top: 1.5rem;
     }
 }

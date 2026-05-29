@@ -48,6 +48,7 @@ var state = {
     loadTheme();
     loadUserInfo();
     renderProfiles();
+    renderTracking();
     checkOrderParam();
 })();
 
@@ -155,6 +156,9 @@ function switchToTab(tabName) {
         if (state.orderProduct) {
             renderProfileSelection();
         }
+    } else if (tabName === 'lacak') {
+        document.getElementById('panelLacak').classList.add('active');
+        renderTracking();
     }
 }
 
@@ -356,6 +360,155 @@ function deleteProfile(id) {
 }
 
 /* ============================================================
+   TRACKING — Lacak Pesanan
+   ============================================================ */
+function renderTracking() {
+    var orders = JSON.parse(localStorage.getItem('innoband-orders') || '[]');
+    var dashboard = document.getElementById('trackingDashboard');
+    var emptyState = document.getElementById('emptyTrackingState');
+    var list = document.getElementById('trackingList');
+
+    if (orders.length === 0) {
+        dashboard.style.display = 'none';
+        emptyState.style.display = 'block';
+        return;
+    }
+
+    emptyState.style.display = 'none';
+    dashboard.style.display = 'block';
+
+    // Reverse to show newest first
+    var sortedOrders = orders.slice().reverse();
+
+    list.innerHTML = sortedOrders.map(function(order) {
+        var orderId = order.id.replace('order_', 'ORD-').toUpperCase();
+        var orderDate = new Date(order.createdAt);
+        
+        // Simulate times based on order creation
+        var t1 = new Date(orderDate.getTime());
+        var t2 = new Date(orderDate.getTime() + 1000 * 60 * 60 * 2); // +2 hours
+        var t3 = new Date(orderDate.getTime() + 1000 * 60 * 60 * 24); // +1 day
+        var t4 = new Date(orderDate.getTime() + 1000 * 60 * 60 * 48); // +2 days
+
+        var now = new Date();
+        
+        // Determine status purely by simulated time compared to now
+        var isPacked = now > t2;
+        var isShipping = now > t3;
+        var isDelivered = now > t4;
+
+        function fTime(d) {
+            return d.toLocaleDateString('id-ID', {day: 'numeric', month: 'short'}) + ', ' + 
+                   d.toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'});
+        }
+
+        // Generate progress percentage for the line
+        var progress = 0;
+        if (isDelivered) progress = 100;
+        else if (isShipping) progress = 66;
+        else if (isPacked) progress = 33;
+
+        return `
+        <div class="tracking-card">
+            <div class="tracking-map-container">
+                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d126915.65973950262!2d106.75924765!3d-6.229746499999999!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69f3e945e34b9d%3A0x5371bf0fdad786a2!2sJakarta%2C%20Daerah%20Khusus%20Ibukota%20Jakarta!5e0!3m2!1sid!2sid!4v1714567890123!5m2!1sid!2sid" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                <div class="tracking-map-overlay">
+                    <div class="tracking-map-overlay-pulse"></div>
+                    Simulasi Rute Langsung
+                </div>
+            </div>
+            
+            <div class="tracking-details">
+                <div class="tracking-info">
+                    <div class="tracking-header">
+                        <div>
+                            <div class="tracking-id">${orderId}</div>
+                            <div class="tracking-product">${order.productName}</div>
+                        </div>
+                        <div class="tracking-badge" style="background: var(--green-dim); color: var(--green); padding: 4px 10px; border-radius: 100px; font-size: 0.75rem; font-weight: 600;">
+                            ${isDelivered ? 'Selesai' : 'Diproses'}
+                        </div>
+                    </div>
+                    
+                    <div class="tracking-meta">
+                        <div class="tracking-meta-row">
+                            <span style="color: var(--gray-text);">Penerima:</span>
+                            <span style="font-weight: 600;">${order.profileName}</span>
+                        </div>
+                        <div class="tracking-meta-row">
+                            <span style="color: var(--gray-text);">Warna:</span>
+                            <span style="font-weight: 600;">${order.color}</span>
+                        </div>
+                        <div class="tracking-meta-row">
+                            <span style="color: var(--gray-text);">Grafik Nama:</span>
+                            <span style="font-weight: 600;">${order.customName || '-'}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tracking-timeline">
+                    <div class="timeline-container">
+                        <div class="timeline-line">
+                            <div class="timeline-line-progress" style="height: ${progress}%;"></div>
+                        </div>
+                        
+                        <!-- Step 1: Confirmed -->
+                        <div class="timeline-step completed">
+                            <div class="timeline-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            </div>
+                            <div class="timeline-content">
+                                <h4>Pesanan Dikonfirmasi</h4>
+                                <p>Pesanan telah diterima dan sedang menunggu diproses.</p>
+                                <div class="timeline-time">${fTime(t1)}</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Step 2: Packed -->
+                        <div class="timeline-step ${isPacked ? 'completed' : (now < t2 ? 'active' : '')}">
+                            <div class="timeline-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                            </div>
+                            <div class="timeline-content">
+                                <h4>Dikemas</h4>
+                                <p>Gelang INNOBAND Anda sedang diukir dan dikemas.</p>
+                                <div class="timeline-time">${isPacked ? fTime(t2) : '-'}</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Step 3: Shipping -->
+                        <div class="timeline-step ${isShipping ? 'completed' : (isPacked && !isShipping ? 'active' : '')}">
+                            <div class="timeline-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+                            </div>
+                            <div class="timeline-content">
+                                <h4>Dalam Perjalanan</h4>
+                                <p>Paket telah diserahkan ke kurir logistik.</p>
+                                <div class="timeline-time">${isShipping ? fTime(t3) : '-'}</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Step 4: Delivered -->
+                        <div class="timeline-step ${isDelivered ? 'completed' : (isShipping && !isDelivered ? 'active' : '')}">
+                            <div class="timeline-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                            </div>
+                            <div class="timeline-content">
+                                <h4>Tiba di Tujuan</h4>
+                                <p>Paket telah sampai di alamat pengiriman.</p>
+                                <div class="timeline-time">${isDelivered ? fTime(t4) : '-'}</div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        `;
+    }).join('');
+}
+
+/* ============================================================
    ORDER FLOW
    ============================================================ */
 
@@ -529,8 +682,8 @@ function closeOrderSuccess() {
     var url = window.location.pathname;
     window.history.replaceState({}, '', url);
 
-    // Switch to data diri tab
-    switchToTab('datadiri');
+    // Switch to tracking tab instead of datadiri
+    switchToTab('lacak');
 
     // Reset order panel
     document.getElementById('orderBanner').style.display = 'none';

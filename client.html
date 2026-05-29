@@ -70,6 +70,9 @@
             <button class="client-tab" data-tab="pesan" id="tabPesan">
                 Pesan Gelang
             </button>
+            <button class="client-tab" data-tab="lacak" id="tabLacak">
+                Lacak Pesanan
+            </button>
         </div>
 
 
@@ -278,6 +281,44 @@
                             Konfirmasi Pesanan
                         </button>
                     </div>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ==========================================
+             TAB 3: LACAK PESANAN
+             ========================================== -->
+        <div class="tab-panel" id="panelLacak">
+            
+            <div class="section-header">
+                <div>
+                    <h2>Lacak Pesanan</h2>
+                    <p>Pantau status pengiriman gelang INNOBAND Anda secara real-time.</p>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div class="empty-state" id="emptyTrackingState">
+                <div class="empty-state-icon">
+                    <svg viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                </div>
+                <h3>Belum Ada Pesanan Aktif</h3>
+                <p>Anda belum memiliki pesanan gelang INNOBAND yang sedang diproses atau dikirim.</p>
+                <button class="btn-primary" onclick="switchToTab('pesan')">Pesan Gelang Sekarang</button>
+            </div>
+
+            <!-- Tracking Dashboard -->
+            <div id="trackingDashboard" style="display: none;">
+                
+                <!-- If multiple orders, a selector could be here. For now, we will render a list of tracking cards -->
+                <div class="tracking-list" id="trackingList">
+                    <!-- Cards will be populated by JS -->
                 </div>
 
             </div>
