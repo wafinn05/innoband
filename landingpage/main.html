@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="INNOBAND adalah gelang pintar yang menjaga orang-orang yang kamu cintai — dari pantauan orang tua hingga keseruan konser, semua dalam satu pergelangan tangan.">
+    <title>INNOBAND — Smart Tracking Bracelet</title>
+
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap"
+        rel="stylesheet">
+
+    <!-- Page stylesheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body data-theme="dark">
+
+    <!-- ============================================================
+         NAVIGATION
+         ============================================================ -->
+    <nav>
+        <div class="nav-logo">Innoband</div>
+
+        <ul class="nav-links">
+            <li><a href="#hero">Beranda</a></li>
+            <li><a href="#usecases">Tentang</a></li>
+            <li><a href="#features">Produk</a></li>
+            <li><a href="#cta">Kontak</a></li>
+            <li><a href="client.html" id="clientMenuLink">Client</a></li>
+        </ul>
+
+        <!-- Right-side controls -->
+        <div class="nav-controls">
+
+            <!-- Theme toggle -->
+            <button class="nav-theme-toggle" id="themeToggle" aria-label="Ganti tema">
+                <!-- Moon icon (shown on dark mode) -->
+                <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z" />
+                </svg>
+                <!-- Sun icon (shown on light mode) -->
+                <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+                    <circle cx="12" cy="12" r="5" />
+                    <line x1="12" y1="1" x2="12" y2="3" />
+                    <line x1="12" y1="21" x2="12" y2="23" />
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+                    <line x1="1" y1="12" x2="3" y2="12" />
+                    <line x1="21" y1="12" x2="23" y2="12" />
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+                </svg>
+            </button>
+
+            <!-- Profile icon -->
+            <button class="nav-profile" aria-label="Profil pengguna">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <circle cx="12" cy="8" r="4" />
+                    <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+                </svg>
+            </button>
+
+        </div>
+
+        <!-- Hamburger toggle (mobile only) -->
+        <button class="nav-hamburger" id="navHamburger" aria-label="Buka menu" aria-expanded="false"
+            aria-controls="navDrawer">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </nav>
+
+    <!-- Mobile full-screen drawer -->
+    <div class="nav-drawer" id="navDrawer" role="dialog" aria-label="Menu navigasi">
+        <a href="#hero" class="drawer-link">Beranda</a>
+        <a href="#usecases" class="drawer-link">Tentang</a>
+        <a href="#features" class="drawer-link">Produk</a>
+        <a href="#cta" class="drawer-link">Kontak</a>
+        <a href="client.html" class="drawer-link" id="clientDrawerLink" onclick="event.preventDefault(); closeDrawer(); setTimeout(function(){ document.getElementById('clientMenuLink').click(); }, 300);">Client</a>
+    </div>
+
+    <!-- ============================================================
+         HERO
+         ============================================================ -->
+    <section id="hero">
+
+        <!-- Decorative background rings -->
+        <div class="hero-bg-ring ring1"></div>
+        <div class="hero-bg-ring ring2"></div>
+        <div class="hero-bg-ring ring3"></div>
+
+        <!-- Text content -->
+        <div class="hero-content">
+
+            <!-- Hero badge removed -->
+
+            <h1 class="hero-title">
+                Kenali.<br>
+                Pantau.<br>
+                <span class="accent">Tenang.</span>
+            </h1>
+
+            <p class="hero-sub">
+                INNOBAND adalah gelang pintar yang menjaga orang-orang yang kamu cintai
+                — dari pantauan orang tua hingga keseruan konser, semua dalam satu
+                pergelangan tangan.
+            </p>
+
+            <div class="hero-actions">
+                <button class="btn-primary" onclick="scrollToSection('pricing')">
+                    Beli Sekarang
+                </button>
+
+                <button class="btn-ghost" onclick="showAuthCard()">
+                    <svg style="width:20px;height:20px;margin-right:10px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                    Daftar / Login
+                </button>
+            </div>
+
+            <div class="hero-stats">
+                <div>
+                    <div class="stat-num">1KM<span>+</span></div>
+                    <div class="stat-label">Jangkauan Area</div>
+                </div>
+                <div>
+                    <div class="stat-num">24<span>jam</span></div>
+                    <div class="stat-label">Layanan Aktif</div>
+                </div>
+                <div>
+                    <div class="stat-num">Tahan<span>Air</span></div>
+                    <div class="stat-label">Kualitas</div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Right Side of Hero -->
+        <div class="hero-right-side" style="display: flex; justify-content: flex-end; align-items: center; position: relative; min-height: 400px; overflow: visible;">
+            
+            <!-- Product Image -->
+            <img id="heroProductImage" src="desaingelang.png" alt="Desain Gelang INNOBAND" style="width: 180%; max-width: 1000px; display: block; object-fit: contain; filter: drop-shadow(0 8px 24px rgba(0,0,0,0.15)); transform: translateX(15%);">
+
+            <!-- Auth Card (Login & Register) -->
+            <div id="heroAuthCard" class="hero-auth-card" style="display: none; width: 100%;">
+                <div class="auth-tabs">
+                <button class="auth-tab active" data-target="login">Login</button>
+                <button class="auth-tab" data-target="register">Register</button>
+            </div>
+
+            <div class="auth-card-body">
+                <!-- Login Form -->
+                <form id="form-login" class="auth-form active">
+                    <div class="form-group">
+                        <label for="login-email">Email</label>
+                        <input type="email" id="login-email" placeholder="Masukkan email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password">Password</label>
+                        <input type="password" id="login-password" placeholder="Masukkan password" required>
+                    </div>
+                    <button type="submit" class="btn-primary w-100">Masuk</button>
+                </form>
+
+                <!-- Register Form -->
+                <form id="form-register" class="auth-form">
+                    <div class="form-group">
+                        <label for="reg-name">Nama Lengkap</label>
+                        <input type="text" id="reg-name" placeholder="Masukkan nama" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="reg-email">Email</label>
+                        <input type="email" id="reg-email" placeholder="Masukkan email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="reg-phone">No. Telepon</label>
+                        <input type="tel" id="reg-phone" placeholder="Masukkan no. telepon" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="reg-password">Password</label>
+                        <input type="password" id="reg-password" placeholder="Buat password" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Daftar sebagai</label>
+                        <div class="radio-group">
+                            <label class="radio-label">
+                                <input type="radio" name="account-type" value="individu" checked>
+                                <span>Individu</span>
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="account-type" value="perusahaan">
+                                <span>Perusahaan</span>
+                            </label>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-primary w-100">Daftar Sekarang</button>
+                </form>
+            </div>
+        </div>
+        </div>
+    </section>
+
+
+    <!-- ============================================================
+         USE CASES
+         ============================================================ -->
+    <section id="usecases">
+
+        <p class="section-tag reveal">Untuk Siapa</p>
+        <h2 class="section-title reveal">Dua solusi, satu gelang.</h2>
+
+        <div class="use-grid">
+
+            <!-- Card 1: Parenting -->
+            <div class="use-card featured reveal">
+                <div class="card-badge">PARENTING</div>
+
+                <div class="card-icon" aria-hidden="true">
+                    <!-- Family / people icon -->
+                    <svg viewBox="0 0 24 24">
+                        <circle cx="9" cy="7" r="3" />
+                        <path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2" />
+                        <circle cx="18" cy="8" r="2" />
+                        <path d="M21 21v-1a3 3 0 0 0-3-3h-1" />
+                    </svg>
+                </div>
+
+                <h3 class="card-title">Tenang Sebagai Orang Tua</h3>
+                <p class="card-desc">
+                    Pantau lokasi anak secara real-time langsung dari smartphone kamu.
+                    Atur zona aman dan dapatkan notifikasi instan jika anak keluar dari
+                    area yang ditentukan.
+                </p>
+            </div>
+
+            <!-- Card 2: Concert -->
+            <div class="use-card reveal">
+                <div class="card-badge">KONSER &amp; ACARA</div>
+
+                <div class="card-icon" aria-hidden="true">
+                    <!-- Music / sound-wave icon -->
+                    <svg viewBox="0 0 24 24">
+                        <path d="M9 18V5l12-2v13" />
+                        <circle cx="6" cy="18" r="3" />
+                        <circle cx="18" cy="16" r="3" />
+                    </svg>
+                </div>
+
+                <h3 class="card-title">Seru Tanpa Khawatir Terpisah</h3>
+                <p class="card-desc">
+                    Nikmati konser atau festival tanpa takut kehilangan teman.
+                    INNOBAND membantu kamu dan grupmu tetap terhubung di tengah
+                    keramaian.
+                </p>
+            </div>
+
+            <!-- Card 3: Sports -->
+            <div class="use-card reveal">
+                <div class="card-badge">OLAHRAGA</div>
+
+                <div class="card-icon" aria-hidden="true">
+                    <!-- Heartbeat / activity icon -->
+                    <svg viewBox="0 0 24 24">
+                        <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+                    </svg>
+                </div>
+
+                <h3 class="card-title">Aman Saat Berolahraga</h3>
+                <p class="card-desc">
+                    Tetap terhubung saat lari atau bersepeda tanpa perlu repot
+                    membawa smartphone. Pantau detak jantung dan lokasi dengan mudah.
+                </p>
+            </div>
+
+        </div>
+
+    </section>
+    <!-- ============================================================
+         HOW IT WORKS
+         ============================================================ -->
+    <section id="how">
+
+        <p class="section-tag reveal">Cara Kerja</p>
+        <h2 class="section-title reveal">Mulai dalam 4 langkah mudah.</h2>
+
+        <div class="steps-wrap reveal">
+
+            <div class="step">
+                <div class="step-num">1</div>
+                <h4 class="step-title">Beli &amp; Aktifkan</h4>
+                <p class="step-desc">
+                    Pesan INNOBAND dan aktifkan langsung via aplikasi menggunakan
+                    kode unik di paket.
+                </p>
+            </div>
+
+            <div class="step">
+                <div class="step-num">2</div>
+                <h4 class="step-title">Daftarkan Pengguna</h4>
+                <p class="step-desc">
+                    Hubungkan ke aplikasi, daftarkan profil, dan atur zona aman serta kontak darurat dalam hitungan menit.
+                </p>
+            </div>
+
+            <div class="step">
+                <div class="step-num">3</div>
+                <h4 class="step-title">Pasang di Pergelangan</h4>
+                <p class="step-desc">
+                    Desain ergonomis dan ringan, sangat nyaman dan aman dipakai sepanjang hari oleh siapa saja.
+                </p>
+            </div>
+
+            <div class="step">
+                <div class="step-num">4</div>
+                <h4 class="step-title">Pantau dan Laporkan</h4>
+                <p class="step-desc">
+                    Lihat lokasi real-time, terima notifikasi instan, dan dapatkan laporan aktivitas harian dengan mudah.
+                </p>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ============================================================
+         FEATURES
+         ============================================================ -->
+    <section id="features">
+        <div class="features-inner">
+
+            <p class="section-tag reveal">Fitur Unggulan</p>
+            <h2 class="section-title reveal">Teknologi di setiap detail.</h2>
+
+            <div class="feat-grid">
+
+                <!-- Feature 1: Teknologi QR -->
+                <div class="feat-item reveal">
+                    <div class="feat-icon" aria-hidden="true">
+                        <!-- QR Code Icon -->
+                        <svg viewBox="0 0 24 24">
+                            <rect x="3" y="3" width="7" height="7" rx="1" ry="1"/>
+                            <rect x="14" y="3" width="7" height="7" rx="1" ry="1"/>
+                            <rect x="3" y="14" width="7" height="7" rx="1" ry="1"/>
+                            <rect x="14" y="14" width="3" height="3" rx="0.5"/>
+                            <rect x="18" y="18" width="3" height="3" rx="0.5"/>
+                            <rect x="14" y="18" width="3" height="3" rx="0.5"/>
+                            <rect x="18" y="14" width="3" height="3" rx="0.5"/>
+                        </svg>
+                    </div>
+                    <h3 class="feat-title">Teknologi QR</h3>
+                    <p class="feat-desc">
+                        Sistem identifikasi cerdas dengan QR Code untuk menyimpan 
+                        kontak darurat dan mempercepat pertolongan saat dibutuhkan.
+                    </p>
+                </div>
+
+                <!-- Feature 2: Smart Safety & Colorful -->
+                <div class="feat-item reveal">
+                    <div class="feat-icon" aria-hidden="true">
+                        <!-- Smile / Kids Icon -->
+                        <svg viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
+                            <line x1="9" y1="9" x2="9.01" y2="9"/>
+                            <line x1="15" y1="9" x2="15.01" y2="9"/>
+                        </svg>
+                    </div>
+                    <h3 class="feat-title">Smart Safety, Desain Colorful</h3>
+                    <p class="feat-desc">
+                        Gelang dengan warna-warna ceria khusus untuk si kecil. Nyaman 
+                        dipakai seharian sekaligus menjaga keamanan secara maksimal.
+                    </p>
+                </div>
+
+                <!-- Feature 3: Layanan CS 24 Jam -->
+                <div class="feat-item reveal">
+                    <div class="feat-icon" aria-hidden="true">
+                        <!-- Headset / Support Icon -->
+                        <svg viewBox="0 0 24 24">
+                            <path d="M3 18v-6a9 9 0 0 1 18 0v6"/>
+                            <path d="M21 19a2 2 0 0 1-2 2h-1v-6h3v4z"/>
+                            <path d="M3 19a2 2 0 0 0 2 2h1v-6H3v4z"/>
+                            <path d="M12 17v4"/>
+                            <path d="M8 21h8"/>
+                        </svg>
+                    </div>
+                    <h3 class="feat-title">Layanan CS 24 Jam</h3>
+                    <p class="feat-desc">
+                        Tim dukungan pelanggan kami siap siaga setiap saat. Kami selalu 
+                        online untuk memberikan bantuan dengan cepat dan responsif.
+                    </p>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+
+
+    <!-- ============================================================
+         PRICING
+         ============================================================ -->
+    <section id="pricing">
+        <div class="pricing-inner">
+
+            <p class="section-tag reveal" style="text-align: center;">Harga</p>
+            <h2 class="section-title reveal" style="text-align: center; max-width: 100%;">
+                Pilih yang sesuai kebutuhanmu.
+            </h2>
+
+            <div class="pricing-grid">
+
+                <!-- Product: Seri Playtime -->
+                <div class="price-card reveal">
+                    <div class="price-name">Seri Playtime</div>
+                    <p class="price-sub">Untuk si kecil aktif</p>
+                    <div class="price-tag">Rp 399K</div>
+                    <div class="price-period">Sudah termasuk perangkat INNOBAND</div>
+
+                    <ul class="price-features">
+                        <li>Material super fleksibel</li>
+                        <li>Pilihan warna ceria</li>
+                        <li>Tambahkan grafik nama anak</li>
+                        <li>Kustomisasi sesuai keinginan Anda</li>
+                    </ul>
+
+                    <button class="btn-price btn-price-ghost">Custom dan Pesan</button>
+                </div>
+
+                <!-- Product: Seri Minimalist -->
+                <div class="price-card featured-price reveal">
+                    <div class="price-name">Seri Minimalist</div>
+                    <p class="price-sub">Untuk kenyamanan ekstra</p>
+                    <div class="price-tag">Rp 899K</div>
+                    <div class="price-period">Sudah termasuk perangkat INNOBAND</div>
+
+                    <ul class="price-features">
+                        <li>Desain elegan dan ramping</li>
+                        <li>Nyaman dipakai seharian</li>
+                        <li>Tambahkan grafik nama Anda</li>
+                        <li>Kustomisasi sesuai keinginan Anda</li>
+                    </ul>
+
+                    <button class="btn-price btn-price-solid">Custom dan Pesan</button>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+
+
+    <!-- ============================================================
+         CALL TO ACTION
+         ============================================================ -->
+    <section id="cta">
+
+        <h2 class="cta-title reveal">
+            Siap memberi<br>ketenangan pikiran?
+        </h2>
+
+        <p class="cta-sub reveal">
+            Bergabung dengan ribuan keluarga yang sudah mempercayai INNOBAND.
+        </p>
+
+        <div class="cta-actions reveal">
+            <button class="btn-primary" onclick="scrollToSection('pricing')">
+                Beli Sekarang
+            </button>
+            <button class="btn-ghost">Hubungi Kami</button>
+        </div>
+
+    </section>
+
+
+    <!-- ============================================================
+         FOOTER
+         ============================================================ -->
+    <footer>
+        <div class="footer-logo">INNOBAND</div>
+        <div class="footer-text">&copy; 2025 INNOBAND. Semua hak dilindungi.</div>
+        <div class="footer-links" role="navigation" aria-label="Footer navigation">
+            <a href="#">Privacy</a>
+            <a href="#">Syarat &amp; Ketentuan</a>
+            <a href="#">Kontak</a>
+        </div>
+    </footer>
+
+
+    <!-- Page script (deferred so DOM is ready) -->
+    <script src="main.js" defer></script>
+
+</body>
+
+</html>
