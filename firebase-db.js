@@ -23,7 +23,8 @@ import {
     deleteDoc, 
     query, 
     where,
-    orderBy
+    orderBy,
+    getDoc
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 // Firebase Configuration
@@ -142,6 +143,27 @@ window.dbGetProfiles = async function(userEmail) {
 };
 
 /**
+ * Get a single profile by document ID (For SOS Feature)
+ */
+window.dbGetProfileById = async function(profileId) {
+    try {
+        const docRef = doc(db, "profiles", profileId);
+        const docSnap = await getDoc(docRef);
+        
+        if (docSnap.exists()) {
+            let data = docSnap.data();
+            data.id = docSnap.id;
+            return data;
+        } else {
+            return null;
+        }
+    } catch (error) {
+        console.error("Error getting profile:", error);
+        throw error;
+    }
+};
+
+/**
  * Save profile (create new or update existing) in Firestore
  */
 window.dbSaveProfile = async function(profileData, userEmail) {
@@ -229,6 +251,12 @@ window.dbSaveOrder = async function(orderData, userEmail) {
             color: orderData.color,
             customName: orderData.customName,
             price: orderData.price,
+            isBulk: orderData.isBulk || false,
+            quantity: orderData.quantity || 1,
+            shipping: orderData.shipping || null,
+            paymentMethod: orderData.paymentMethod || null,
+            paymentProof: orderData.paymentProof || null,
+            status: 'pending_payment',
             userEmail: userEmail,
             createdAt: new Date().toISOString()
         };

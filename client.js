@@ -33,6 +33,11 @@ var PRODUCTS = {
     }
 };
 
+// TELEGRAM BOT CONFIGURATION
+// Masukkan Token Bot dari @BotFather dan Chat ID kamu di sini
+var TELEGRAM_BOT_TOKEN = '8887160716:AAGm7f_SqkmjHUt9a-qCR1dDhKjONzmI9LQ'; 
+var TELEGRAM_CHAT_ID = '-1003922553114'; 
+
 var state = {
     selectedProfileId: null,
     selectedColor: 'Hitam',
@@ -487,18 +492,26 @@ function renderTracking() {
         var orderId = order.id.replace('order_', 'ORD-').toUpperCase();
         var orderDate = new Date(order.createdAt);
         
-        // Simulate times based on order creation
-        var t1 = new Date(orderDate.getTime());
-        var t2 = new Date(orderDate.getTime() + 1000 * 60 * 60 * 2); // +2 hours
-        var t3 = new Date(orderDate.getTime() + 1000 * 60 * 60 * 24); // +1 day
-        var t4 = new Date(orderDate.getTime() + 1000 * 60 * 60 * 48); // +2 days
+        // Read actual status from database
+        var status = order.status || 'processing'; // default to processing for old orders
 
-        var now = new Date();
+        var isPending = status === 'pending_payment';
+        var isRejected = status === 'rejected';
         
-        // Determine status purely by simulated time compared to now
-        var isPacked = now > t2;
-        var isShipping = now > t3;
-        var isDelivered = now > t4;
+        // For processing orders, we still simulate the later steps for visual effect
+        var isConfirmed = status === 'processing' || status === 'shipping' || status === 'delivered';
+        var isPacked = false, isShipping = false, isDelivered = false;
+        
+        if (isConfirmed) {
+            var t2 = new Date(orderDate.getTime() + 1000 * 60 * 60 * 2); // +2 hours
+            var t3 = new Date(orderDate.getTime() + 1000 * 60 * 60 * 24); // +1 day
+            var t4 = new Date(orderDate.getTime() + 1000 * 60 * 60 * 48); // +2 days
+            var now = new Date();
+            
+            isPacked = now > t2;
+            isShipping = status === 'shipping' || (status !== 'pending_payment' && now > t3);
+            isDelivered = status === 'delivered' || (status !== 'pending_payment' && now > t4);
+        }
 
         function fTime(d) {
             return d.toLocaleDateString('id-ID', {day: 'numeric', month: 'short'}) + ', ' + 
@@ -508,13 +521,101 @@ function renderTracking() {
         // Generate progress percentage for the line
         var progress = 0;
         if (isDelivered) progress = 100;
-        else if (isShipping) progress = 66;
-        else if (isPacked) progress = 33;
+        else if (isShipping) progress = 75;
+        else if (isPacked) progress = 50;
+        else if (isConfirmed) progress = 25;
+        else if (isPending) progress = 0;
+
+        // Get destination for the map
+        var destination = "Jakarta";
+        if (order.shipping) {
+            destination = order.shipping.city || order.shipping.address || "Jakarta";
+        }
+        var mapUrl = `https://maps.google.com/maps?saddr=Bandung&daddr=${encodeURIComponent(destination)}&output=embed`;
+
+        // Badge styling
+        var badgeHtml = '';
+        if (isRejected) {
+            badgeHtml = `<div class="tracking-badge" style="background: #fee2e2; color: #ef4444; padding: 4px 10px; border-radius: 100px; font-size: 0.75rem; font-weight: 600;">Ditolak</div>`;
+        } else if (isPending) {
+            badgeHtml = `<div class="tracking-badge" style="background: #fef3c7; color: #f59e0b; padding: 4px 10px; border-radius: 100px; font-size: 0.75rem; font-weight: 600;">Menunggu ACC</div>`;
+        } else {
+            badgeHtml = `<div class="tracking-badge" style="background: var(--green-dim); color: var(--green); padding: 4px 10px; border-radius: 100px; font-size: 0.75rem; font-weight: 600;">${isDelivered ? 'Selesai' : 'Diproses'}</div>`;
+        }
+
+        var timelineHtml = '';
+        if (isRejected) {
+            timelineHtml = `
+            <div class="timeline-container">
+                <div class="timeline-step completed" style="color: #ef4444;">
+                    <div class="timeline-icon" style="background: #fee2e2; border-color: #ef4444; color: #ef4444;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </div>
+                    <div class="timeline-content">
+                        <h4 style="color: #ef4444;">Pesanan Ditolak</h4>
+                        <p>Pembayaran tidak valid atau tidak sesuai. Silakan buat pesanan ulang.</p>
+                        <div class="timeline-time">${fTime(orderDate)}</div>
+                    </div>
+                </div>
+            </div>`;
+        } else {
+            timelineHtml = `
+            <div class="timeline-container">
+                <div class="timeline-line">
+                    <div class="timeline-line-progress" style="height: ${progress}%;"></div>
+                </div>
+                
+                <!-- Step 0: Menunggu Pembayaran -->
+                <div class="timeline-step ${isPending ? 'active' : 'completed'}">
+                    <div class="timeline-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    </div>
+                    <div class="timeline-content">
+                        <h4>Menunggu Konfirmasi Pembayaran</h4>
+                        <p>Admin sedang mengecek bukti pembayaran Anda.</p>
+                        <div class="timeline-time">${fTime(orderDate)}</div>
+                    </div>
+                </div>
+                
+                <!-- Step 1: Confirmed -->
+                <div class="timeline-step ${isConfirmed ? (isPacked ? 'completed' : 'active') : ''}">
+                    <div class="timeline-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </div>
+                    <div class="timeline-content">
+                        <h4>Pesanan Dikonfirmasi</h4>
+                        <p>Pesanan telah di-ACC admin dan menunggu diproses.</p>
+                    </div>
+                </div>
+                
+                <!-- Step 2: Packed -->
+                <div class="timeline-step ${isPacked ? (isShipping ? 'completed' : 'active') : ''}">
+                    <div class="timeline-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                    </div>
+                    <div class="timeline-content">
+                        <h4>Dikemas</h4>
+                        <p>Gelang INNOBAND Anda sedang diukir dan dikemas.</p>
+                    </div>
+                </div>
+                
+                <!-- Step 3: Shipping -->
+                <div class="timeline-step ${isShipping ? (isDelivered ? 'completed' : 'active') : ''}">
+                    <div class="timeline-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+                    </div>
+                    <div class="timeline-content">
+                        <h4>Dalam Perjalanan</h4>
+                        <p>Paket telah diserahkan ke kurir logistik.</p>
+                    </div>
+                </div>
+            </div>`;
+        }
 
         return `
         <div class="tracking-card">
             <div class="tracking-map-container">
-                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d126915.65973950262!2d106.75924765!3d-6.229746499999999!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69f3e945e34b9d%3A0x5371bf0fdad786a2!2sJakarta%2C%20Daerah%20Khusus%20Ibukota%20Jakarta!5e0!3m2!1sid!2sid!4v1714567890123!5m2!1sid!2sid" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                <iframe src="${mapUrl}" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
             </div>
             
             <div class="tracking-details">
@@ -524,9 +625,7 @@ function renderTracking() {
                             <div class="tracking-id">${orderId}</div>
                             <div class="tracking-product">${order.productName}</div>
                         </div>
-                        <div class="tracking-badge" style="background: var(--green-dim); color: var(--green); padding: 4px 10px; border-radius: 100px; font-size: 0.75rem; font-weight: 600;">
-                            ${isDelivered ? 'Selesai' : 'Diproses'}
-                        </div>
+                        ${badgeHtml}
                     </div>
                     
                     <div class="tracking-meta">
@@ -546,60 +645,7 @@ function renderTracking() {
                 </div>
                 
                 <div class="tracking-timeline">
-                    <div class="timeline-container">
-                        <div class="timeline-line">
-                            <div class="timeline-line-progress" style="height: ${progress}%;"></div>
-                        </div>
-                        
-                        <!-- Step 1: Confirmed -->
-                        <div class="timeline-step completed">
-                            <div class="timeline-icon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                            </div>
-                            <div class="timeline-content">
-                                <h4>Pesanan Dikonfirmasi</h4>
-                                <p>Pesanan telah diterima dan sedang menunggu diproses.</p>
-                                <div class="timeline-time">${fTime(t1)}</div>
-                            </div>
-                        </div>
-                        
-                        <!-- Step 2: Packed -->
-                        <div class="timeline-step ${isPacked ? 'completed' : (now < t2 ? 'active' : '')}">
-                            <div class="timeline-icon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
-                            </div>
-                            <div class="timeline-content">
-                                <h4>Dikemas</h4>
-                                <p>Gelang INNOBAND Anda sedang diukir dan dikemas.</p>
-                                <div class="timeline-time">${isPacked ? fTime(t2) : '-'}</div>
-                            </div>
-                        </div>
-                        
-                        <!-- Step 3: Shipping -->
-                        <div class="timeline-step ${isShipping ? 'completed' : (isPacked && !isShipping ? 'active' : '')}">
-                            <div class="timeline-icon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
-                            </div>
-                            <div class="timeline-content">
-                                <h4>Dalam Perjalanan</h4>
-                                <p>Paket telah diserahkan ke kurir logistik.</p>
-                                <div class="timeline-time">${isShipping ? fTime(t3) : '-'}</div>
-                            </div>
-                        </div>
-                        
-                        <!-- Step 4: Delivered -->
-                        <div class="timeline-step ${isDelivered ? 'completed' : (isShipping && !isDelivered ? 'active' : '')}">
-                            <div class="timeline-icon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                            </div>
-                            <div class="timeline-content">
-                                <h4>Tiba di Tujuan</h4>
-                                <p>Paket telah sampai di alamat pengiriman.</p>
-                                <div class="timeline-time">${isDelivered ? fTime(t4) : '-'}</div>
-                            </div>
-                        </div>
-
-                    </div>
+                    ${timelineHtml}
                 </div>
             </div>
         </div>
@@ -1000,6 +1046,7 @@ async function confirmOrder() {
     if (btn) { btn.disabled = true; btn.textContent = 'Memproses...'; }
 
     try {
+        var savedOrderId = null;
         if (state.selectedProfileId === 'ALL') {
             // Bulk order creation - Single order entry
             var rawPrice = product ? parseInt(product.price.replace(/\D/g, '')) * 1000 : 0;
@@ -1020,7 +1067,7 @@ async function confirmOrder() {
                 paymentMethod: state.paymentMethod,
                 paymentProof: state.paymentProofFile ? state.paymentProofFile.name : null
             };
-            await window.dbSaveOrder(order, user.email);
+            savedOrderId = await window.dbSaveOrder(order, user.email);
         } else {
             // Single order creation
             var selectedProfile = profiles.find(function (p) { return p.id === state.selectedProfileId; });
@@ -1036,7 +1083,63 @@ async function confirmOrder() {
                 paymentMethod: state.paymentMethod,
                 paymentProof: state.paymentProofFile ? state.paymentProofFile.name : null
             };
-            await window.dbSaveOrder(order, user.email);
+            savedOrderId = await window.dbSaveOrder(order, user.email);
+        }
+
+        // --- KIRIM NOTIFIKASI KE TELEGRAM ---
+        if (TELEGRAM_BOT_TOKEN && TELEGRAM_BOT_TOKEN !== 'ISI_BOT_TOKEN_DI_SINI') {
+            try {
+                var formData = new FormData();
+                formData.append('chat_id', TELEGRAM_CHAT_ID);
+                
+                var qty = state.selectedProfileId === 'ALL' ? profiles.length : 1;
+                var caption = "🔔 <b>PESANAN BARU (MENUNGGU ACC)</b>\n" +
+                              "━━━━━━━━━━━━━━━━━━━━\n" +
+                              "<b>ID Pesanan:</b> <code>" + savedOrderId + "</code>\n" +
+                              "<b>Pemesan:</b> " + (user.name || '-') + "\n" +
+                              "<b>Email:</b> " + (user.email || 'Guest') + "\n" +
+                              "<b>No. HP:</b> " + (user.phone || '-') + "\n\n" +
+                              "📦 <b>Rincian Produk:</b>\n" +
+                              "• Jumlah Pesanan: " + qty + " pcs\n" +
+                              "• Nama Produk: " + order.productName + "\n" +
+                              "• Warna: " + order.color + "\n" +
+                              "• Custom Nama: " + (order.customName || '-') + "\n" +
+                              "• Total Tagihan: <b>" + order.price + "</b>\n\n" +
+                              "🚚 <b>Data Pengiriman:</b>\n" +
+                              "• Penerima: " + shippingData.recipient + "\n" +
+                              "• No. Telp: " + shippingData.phone + "\n" +
+                              "• Kota: " + shippingData.city + "\n" +
+                              "• Alamat Lengkap:\n" + shippingData.address + "\n\n" +
+                              "⚠️ <i>Silakan cek gambar bukti transfer di atas sebelum menekan ACC.</i>";
+                              
+                var inlineKeyboard = {
+                    inline_keyboard: [[
+                        { text: "✅ ACC", callback_data: "acc_" + savedOrderId },
+                        { text: "❌ Tolak", callback_data: "rej_" + savedOrderId }
+                    ]]
+                };
+                
+                formData.append('reply_markup', JSON.stringify(inlineKeyboard));
+                
+                if (state.paymentProofFile) {
+                    formData.append('caption', caption);
+                    formData.append('parse_mode', 'HTML');
+                    formData.append('photo', state.paymentProofFile);
+                    await fetch('https://api.telegram.org/bot' + TELEGRAM_BOT_TOKEN + '/sendPhoto', {
+                        method: 'POST',
+                        body: formData
+                    });
+                } else {
+                    formData.append('text', caption);
+                    formData.append('parse_mode', 'HTML');
+                    await fetch('https://api.telegram.org/bot' + TELEGRAM_BOT_TOKEN + '/sendMessage', {
+                        method: 'POST',
+                        body: formData
+                    });
+                }
+            } catch (err) {
+                console.error("Gagal mengirim ke Telegram:", err);
+            }
         }
 
         // Clear URL params
@@ -1095,18 +1198,10 @@ var _currentQRProfile = null; // profile shown in QR modal
  * Format is human-readable so any phone scanner can display it.
  */
 function buildQRContent(profile) {
-    var lines = [];
-    lines.push('=== INNOBAND EMERGENCY INFO ===');
-    lines.push('Nama   : ' + (profile.name || '-'));
-    lines.push('Telepon: ' + (profile.phone || '-'));
-    if (profile.blood)   lines.push('Gol.Drh: ' + profile.blood);
-    if (profile.allergy) lines.push('Alergi : ' + profile.allergy);
-    if (profile.address) lines.push('Alamat : ' + profile.address);
-    lines.push('---');
-    lines.push('Darurat: ' + (profile.emergencyName || '-'));
-    lines.push('Telp.Dr: ' + (profile.emergencyPhone || '-'));
-    lines.push('================================');
-    return lines.join('\n');
+    // Generate URL dynamically based on current domain
+    var baseUrl = window.location.origin + window.location.pathname.replace(/[^/]*$/, '');
+    var sosUrl = baseUrl + 'sos.html?id=' + profile.id;
+    return sosUrl;
 }
 
 /** Generate mini QR codes for all rendered profile cards */
