@@ -23,8 +23,18 @@
     --gray:       #1a1a1a;
     --gray-mid:   #2e2e2e;
     --gray-text:  #9a9a9a;
-    --font-head:  'Syne', sans-serif;
-    --font-body:  'DM Sans', sans-serif;
+    --font-head:  'Plus Jakarta Sans', sans-serif;
+    --font-body:  'Inter', sans-serif;
+
+    /* Typography scale */
+    --text-xs:    0.75rem;
+    --text-sm:    0.875rem;
+    --text-base:  1rem;
+    --text-lg:    1.125rem;
+    --leading-tight:   1.2;
+    --leading-snug:    1.45;
+    --leading-normal:  1.6;
+    --leading-relaxed: 1.75;
 
     --nav-bg:          rgba(10, 10, 10, 0.96);
     --nav-border:      rgba(255, 255, 255, 0.06);
@@ -67,8 +77,12 @@ body {
     background:  var(--black);
     color:       var(--white);
     font-family: var(--font-body);
+    font-size:   var(--text-base);
+    line-height: var(--leading-normal);
     overflow-x:  hidden;
     min-height:  100vh;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 a {
@@ -104,8 +118,8 @@ a {
 .client-nav-logo {
     font-family:    var(--font-head);
     font-weight:    800;
-    font-size:      1.5rem;
-    letter-spacing: -0.04em;
+    font-size:      1.35rem;
+    letter-spacing: -0.02em;
     color:          var(--green);
 }
 
@@ -114,7 +128,8 @@ a {
     align-items:   center;
     gap:           6px;
     color:         var(--gray-text);
-    font-size:     0.82rem;
+    font-family:   var(--font-body);
+    font-size:     0.8125rem;
     font-weight:   500;
     padding:       0.4rem 0.8rem;
     border-radius: 8px;
@@ -162,7 +177,8 @@ a {
 }
 
 .client-nav-name {
-    font-size:   0.88rem;
+    font-family: var(--font-body);
+    font-size:   0.875rem;
     font-weight: 600;
     color:       var(--white);
 }
@@ -252,9 +268,10 @@ a {
     background:     transparent;
     border:         none;
     color:          var(--gray-text);
-    font-family:    var(--font-head);
+    font-family:    var(--font-body);
     font-weight:    600;
     font-size:      0.9rem;
+    letter-spacing: 0.01em;
     padding:        0.75rem 1.2rem;
     cursor:         pointer;
     position:       relative;
@@ -297,15 +314,19 @@ a {
 
 .section-header h2 {
     font-family:    var(--font-head);
-    font-size:      1.6rem;
-    font-weight:    800;
-    letter-spacing: -0.02em;
+    font-size:      1.5rem;
+    font-weight:    700;
+    letter-spacing: -0.025em;
+    line-height:    var(--leading-snug);
 }
 
 .section-header p {
-    font-size: 0.88rem;
-    color:     var(--gray-text);
-    margin-top: 0.3rem;
+    font-family: var(--font-body);
+    font-size:   0.875rem;
+    font-weight: 400;
+    color:       var(--gray-text);
+    margin-top:  0.3rem;
+    line-height: var(--leading-relaxed);
 }
 
 /* ============================================================
@@ -317,10 +338,10 @@ a {
     border:         none;
     padding:        0.75rem 1.5rem;
     border-radius:  100px;
-    font-family:    var(--font-head);
-    font-weight:    700;
-    font-size:      0.85rem;
-    letter-spacing: 0.04em;
+    font-family:    var(--font-body);
+    font-weight:    600;
+    font-size:      0.9rem;
+    letter-spacing: 0.01em;
     cursor:         pointer;
     transition:     transform 0.15s, background 0.2s, box-shadow 0.2s;
     display:        inline-flex;
@@ -349,9 +370,9 @@ a {
     border:         1px solid var(--card-border);
     padding:        0.65rem 1.2rem;
     border-radius:  100px;
-    font-family:    var(--font-head);
-    font-weight:    600;
-    font-size:      0.82rem;
+    font-family:    var(--font-body);
+    font-weight:    500;
+    font-size:      0.875rem;
     cursor:         pointer;
     transition:     border-color 0.2s, background 0.2s;
     display:        inline-flex;
@@ -438,9 +459,10 @@ a {
 }
 
 .profile-card-name {
-    font-family:  var(--font-head);
-    font-size:    1.1rem;
-    font-weight:  700;
+    font-family:    var(--font-head);
+    font-size:      1.0625rem;
+    font-weight:    700;
+    letter-spacing: -0.01em;
 }
 
 .profile-card-badge {
@@ -536,16 +558,19 @@ a {
 }
 
 .empty-state h3 {
-    font-family:   var(--font-head);
-    font-size:     1.2rem;
-    font-weight:   700;
-    margin-bottom: 0.6rem;
+    font-family:    var(--font-head);
+    font-size:      1.125rem;
+    font-weight:    700;
+    letter-spacing: -0.01em;
+    margin-bottom:  0.6rem;
 }
 
 .empty-state p {
     color:         var(--gray-text);
-    font-size:     0.88rem;
-    line-height:   1.6;
+    font-family:   var(--font-body);
+    font-size:     0.875rem;
+    font-weight:   400;
+    line-height:   var(--leading-relaxed);
     margin-bottom: 1.5rem;
 }
 
@@ -592,22 +617,26 @@ a {
 }
 
 .order-banner-info h3 {
-    font-family:   var(--font-head);
-    font-size:     1.2rem;
-    font-weight:   700;
-    margin-bottom: 0.3rem;
+    font-family:    var(--font-head);
+    font-size:      1.125rem;
+    font-weight:    700;
+    letter-spacing: -0.01em;
+    margin-bottom:  0.3rem;
 }
 
 .order-banner-info p {
-    color:     var(--gray-text);
-    font-size: 0.85rem;
+    color:       var(--gray-text);
+    font-family: var(--font-body);
+    font-size:   0.8125rem;
+    font-weight: 400;
 }
 
 .order-banner-price {
-    font-family: var(--font-head);
-    font-size:   1.8rem;
-    font-weight: 800;
-    color:       var(--green);
+    font-family:    var(--font-head);
+    font-size:      1.75rem;
+    font-weight:    800;
+    letter-spacing: -0.02em;
+    color:          var(--green);
 }
 
 /* Order Steps */
@@ -656,9 +685,10 @@ a {
 }
 
 .order-step-title {
-    font-family: var(--font-head);
-    font-weight: 700;
-    font-size:   1rem;
+    font-family:    var(--font-head);
+    font-weight:    700;
+    font-size:      1.0625rem;
+    letter-spacing: -0.01em;
 }
 
 /* Profile Select Grid (in order flow) */
@@ -705,15 +735,18 @@ a {
 }
 
 .profile-select-name {
-    font-family: var(--font-head);
-    font-weight: 700;
-    font-size:   0.95rem;
-    margin-bottom: 0.3rem;
+    font-family:    var(--font-head);
+    font-weight:    700;
+    font-size:      0.9375rem;
+    letter-spacing: -0.01em;
+    margin-bottom:  0.3rem;
 }
 
 .profile-select-detail {
-    font-size: 0.8rem;
-    color:     var(--gray-text);
+    font-family: var(--font-body);
+    font-size:   0.8125rem;
+    font-weight: 400;
+    color:       var(--gray-text);
 }
 
 /* Customize Options */
@@ -805,10 +838,11 @@ a {
 }
 
 .order-summary h3 {
-    font-family:   var(--font-head);
-    font-size:     1.1rem;
-    font-weight:   700;
-    margin-bottom: 1.2rem;
+    font-family:    var(--font-head);
+    font-size:      1.0625rem;
+    font-weight:    700;
+    letter-spacing: -0.01em;
+    margin-bottom:  1.2rem;
 }
 
 .summary-row {
@@ -842,17 +876,19 @@ a {
 }
 
 .summary-total .summary-label {
-    font-family: var(--font-head);
-    font-weight: 700;
-    font-size:   1rem;
-    color:       var(--white);
+    font-family:    var(--font-head);
+    font-weight:    700;
+    font-size:      1rem;
+    letter-spacing: -0.01em;
+    color:          var(--white);
 }
 
 .summary-total .summary-value {
-    font-family: var(--font-head);
-    font-weight: 800;
-    font-size:   1.3rem;
-    color:       var(--green);
+    font-family:    var(--font-head);
+    font-weight:    800;
+    font-size:      1.25rem;
+    letter-spacing: -0.02em;
+    color:          var(--green);
 }
 
 .order-confirm-btn {
@@ -963,10 +999,11 @@ a {
 }
 
 .tracking-product {
-    font-family: var(--font-head);
-    font-size: 1.2rem;
-    font-weight: 700;
-    margin-top: 0.2rem;
+    font-family:    var(--font-head);
+    font-size:      1.125rem;
+    font-weight:    700;
+    letter-spacing: -0.01em;
+    margin-top:     0.2rem;
 }
 
 .tracking-meta {

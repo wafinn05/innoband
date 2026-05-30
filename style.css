@@ -23,8 +23,19 @@
     --gray:       #1a1a1a;
     --gray-mid:   #2e2e2e;
     --gray-text:  #9a9a9a;
-    --font-head:  'Syne', sans-serif;
-    --font-body:  'DM Sans', sans-serif;
+    --font-head:  'Plus Jakarta Sans', sans-serif;
+    --font-body:  'Inter', sans-serif;
+
+    /* Typography scale */
+    --text-xs:   0.75rem;    /* 12px */
+    --text-sm:   0.875rem;   /* 14px */
+    --text-base: 1rem;       /* 16px */
+    --text-lg:   1.125rem;   /* 18px */
+    --text-xl:   1.25rem;    /* 20px */
+    --leading-tight:  1.2;
+    --leading-snug:   1.45;
+    --leading-normal: 1.6;
+    --leading-relaxed:1.75;
 
     /* Nav background as a variable so light mode can override */
     --nav-bg:          rgba(10, 10, 10, 0.96);
@@ -57,10 +68,14 @@ html {
 }
 
 body {
-    background:   var(--black);
-    color:        var(--white);
-    font-family:  var(--font-body);
-    overflow-x:   hidden;
+    background:        var(--black);
+    color:             var(--white);
+    font-family:       var(--font-body);
+    font-size:         var(--text-base);
+    line-height:       var(--leading-normal);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x:        hidden;
 }
 
 /* ============================================================
@@ -84,8 +99,8 @@ nav {
 .nav-logo {
     font-family:    var(--font-head);
     font-weight:    800;
-    font-size:      1.6rem;
-    letter-spacing: -0.04em;
+    font-size:      1.45rem;
+    letter-spacing: -0.02em;
     color:          var(--green);
 }
 
@@ -98,9 +113,10 @@ nav {
 .nav-links a {
     text-decoration: none;
     color:          var(--gray-text);
-    font-size:      0.88rem;
-    font-weight:    400;
-    letter-spacing: 0.05em;
+    font-family:    var(--font-body);
+    font-size:      0.875rem;
+    font-weight:    500;
+    letter-spacing: 0.01em;
     transition:     color 0.2s;
 }
 
@@ -257,9 +273,9 @@ nav {
     text-decoration: none;
     color:           var(--white);
     font-family:     var(--font-head);
-    font-size:       2rem;
+    font-size:       1.875rem;
     font-weight:     700;
-    letter-spacing:  0.04em;
+    letter-spacing:  -0.01em;
     transition:      color 0.2s;
 }
 
@@ -346,10 +362,10 @@ nav {
 
 .hero-title {
     font-family:    var(--font-head);
-    font-size:      clamp(3rem, 5vw, 5rem);
+    font-size:      clamp(2.8rem, 4.8vw, 4.8rem);
     font-weight:    800;
-    line-height:    1.05;
-    letter-spacing: -0.02em;
+    line-height:    1.08;
+    letter-spacing: -0.03em;
     animation:      fadeUp 0.6s 0.1s ease both;
 }
 
@@ -359,11 +375,11 @@ nav {
 
 .hero-sub {
     margin-top:  1.5rem;
-    font-size:   1.05rem;
+    font-size:   1.0625rem;
     color:       var(--gray-text);
-    line-height: 1.7;
+    line-height: var(--leading-relaxed);
     max-width:   480px;
-    font-weight: 300;
+    font-weight: 400;
     animation:   fadeUp 0.6s 0.2s ease both;
 }
 
@@ -380,12 +396,12 @@ nav {
     background:     var(--green);
     color:          var(--black);
     border:         none;
-    padding:        0.9rem 2rem;
+    padding:        0.875rem 1.875rem;
     border-radius:  100px;
-    font-family:    var(--font-head);
-    font-weight:    700;
-    font-size:      0.9rem;
-    letter-spacing: 0.06em;
+    font-family:    var(--font-body);
+    font-weight:    600;
+    font-size:      0.9375rem;
+    letter-spacing: 0.01em;
     cursor:         pointer;
     transition:     transform 0.15s, background 0.2s, box-shadow 0.2s;
 }
@@ -400,12 +416,12 @@ nav {
     background:     transparent;
     color:          var(--white);
     border:         1px solid rgba(255, 255, 255, 0.18);
-    padding:        0.9rem 1.8rem;
+    padding:        0.875rem 1.75rem;
     border-radius:  100px;
-    font-family:    var(--font-head);
-    font-weight:    600;
-    font-size:      0.9rem;
-    letter-spacing: 0.04em;
+    font-family:    var(--font-body);
+    font-weight:    500;
+    font-size:      0.9375rem;
+    letter-spacing: 0.01em;
     cursor:         pointer;
     transition:     border-color 0.2s, background 0.2s;
     display:        flex;
@@ -449,9 +465,10 @@ nav {
 
 .stat-num {
     font-family: var(--font-head);
-    font-size:   1.6rem;
-    font-weight: 800;
+    font-size:   1.5rem;
+    font-weight: 700;
     color:       var(--white);
+    letter-spacing: -0.01em;
 }
 
 .stat-num span {
@@ -459,9 +476,11 @@ nav {
 }
 
 .stat-label {
-    font-size:  0.8rem;
-    color:      var(--gray-text);
-    margin-top: 2px;
+    font-size:   0.8rem;
+    font-weight: 500;
+    color:       var(--gray-text);
+    margin-top:  3px;
+    letter-spacing: 0.01em;
 }
 
 /* Hero Auth Card */
@@ -489,13 +508,14 @@ nav {
     background:  transparent;
     border:      none;
     color:       var(--gray-text);
-    font-family: var(--font-head);
+    font-family: var(--font-body);
     font-weight: 600;
-    font-size:   1rem;
+    font-size:   0.9375rem;
     padding:     0.5rem 1rem;
     cursor:      pointer;
     position:    relative;
     transition:  color 0.3s;
+    letter-spacing: 0.01em;
 }
 
 .auth-tab:hover {
@@ -533,8 +553,10 @@ nav {
 }
 
 .form-group label {
-    font-size: 0.85rem;
-    color:     var(--gray-text);
+    font-size:   0.8125rem;
+    font-weight: 500;
+    color:       var(--gray-text);
+    letter-spacing: 0.01em;
 }
 
 .form-group input[type="text"],
@@ -588,20 +610,21 @@ nav {
    SHARED SECTION UTILITIES
    ============================================================ */
 .section-tag {
-    font-size:      0.78rem;
-    letter-spacing: 0.14em;
+    font-family:    var(--font-body);
+    font-size:      0.75rem;
+    letter-spacing: 0.12em;
     color:          var(--green);
     font-weight:    600;
     text-transform: uppercase;
-    margin-bottom:  1rem;
+    margin-bottom:  0.875rem;
 }
 
 .section-title {
     font-family:    var(--font-head);
-    font-size:      clamp(2rem, 3.5vw, 3rem);
-    font-weight:    800;
-    line-height:    1.1;
-    letter-spacing: -0.01em;
+    font-size:      clamp(1.875rem, 3.2vw, 2.875rem);
+    font-weight:    700;
+    line-height:    1.15;
+    letter-spacing: -0.025em;
     max-width:      500px;
     margin-bottom:  3.5rem;
 }
@@ -677,26 +700,29 @@ nav {
     background:     var(--green-dim);
     border:         1px solid rgba(44, 255, 110, 0.2);
     color:          var(--green);
-    font-size:      0.72rem;
+    font-family:    var(--font-body);
+    font-size:      0.6875rem;
     font-weight:    600;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.1em;
     padding:        0.25rem 0.75rem;
     border-radius:  100px;
     margin-bottom:  1.2rem;
 }
 
 .card-title {
-    font-family:  var(--font-head);
-    font-size:    1.3rem;
-    font-weight:  700;
-    margin-bottom: 0.8rem;
+    font-family:    var(--font-head);
+    font-size:      1.1875rem;
+    font-weight:    700;
+    letter-spacing: -0.01em;
+    margin-bottom:  0.75rem;
+    line-height:    var(--leading-snug);
 }
 
 .card-desc {
-    font-size:   0.92rem;
+    font-size:   0.9rem;
     color:       var(--gray-text);
-    line-height: 1.7;
-    font-weight: 300;
+    line-height: var(--leading-relaxed);
+    font-weight: 400;
 }
 
 /* ============================================================
@@ -755,17 +781,19 @@ nav {
 }
 
 .feat-title {
-    font-family:   var(--font-head);
-    font-weight:   700;
-    font-size:     1rem;
-    margin-bottom: 0.6rem;
+    font-family:    var(--font-head);
+    font-weight:    700;
+    font-size:      1.0625rem;
+    letter-spacing: -0.01em;
+    margin-bottom:  0.5rem;
+    line-height:    var(--leading-snug);
 }
 
 .feat-desc {
-    font-size:   0.88rem;
+    font-size:   0.875rem;
     color:       var(--gray-text);
-    line-height: 1.65;
-    font-weight: 300;
+    line-height: var(--leading-relaxed);
+    font-weight: 400;
 }
 
 /* ============================================================
@@ -811,21 +839,23 @@ nav {
     place-items:   center;
     font-family:   var(--font-head);
     font-weight:   800;
-    font-size:     0.95rem;
+    font-size:     0.9375rem;
     margin:        0 auto 1.2rem;
 }
 
 .step-title {
-    font-family:   var(--font-head);
-    font-weight:   700;
-    font-size:     0.95rem;
-    margin-bottom: 0.6rem;
+    font-family:    var(--font-head);
+    font-weight:    700;
+    font-size:      1rem;
+    letter-spacing: -0.01em;
+    margin-bottom:  0.5rem;
 }
 
 .step-desc {
-    font-size:   0.82rem;
+    font-size:   0.8125rem;
     color:       var(--gray-text);
-    line-height: 1.6;
+    line-height: var(--leading-relaxed);
+    font-weight: 400;
 }
 
 /* ============================================================
@@ -870,30 +900,34 @@ nav {
 
 
 .price-name {
-    font-family:   var(--font-head);
-    font-size:     1.1rem;
-    font-weight:   700;
-    margin-bottom: 0.5rem;
+    font-family:    var(--font-head);
+    font-size:      1.125rem;
+    font-weight:    700;
+    letter-spacing: -0.01em;
+    margin-bottom:  0.4rem;
 }
 
 .price-sub {
-    font-size:  0.85rem;
-    color:      var(--gray-text);
-    margin-top: 0.3rem;
+    font-size:   0.8125rem;
+    font-weight: 400;
+    color:       var(--gray-text);
+    margin-top:  0.25rem;
 }
 
 .price-tag {
-    font-family:   var(--font-head);
-    font-size:     2.5rem;
-    font-weight:   800;
-    color:         var(--green);
-    line-height:   1;
-    margin:        1.2rem 0 0.3rem;
+    font-family:    var(--font-head);
+    font-size:      2.375rem;
+    font-weight:    800;
+    color:          var(--green);
+    line-height:    1;
+    letter-spacing: -0.02em;
+    margin:         1.2rem 0 0.3rem;
 }
 
 .price-period {
-    font-size:     0.82rem;
+    font-size:     0.8125rem;
     color:         var(--gray-text);
+    font-weight:   400;
     margin-bottom: 1.8rem;
 }
 
@@ -906,28 +940,31 @@ nav {
 }
 
 .price-features li {
-    font-size:   0.88rem;
+    font-size:   0.875rem;
+    font-weight: 400;
     color:       var(--gray-text);
     display:     flex;
     align-items: center;
     gap:         10px;
+    line-height: var(--leading-normal);
 }
 
 .price-features li::before {
-    content:    '\2713';   /* Unicode checkmark — avoids emoji */
-    color:      var(--green);
+    content:     '\2713';   /* Unicode checkmark — avoids emoji */
+    color:       var(--green);
     font-weight: 700;
+    font-size:   0.8125rem;
     flex-shrink: 0;
 }
 
 .btn-price {
     width:          100%;
-    padding:        0.9rem;
+    padding:        0.875rem;
     border-radius:  100px;
-    font-family:    var(--font-head);
-    font-weight:    700;
-    font-size:      0.88rem;
-    letter-spacing: 0.05em;
+    font-family:    var(--font-body);
+    font-weight:    600;
+    font-size:      0.9375rem;
+    letter-spacing: 0.01em;
     cursor:         pointer;
     transition:     all 0.2s;
 }
@@ -990,9 +1027,9 @@ nav {
 
 .testi-text {
     font-size:     0.9rem;
-    line-height:   1.7;
+    line-height:   var(--leading-relaxed);
     color:         #ccc;
-    font-weight:   300;
+    font-weight:   400;
     margin-bottom: 1.5rem;
     font-style:    italic;
 }
@@ -1011,7 +1048,7 @@ nav {
     border:        1px solid rgba(44, 255, 110, 0.2);
     display:       grid;
     place-items:   center;
-    font-size:     0.8rem;
+    font-size:     0.75rem;
     font-weight:   700;
     color:         var(--green);
     font-family:   var(--font-head);
@@ -1019,7 +1056,8 @@ nav {
 
 .testi-name {
     font-weight: 600;
-    font-size:   0.88rem;
+    font-size:   0.875rem;
+    letter-spacing: 0.01em;
 }
 
 .testi-role {
@@ -1054,18 +1092,20 @@ nav {
 
 .cta-title {
     font-family:    var(--font-head);
-    font-size:      clamp(2rem, 4vw, 3.5rem);
-    font-weight:    800;
-    letter-spacing: -0.02em;
+    font-size:      clamp(1.875rem, 3.8vw, 3.25rem);
+    font-weight:    700;
+    letter-spacing: -0.025em;
+    line-height:    1.15;
     margin-bottom:  1rem;
     position:       relative;
 }
 
 .cta-sub {
     color:         var(--gray-text);
-    font-size:     1rem;
+    font-size:     1.0625rem;
     margin-bottom: 2.5rem;
-    font-weight:   300;
+    font-weight:   400;
+    line-height:   var(--leading-relaxed);
 }
 
 .cta-actions {
@@ -1090,14 +1130,16 @@ footer {
 .footer-logo {
     font-family:    var(--font-head);
     font-weight:    800;
-    font-size:      1.2rem;
+    font-size:      1.1rem;
     color:          var(--green);
-    letter-spacing: 0.1em;
+    letter-spacing: 0.04em;
 }
 
 .footer-text {
-    font-size: 0.8rem;
-    color:     var(--gray-text);
+    font-size:   0.8125rem;
+    font-weight: 400;
+    color:       var(--gray-text);
+    letter-spacing: 0.01em;
 }
 
 .footer-links {
@@ -1106,9 +1148,11 @@ footer {
 }
 
 .footer-links a {
-    font-size:       0.8rem;
+    font-size:       0.8125rem;
+    font-weight:     400;
     color:           var(--gray-text);
     text-decoration: none;
+    letter-spacing:  0.01em;
     transition:      color 0.2s;
 }
 
