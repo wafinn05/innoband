@@ -143,19 +143,22 @@ function scrollToSection(id) {
 
     clientLink.addEventListener('click', function(e) {
         var isLoggedIn = localStorage.getItem('innoband-loggedin') === 'true';
-        
-        // if (!isLoggedIn) {
-        //     e.preventDefault();
-            
-        //     var hero = document.getElementById('hero');
-        //     if (hero) hero.scrollIntoView({ behavior: 'smooth' });
-            
-        //     if (typeof window.showAuthCard === 'function') {
-        //         window.showAuthCard();
-        //     }
-            
-        //     alert('Anda harus mendaftar atau login terlebih dahulu untuk mengakses halaman Client.');
-        // }
+
+        if (!isLoggedIn) {
+            e.preventDefault();
+
+            // Scroll hero into view
+            var hero = document.getElementById('hero');
+            if (hero) hero.scrollIntoView({ behavior: 'smooth' });
+
+            // Open auth card
+            if (typeof window.showAuthCard === 'function') {
+                setTimeout(function() { window.showAuthCard(); }, 400);
+            }
+
+            // Show toast notification
+            showAuthToast();
+        }
     });
 }());
 
@@ -173,6 +176,40 @@ window.showAuthCard = function() {
     }
 };
 
+/* ── Toast Notification ── */
+function showAuthToast() {
+    var toast = document.getElementById('toastNotif');
+    if (!toast) return;
+    toast.classList.add('show');
+    // Auto-dismiss after 5 seconds
+    setTimeout(function() {
+        toast.classList.remove('show');
+    }, 5000);
+}
+
+/* ── Detect redirect from protected page ── */
+(function checkAuthRedirect() {
+    var params = new URLSearchParams(window.location.search);
+    if (params.get('auth') === 'required') {
+        // Clean up the URL without reloading
+        var cleanUrl = window.location.pathname;
+        window.history.replaceState({}, document.title, cleanUrl);
+
+        // Show toast
+        showAuthToast();
+
+        // Scroll to hero and open the login card
+        var hero = document.getElementById('hero');
+        if (hero) hero.scrollIntoView({ behavior: 'smooth' });
+
+        setTimeout(function() {
+            if (typeof window.showAuthCard === 'function') {
+                window.showAuthCard();
+            }
+        }, 400);
+    }
+}());
+
 /* ── Auth Form Handlers ── */
 (function initAuth() {
     var loginForm = document.getElementById('form-login');
@@ -186,30 +223,25 @@ window.showAuthCard = function() {
             var email    = document.getElementById('login-email').value.trim();
             var password = document.getElementById('login-password').value;
 
-            /* Check credentials from localStorage */
-            var users = JSON.parse(localStorage.getItem('innoband-users') || '[]');
-            var found = users.find(function (u) {
-                return u.email === email && u.password === password;
-            });
+            if (typeof window.dbLogin === 'function') {
+                window.dbLogin(email, password)
+                    .then(function (userData) {
+                        localStorage.setItem('innoband-loggedin', 'true');
+                        localStorage.setItem('innoband-user', JSON.stringify(userData));
 
-            if (found) {
-                localStorage.setItem('innoband-loggedin', 'true');
-                localStorage.setItem('innoband-user', JSON.stringify({
-                    name:  found.name,
-                    email: found.email,
-                    phone: found.phone,
-                    type:  found.type
-                }));
-
-                /* Check if there's a pending order */
-                var pendingOrder = localStorage.getItem('innoband-order');
-                if (pendingOrder) {
-                    window.location.href = 'client.html?action=order&product=' + pendingOrder;
-                } else {
-                    window.location.href = 'client.html';
-                }
+                        /* Check if there's a pending order */
+                        var pendingOrder = localStorage.getItem('innoband-order');
+                        if (pendingOrder) {
+                            window.location.href = 'client.html?action=order&product=' + pendingOrder;
+                        } else {
+                            window.location.href = 'client.html';
+                        }
+                    })
+                    .catch(function (error) {
+                        alert('Login Gagal: ' + error.message);
+                    });
             } else {
-                alert('Email atau password salah. Silakan coba lagi atau daftar terlebih dahulu.');
+                alert('Firebase Service belum siap. Silakan coba sesaat lagi.');
             }
         });
     }
@@ -225,40 +257,25 @@ window.showAuthCard = function() {
             var password = document.getElementById('reg-password').value;
             var type     = document.querySelector('input[name="account-type"]:checked').value;
 
-            /* Check if email already exists */
-            var users = JSON.parse(localStorage.getItem('innoband-users') || '[]');
-            var exists = users.find(function (u) { return u.email === email; });
+            if (typeof window.dbRegister === 'function') {
+                window.dbRegister(email, password, name, phone, type)
+                    .then(function (userData) {
+                        localStorage.setItem('innoband-loggedin', 'true');
+                        localStorage.setItem('innoband-user', JSON.stringify(userData));
 
-            if (exists) {
-                alert('Email sudah terdaftar. Silakan login atau gunakan email lain.');
-                return;
-            }
-
-            /* Save new user */
-            users.push({
-                name:     name,
-                email:    email,
-                phone:    phone,
-                password: password,
-                type:     type
-            });
-            localStorage.setItem('innoband-users', JSON.stringify(users));
-
-            /* Auto-login */
-            localStorage.setItem('innoband-loggedin', 'true');
-            localStorage.setItem('innoband-user', JSON.stringify({
-                name:  name,
-                email: email,
-                phone: phone,
-                type:  type
-            }));
-
-            /* Check pending order */
-            var pendingOrder = localStorage.getItem('innoband-order');
-            if (pendingOrder) {
-                window.location.href = 'client.html?action=order&product=' + pendingOrder;
+                        /* Check pending order */
+                        var pendingOrder = localStorage.getItem('innoband-order');
+                        if (pendingOrder) {
+                            window.location.href = 'client.html?action=order&product=' + pendingOrder;
+                        } else {
+                            window.location.href = 'client.html';
+                        }
+                    })
+                    .catch(function (error) {
+                        alert('Pendaftaran Gagal: ' + error.message);
+                    });
             } else {
-                window.location.href = 'client.html';
+                alert('Firebase Service belum siap. Silakan coba sesaat lagi.');
             }
         });
     }

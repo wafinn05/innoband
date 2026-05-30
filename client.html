@@ -70,7 +70,7 @@
                 Data Diri
             </button>
             <button class="client-tab" data-tab="pesan" id="tabPesan">
-                Pesan Gelang
+                Pesanan Saya
             </button>
             <button class="client-tab" data-tab="lacak" id="tabLacak">
                 Lacak Pesanan
@@ -85,16 +85,27 @@
 
             <div class="section-header">
                 <div>
-                    <h2>Data Diri Saya</h2>
-                    <p>Kelola data diri yang akan disimpan di QR code gelang INNOBAND.</p>
+                    <h2 id="dataDiriTitle">Data Diri Saya</h2>
+                    <p id="dataDiriSubtitle">Kelola data diri yang akan disimpan di QR code gelang INNOBAND.</p>
                 </div>
-                <button class="btn-primary" id="btnAddProfile" onclick="openProfileModal()">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="12" y1="5" x2="12" y2="19"></line>
-                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                    </svg>
-                    Tambah Data Diri
-                </button>
+                <div class="section-header-actions">
+                    <!-- Upload bulk button: only visible for company accounts -->
+                    <button class="btn-secondary" id="btnUploadCSV" onclick="openUploadModal()" style="display:none;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="17 8 12 3 7 8"/>
+                            <line x1="12" y1="3" x2="12" y2="15"/>
+                        </svg>
+                        Upload File (CSV/Excel)
+                    </button>
+                    <button class="btn-primary" id="btnAddProfile" onclick="openProfileModal()">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        Tambah Data Diri
+                    </button>
+                </div>
             </div>
 
             <!-- Profile Cards -->
@@ -125,7 +136,7 @@
 
 
         <!-- ==========================================
-             TAB 2: PESAN GELANG
+             TAB 2: PESANAN SAYA
              ========================================== -->
         <div class="tab-panel" id="panelPesan">
 
@@ -155,6 +166,26 @@
                 <h3>Belum Ada Pesanan</h3>
                 <p>Kamu bisa memesan gelang INNOBAND dari halaman utama. Pilih produk yang sesuai dan klik "Custom dan Pesan".</p>
                 <a href="index.html#pricing" class="btn-primary">Lihat Produk</a>
+            </div>
+
+            <!-- Order List State (shown when not ordering and has orders) -->
+            <div id="orderListState" style="display: none;">
+                <div class="section-header">
+                    <div>
+                        <h2>Daftar Pesanan</h2>
+                        <p>Riwayat pesanan gelang INNOBAND milikmu.</p>
+                    </div>
+                    <a href="index.html#pricing" class="btn-primary">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        Pesan Lagi
+                    </a>
+                </div>
+                <div class="profiles-grid" id="ordersGrid">
+                    <!-- Cards rendered by JS -->
+                </div>
             </div>
 
             <!-- Order Steps -->
@@ -232,21 +263,171 @@
                     </div>
 
                     <!-- Name grafik -->
-                    <div class="customize-input-group">
+                    <div class="customize-input-group" id="customNameGroup">
                         <label for="customName">Grafik Nama di Gelang <span style="color: var(--gray-text); font-weight: 400;">(opsional)</span></label>
                         <input type="text" id="customName" placeholder="Contoh: Budi, Anisa, dll." maxlength="20">
                     </div>
 
                     <div style="display: flex; gap: 0.8rem; justify-content: flex-end; flex-wrap: wrap;">
                         <button class="btn-secondary" onclick="goToStep(1)">← Kembali</button>
-                        <button class="btn-primary" onclick="goToStep(3)">Lihat Ringkasan →</button>
+                        <button class="btn-primary" onclick="goToStep(3)">Lanjut ke Pengiriman →</button>
                     </div>
                 </div>
 
-                <!-- Step 3: Konfirmasi -->
+                <!-- Step 3: Alamat Pengiriman -->
                 <div class="order-step" id="orderStep3" style="display: none;">
                     <div class="order-step-header">
                         <div class="order-step-num">3</div>
+                        <div class="order-step-title">Alamat Pengiriman</div>
+                    </div>
+
+                    <div class="shipping-form">
+                        <div class="form-group">
+                            <label for="shipRecipient">Nama Penerima <span class="required">*</span></label>
+                            <input type="text" id="shipRecipient" placeholder="Nama lengkap penerima paket" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="shipPhone">No. Telepon Penerima <span class="required">*</span></label>
+                            <input type="tel" id="shipPhone" placeholder="08xxxxxxxxxx" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="shipAddress">Alamat Lengkap <span class="required">*</span></label>
+                            <textarea id="shipAddress" rows="3" placeholder="Jl. Contoh No. 123, Kelurahan, Kecamatan, Kota, Provinsi"></textarea>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="shipCity">Kota / Kabupaten <span class="required">*</span></label>
+                                <input type="text" id="shipCity" placeholder="Jakarta Selatan">
+                            </div>
+                            <div class="form-group">
+                                <label for="shipPostal">Kode Pos</label>
+                                <input type="text" id="shipPostal" placeholder="12345" maxlength="5">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="shipNote">Catatan untuk Kurir <span style="color: var(--gray-text); font-weight: 400;">(opsional)</span></label>
+                            <input type="text" id="shipNote" placeholder="Contoh: Titip ke satpam, pintu merah, dll.">
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 0.8rem; justify-content: flex-end; flex-wrap: wrap; margin-top: 1.5rem;">
+                        <button class="btn-secondary" onclick="goToStep(2)">← Kembali</button>
+                        <button class="btn-primary" onclick="goToStep(4)" id="btnNextStep3">Lanjut ke Pembayaran →</button>
+                    </div>
+                </div>
+
+                <!-- Step 4: Pembayaran -->
+                <div class="order-step" id="orderStep4" style="display: none;">
+                    <div class="order-step-header">
+                        <div class="order-step-num">4</div>
+                        <div class="order-step-title">Pembayaran</div>
+                    </div>
+
+                    <!-- Total amount display -->
+                    <div class="payment-total-banner">
+                        <span class="payment-total-label">Total yang harus dibayar</span>
+                        <span class="payment-total-amount" id="paymentTotalAmount">Rp 899K</span>
+                    </div>
+
+                    <!-- Payment methods -->
+                    <div class="payment-methods">
+
+                        <!-- Method toggle -->
+                        <div class="payment-tabs">
+                            <button class="payment-tab active" id="tabQRIS" onclick="switchPayTab('qris')">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="3" height="3"/></svg>
+                                QRIS
+                            </button>
+                            <button class="payment-tab" id="tabVA" onclick="switchPayTab('va')">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                                Transfer Bank
+                            </button>
+                        </div>
+
+                        <!-- QRIS Panel -->
+                        <div class="payment-panel" id="panelQRIS">
+                            <p class="payment-hint">Scan QR code di bawah menggunakan aplikasi e-wallet atau m-banking apapun.</p>
+                            <div class="qris-wrap">
+                                <div class="qris-logo-bar">
+                                    <span class="qris-badge">QRIS</span>
+                                    <span class="qris-sub">Semua e-wallet & m-banking</span>
+                                </div>
+                                <div class="qris-code-box" id="qrisCodeBox"></div>
+                                <div class="qris-merchant">
+                                    <span class="qris-merchant-label">Merchant</span>
+                                    <span class="qris-merchant-name">INNOBAND Indonesia</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Bank Transfer Panel -->
+                        <div class="payment-panel" id="panelVA" style="display:none;">
+                            <p class="payment-hint">Transfer tepat sesuai nominal yang tertera ke nomor rekening berikut.</p>
+                            <div class="va-card">
+                                <div class="va-bank-header">
+                                    <div class="va-bank-logo">BCA</div>
+                                    <span class="va-bank-name">Bank Central Asia</span>
+                                </div>
+                                <div class="va-detail-row">
+                                    <span class="va-label">No. Rekening</span>
+                                    <div class="va-number-wrap">
+                                        <span class="va-number" id="vaNumber">1234567890</span>
+                                        <button class="va-copy-btn" onclick="copyVA()" title="Salin nomor rekening">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                            Salin
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="va-detail-row">
+                                    <span class="va-label">Atas Nama</span>
+                                    <span class="va-value">PT INNOBAND INDONESIA</span>
+                                </div>
+                                <div class="va-detail-row">
+                                    <span class="va-label">Total Transfer</span>
+                                    <span class="va-value va-total" id="vaTotal">Rp 899.000</span>
+                                </div>
+                            </div>
+                            <div class="va-notice">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                                Transfer sesuai nominal <strong>tepat</strong> agar verifikasi otomatis. Jangan bulatkan.
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Upload Bukti Pembayaran -->
+                    <div class="upload-proof-section">
+                        <div class="upload-proof-label">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                            Upload Bukti Pembayaran <span class="required">*</span>
+                        </div>
+                        <label class="proof-upload-zone" id="proofUploadZone" for="proofFileInput">
+                            <div class="proof-upload-content" id="proofUploadContent">
+                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                <p>Klik atau seret foto bukti pembayaran ke sini</p>
+                                <span>JPG, PNG, atau PDF (maks. 5MB)</span>
+                            </div>
+                            <img id="proofPreview" class="proof-preview-img" style="display:none;" alt="Preview bukti">
+                        </label>
+                        <input type="file" id="proofFileInput" accept="image/*,.pdf" style="display:none;" onchange="handleProofUpload(event)">
+                        <p class="proof-filename" id="proofFilename" style="display:none;"></p>
+                    </div>
+
+                    <div style="display: flex; gap: 0.8rem; justify-content: flex-end; flex-wrap: wrap; margin-top: 1.5rem;">
+                        <button class="btn-secondary" onclick="goToStep(3)">← Kembali</button>
+                        <button class="btn-primary order-confirm-btn" onclick="goToStep(5)" id="btnNextStep4">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                            Konfirmasi Pembayaran
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step 5: Ringkasan & Konfirmasi Akhir -->
+                <div class="order-step" id="orderStep5" style="display: none;">
+                    <div class="order-step-header">
+                        <div class="order-step-num">5</div>
                         <div class="order-step-title">Ringkasan Pesanan</div>
                     </div>
 
@@ -264,9 +445,25 @@
                             <span class="summary-label">Warna</span>
                             <span class="summary-value" id="summaryColor">-</span>
                         </div>
-                        <div class="summary-row">
+                        <div class="summary-row" id="summaryNameRow">
                             <span class="summary-label">Grafik Nama</span>
                             <span class="summary-value" id="summaryName">-</span>
+                        </div>
+                        <div class="summary-row">
+                            <span class="summary-label">Penerima</span>
+                            <span class="summary-value" id="summaryRecipient">-</span>
+                        </div>
+                        <div class="summary-row">
+                            <span class="summary-label">Alamat Kirim</span>
+                            <span class="summary-value" id="summaryAddress">-</span>
+                        </div>
+                        <div class="summary-row">
+                            <span class="summary-label">Metode Bayar</span>
+                            <span class="summary-value" id="summaryPayMethod">-</span>
+                        </div>
+                        <div class="summary-row">
+                            <span class="summary-label">Bukti Bayar</span>
+                            <span class="summary-value" id="summaryProof">-</span>
                         </div>
                         <div class="summary-total">
                             <span class="summary-label">Total</span>
@@ -275,7 +472,7 @@
                     </div>
 
                     <div style="display: flex; gap: 0.8rem; justify-content: flex-end; flex-wrap: wrap; margin-top: 1.5rem;">
-                        <button class="btn-secondary" onclick="goToStep(2)">← Kembali</button>
+                        <button class="btn-secondary" onclick="goToStep(4)">← Kembali</button>
                         <button class="btn-primary order-confirm-btn" onclick="confirmOrder()" style="width: auto;">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                                 <polyline points="20 6 9 17 4 12"></polyline>
@@ -397,13 +594,14 @@
     <div class="order-success-overlay" id="orderSuccessOverlay">
         <div class="order-success-card">
             <div class="order-success-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="20 6 9 17 4 12"></polyline>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
                 </svg>
             </div>
-            <h2>Pesanan Berhasil! 🎉</h2>
-            <p>Terima kasih telah memesan gelang INNOBAND. Tim kami akan segera memproses pesananmu dan menghubungimu melalui nomor telepon yang terdaftar.</p>
-            <button class="btn-primary" onclick="closeOrderSuccess()">Kembali ke Dashboard</button>
+            <h2>Pesanan Berhasil Dikonfirmasi</h2>
+            <p>Terima kasih telah memesan gelang INNOBAND. Tim logistik kami akan segera memproses pesanan Anda dan menghubungi Anda melalui nomor telepon yang terdaftar.</p>
+            <button class="btn-primary" onclick="closeOrderSuccess()">Tutup & Kembali ke Dashboard</button>
         </div>
     </div>
 
@@ -424,7 +622,138 @@
     </div>
 
 
+
+    <!-- ============================================================
+         MODAL: BULK UPLOAD CSV / EXCEL
+         ============================================================ -->
+    <div class="modal-overlay" id="uploadModal">
+        <div class="modal modal-wide">
+            <button class="modal-close" onclick="closeUploadModal()">&times;</button>
+            <h2>Upload Data Karyawan</h2>
+            <p class="modal-subtitle">Upload file CSV atau Excel (.xlsx) untuk menambahkan banyak data diri sekaligus.</p>
+
+            <!-- Template download -->
+            <div class="upload-template-bar">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                <span>Gunakan template yang sesuai:</span>
+                <button class="btn-link" onclick="downloadCSVTemplate()">Download Template CSV</button>
+            </div>
+
+            <!-- Drop zone -->
+            <div class="upload-dropzone" id="uploadDropzone"
+                 ondragover="handleDragOver(event)"
+                 ondragleave="handleDragLeave(event)"
+                 ondrop="handleDrop(event)">
+                <div class="upload-dropzone-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="17 8 12 3 7 8"/>
+                        <line x1="12" y1="3" x2="12" y2="15"/>
+                    </svg>
+                </div>
+                <p class="upload-dropzone-text">Seret & lepas file di sini</p>
+                <p class="upload-dropzone-hint">atau</p>
+                <label class="btn-secondary upload-browse-btn">
+                    Pilih File
+                    <input type="file" id="uploadFileInput" accept=".csv,.xlsx,.xls" style="display:none" onchange="handleFileSelect(event)">
+                </label>
+                <p class="upload-dropzone-formats">Format yang didukung: .csv, .xlsx, .xls &nbsp;|&nbsp; Maks. 500 baris</p>
+            </div>
+
+            <!-- File info bar (visible after file selected) -->
+            <div class="upload-file-info" id="uploadFileInfo" style="display:none">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>
+                <span id="uploadFileName">nama-file.csv</span>
+                <span id="uploadRowCount" class="upload-row-count"></span>
+                <button class="btn-link upload-clear-btn" onclick="clearUpload()">× Hapus</button>
+            </div>
+
+            <!-- Preview table -->
+            <div id="uploadPreviewContainer" style="display:none">
+                <div class="upload-preview-header">
+                    <span class="upload-preview-title">Preview Data</span>
+                    <span id="uploadPreviewCount" class="upload-row-count"></span>
+                </div>
+                <div class="upload-preview-scroll">
+                    <table class="upload-preview-table" id="uploadPreviewTable">
+                        <thead>
+                            <tr>
+                                <th>Nama Lengkap</th>
+                                <th>No. Telepon</th>
+                                <th>Gol. Darah</th>
+                                <th>Alamat</th>
+                                <th>Alergi</th>
+                                <th>Kontak Darurat</th>
+                                <th>Telp. Darurat</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="uploadPreviewBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Error list -->
+            <div id="uploadErrors" class="upload-errors" style="display:none"></div>
+
+            <!-- Action buttons -->
+            <div class="upload-actions">
+                <button class="btn-secondary" onclick="closeUploadModal()">Batal</button>
+                <button class="btn-primary" id="btnSaveUpload" onclick="saveBulkProfiles()" disabled>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    Simpan Semua Data
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ============================================================
+         MODAL: QR CODE VIEWER
+         ============================================================ -->
+    <div class="modal-overlay" id="qrModal">
+        <div class="modal qr-modal">
+            <button class="modal-close" onclick="closeQRModal()">&times;</button>
+
+            <div class="qr-modal-header">
+                <div class="qr-modal-avatar" id="qrModalAvatar">?</div>
+                <div>
+                    <h2 id="qrModalName">Nama Lengkap</h2>
+                    <p class="modal-subtitle" id="qrModalSub">QR Code Gelang INNOBAND</p>
+                </div>
+            </div>
+
+            <!-- QR Code Display -->
+            <div class="qr-display-wrap">
+                <div class="qr-code-frame">
+                    <div id="qrModalCanvas"></div>
+                </div>
+                <p class="qr-scan-hint">Scan QR code ini untuk melihat info darurat pemilik gelang</p>
+            </div>
+
+            <!-- Data summary -->
+            <div class="qr-modal-info" id="qrModalInfo"></div>
+
+            <!-- Actions -->
+            <div class="qr-modal-actions">
+                <button class="btn-secondary" onclick="closeQRModal()">Tutup</button>
+                <button class="btn-primary" id="btnDownloadQR" onclick="downloadCurrentQR()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7 10 12 15 17 10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                    Download QR Code
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Page script -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script type="module" src="firebase-db.js"></script>
     <script src="client.js"></script>
 
 </body>

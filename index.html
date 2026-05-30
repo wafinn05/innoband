@@ -21,6 +21,29 @@
 
 <body data-theme="dark">
 
+    <!-- Toast Notification -->
+    <div id="toastNotif" class="toast-notif" role="alert" aria-live="polite">
+        <div class="toast-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+        </div>
+        <div class="toast-content">
+            <p class="toast-title">Login Diperlukan</p>
+            <p class="toast-msg">Silakan login atau daftar terlebih dahulu untuk mengakses halaman Client.</p>
+        </div>
+        <button class="toast-close" onclick="document.getElementById('toastNotif').classList.remove('show')"
+            aria-label="Tutup notifikasi">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+        </button>
+    </div>
+
+
     <!-- ============================================================
          NAVIGATION
          ============================================================ -->
@@ -83,7 +106,8 @@
         <a href="#usecases" class="drawer-link">Tentang</a>
         <a href="#features" class="drawer-link">Produk</a>
         <a href="#cta" class="drawer-link">Kontak</a>
-        <a href="client.html" class="drawer-link" id="clientDrawerLink" onclick="event.preventDefault(); closeDrawer(); setTimeout(function(){ document.getElementById('clientMenuLink').click(); }, 300);">Client</a>
+        <a href="client.html" class="drawer-link" id="clientDrawerLink"
+            onclick="event.preventDefault(); closeDrawer(); setTimeout(function(){ document.getElementById('clientMenuLink').click(); }, 300);">Client</a>
     </div>
 
     <!-- ============================================================
@@ -108,8 +132,8 @@
             </h1>
 
             <p class="hero-sub">
-                INNOBAND adalah gelang pintar yang menjaga orang-orang yang kamu cintai
-                — dari pantauan orang tua hingga keseruan konser, semua dalam satu
+                INNOBAND adalah gelang pintar yang menjaga orang-orang yang kamu cintai, dari pantauan orang tua hingga
+                keseruan konser, semua dalam satu
                 pergelangan tangan.
             </p>
 
@@ -119,7 +143,8 @@
                 </button>
 
                 <button class="btn-ghost" onclick="showAuthCard()">
-                    <svg style="width:20px;height:20px;margin-right:10px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg style="width:20px;height:20px;margin-right:10px;" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                         <circle cx="12" cy="7" r="4"></circle>
                     </svg>
@@ -145,67 +170,69 @@
         </div>
 
         <!-- Right Side of Hero -->
-        <div class="hero-right-side" style="display: flex; justify-content: flex-end; align-items: center; position: relative; min-height: 400px; overflow: hidden;">
-            
+        <div class="hero-right-side"
+            style="display: flex; justify-content: flex-end; align-items: center; position: relative; min-height: 400px; overflow: hidden;">
+
             <!-- Product Image -->
-            <img id="heroProductImage" src="desaingelang.png" alt="Desain Gelang INNOBAND" style="width: 130%; max-width: 800px; display: block; object-fit: contain; filter: drop-shadow(0 8px 24px rgba(0,0,0,0.15)); transform: translateX(10%);">
+            <img id="heroProductImage" src="desaingelang.png" alt="Desain Gelang INNOBAND"
+                style="width: 130%; max-width: 800px; display: block; object-fit: contain; filter: drop-shadow(0 8px 24px rgba(0,0,0,0.15)); transform: translateX(10%);">
 
             <!-- Auth Card (Login & Register) -->
             <div id="heroAuthCard" class="hero-auth-card" style="display: none; width: 100%;">
                 <div class="auth-tabs">
-                <button class="auth-tab active" data-target="login">Login</button>
-                <button class="auth-tab" data-target="register">Register</button>
-            </div>
+                    <button class="auth-tab active" data-target="login">Login</button>
+                    <button class="auth-tab" data-target="register">Register</button>
+                </div>
 
-            <div class="auth-card-body">
-                <!-- Login Form -->
-                <form id="form-login" class="auth-form active">
-                    <div class="form-group">
-                        <label for="login-email">Email</label>
-                        <input type="email" id="login-email" placeholder="Masukkan email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="login-password">Password</label>
-                        <input type="password" id="login-password" placeholder="Masukkan password" required>
-                    </div>
-                    <button type="submit" class="btn-primary w-100">Masuk</button>
-                </form>
-
-                <!-- Register Form -->
-                <form id="form-register" class="auth-form">
-                    <div class="form-group">
-                        <label for="reg-name">Nama Lengkap</label>
-                        <input type="text" id="reg-name" placeholder="Masukkan nama" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="reg-email">Email</label>
-                        <input type="email" id="reg-email" placeholder="Masukkan email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="reg-phone">No. Telepon</label>
-                        <input type="tel" id="reg-phone" placeholder="Masukkan no. telepon" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="reg-password">Password</label>
-                        <input type="password" id="reg-password" placeholder="Buat password" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Daftar sebagai</label>
-                        <div class="radio-group">
-                            <label class="radio-label">
-                                <input type="radio" name="account-type" value="individu" checked>
-                                <span>Individu</span>
-                            </label>
-                            <label class="radio-label">
-                                <input type="radio" name="account-type" value="perusahaan">
-                                <span>Perusahaan</span>
-                            </label>
+                <div class="auth-card-body">
+                    <!-- Login Form -->
+                    <form id="form-login" class="auth-form active">
+                        <div class="form-group">
+                            <label for="login-email">Email</label>
+                            <input type="email" id="login-email" placeholder="Masukkan email" required>
                         </div>
-                    </div>
-                    <button type="submit" class="btn-primary w-100">Daftar Sekarang</button>
-                </form>
+                        <div class="form-group">
+                            <label for="login-password">Password</label>
+                            <input type="password" id="login-password" placeholder="Masukkan password" required>
+                        </div>
+                        <button type="submit" class="btn-primary w-100">Masuk</button>
+                    </form>
+
+                    <!-- Register Form -->
+                    <form id="form-register" class="auth-form">
+                        <div class="form-group">
+                            <label for="reg-name">Nama Lengkap</label>
+                            <input type="text" id="reg-name" placeholder="Masukkan nama" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="reg-email">Email</label>
+                            <input type="email" id="reg-email" placeholder="Masukkan email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="reg-phone">No. Telepon</label>
+                            <input type="tel" id="reg-phone" placeholder="Masukkan no. telepon" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="reg-password">Password</label>
+                            <input type="password" id="reg-password" placeholder="Buat password" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Daftar sebagai</label>
+                            <div class="radio-group">
+                                <label class="radio-label">
+                                    <input type="radio" name="account-type" value="individu" checked>
+                                    <span>Individu</span>
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="account-type" value="perusahaan">
+                                    <span>Perusahaan</span>
+                                </label>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-primary w-100">Daftar Sekarang</button>
+                    </form>
+                </div>
             </div>
-        </div>
         </div>
     </section>
 
@@ -277,7 +304,7 @@
                 <h3 class="card-title">Aman Saat Berolahraga</h3>
                 <p class="card-desc">
                     Tetap terhubung saat lari atau bersepeda tanpa perlu repot
-                    membawa smartphone. Pantau detak jantung dan lokasi dengan mudah.
+                    membawa smartphone.
                 </p>
             </div>
 
@@ -298,7 +325,7 @@
                 <div class="step-num">1</div>
                 <h4 class="step-title">Beli &amp; Aktifkan</h4>
                 <p class="step-desc">
-                    Pesan INNOBAND dan aktifkan langsung via aplikasi menggunakan
+                    Pesan INNOBAND dan aktifkan langsung via dasboard client menggunakan
                     kode unik di paket.
                 </p>
             </div>
@@ -307,7 +334,8 @@
                 <div class="step-num">2</div>
                 <h4 class="step-title">Daftarkan Pengguna</h4>
                 <p class="step-desc">
-                    Hubungkan ke aplikasi, daftarkan profil, dan atur zona aman serta kontak darurat dalam hitungan menit.
+                    Hubungkan ke dasboard client, daftarkan profil, dan atur zona aman serta kontak darurat dalam
+                    hitungan menit.
                 </p>
             </div>
 
@@ -323,7 +351,8 @@
                 <div class="step-num">4</div>
                 <h4 class="step-title">Pantau dan Laporkan</h4>
                 <p class="step-desc">
-                    Lihat lokasi real-time, terima notifikasi instan, dan dapatkan laporan aktivitas harian dengan mudah.
+                    Lihat lokasi real-time, terima notifikasi instan, dan dapatkan laporan aktivitas harian dengan
+                    mudah.
                 </p>
             </div>
 
@@ -348,18 +377,18 @@
                     <div class="feat-icon" aria-hidden="true">
                         <!-- QR Code Icon -->
                         <svg viewBox="0 0 24 24">
-                            <rect x="3" y="3" width="7" height="7" rx="1" ry="1"/>
-                            <rect x="14" y="3" width="7" height="7" rx="1" ry="1"/>
-                            <rect x="3" y="14" width="7" height="7" rx="1" ry="1"/>
-                            <rect x="14" y="14" width="3" height="3" rx="0.5"/>
-                            <rect x="18" y="18" width="3" height="3" rx="0.5"/>
-                            <rect x="14" y="18" width="3" height="3" rx="0.5"/>
-                            <rect x="18" y="14" width="3" height="3" rx="0.5"/>
+                            <rect x="3" y="3" width="7" height="7" rx="1" ry="1" />
+                            <rect x="14" y="3" width="7" height="7" rx="1" ry="1" />
+                            <rect x="3" y="14" width="7" height="7" rx="1" ry="1" />
+                            <rect x="14" y="14" width="3" height="3" rx="0.5" />
+                            <rect x="18" y="18" width="3" height="3" rx="0.5" />
+                            <rect x="14" y="18" width="3" height="3" rx="0.5" />
+                            <rect x="18" y="14" width="3" height="3" rx="0.5" />
                         </svg>
                     </div>
                     <h3 class="feat-title">Teknologi QR</h3>
                     <p class="feat-desc">
-                        Sistem identifikasi cerdas dengan QR Code untuk menyimpan 
+                        Sistem identifikasi cerdas dengan QR Code untuk menyimpan
                         kontak darurat dan mempercepat pertolongan saat dibutuhkan.
                     </p>
                 </div>
@@ -369,15 +398,15 @@
                     <div class="feat-icon" aria-hidden="true">
                         <!-- Smile / Kids Icon -->
                         <svg viewBox="0 0 24 24">
-                            <circle cx="12" cy="12" r="10"/>
-                            <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
-                            <line x1="9" y1="9" x2="9.01" y2="9"/>
-                            <line x1="15" y1="9" x2="15.01" y2="9"/>
+                            <circle cx="12" cy="12" r="10" />
+                            <path d="M8 14s1.5 2 4 2 4-2 4-2" />
+                            <line x1="9" y1="9" x2="9.01" y2="9" />
+                            <line x1="15" y1="9" x2="15.01" y2="9" />
                         </svg>
                     </div>
                     <h3 class="feat-title">Smart Safety, Desain Colorful</h3>
                     <p class="feat-desc">
-                        Gelang dengan warna-warna ceria khusus untuk si kecil. Nyaman 
+                        Gelang dengan warna-warna ceria khusus untuk si kecil. Nyaman
                         dipakai seharian sekaligus menjaga keamanan secara maksimal.
                     </p>
                 </div>
@@ -387,16 +416,16 @@
                     <div class="feat-icon" aria-hidden="true">
                         <!-- Headset / Support Icon -->
                         <svg viewBox="0 0 24 24">
-                            <path d="M3 18v-6a9 9 0 0 1 18 0v6"/>
-                            <path d="M21 19a2 2 0 0 1-2 2h-1v-6h3v4z"/>
-                            <path d="M3 19a2 2 0 0 0 2 2h1v-6H3v4z"/>
-                            <path d="M12 17v4"/>
-                            <path d="M8 21h8"/>
+                            <path d="M3 18v-6a9 9 0 0 1 18 0v6" />
+                            <path d="M21 19a2 2 0 0 1-2 2h-1v-6h3v4z" />
+                            <path d="M3 19a2 2 0 0 0 2 2h1v-6H3v4z" />
+                            <path d="M12 17v4" />
+                            <path d="M8 21h8" />
                         </svg>
                     </div>
                     <h3 class="feat-title">Layanan CS 24 Jam</h3>
                     <p class="feat-desc">
-                        Tim dukungan pelanggan kami siap siaga setiap saat. Kami selalu 
+                        Tim dukungan pelanggan kami siap siaga setiap saat. Kami selalu
                         online untuk memberikan bantuan dengan cepat dan responsif.
                     </p>
                 </div>
@@ -424,7 +453,7 @@
                 <div class="price-card reveal">
                     <div class="price-name">Seri Playtime</div>
                     <p class="price-sub">Untuk si kecil aktif</p>
-                    <div class="price-tag">Rp 399K</div>
+                    <div class="price-tag">Rp 359.000</div>
                     <div class="price-period">Sudah termasuk perangkat INNOBAND</div>
 
                     <ul class="price-features">
@@ -434,14 +463,15 @@
                         <li>Kustomisasi sesuai keinginan Anda</li>
                     </ul>
 
-                    <button class="btn-price btn-price-ghost" onclick="orderProduct('playtime')">Custom dan Pesan</button>
+                    <button class="btn-price btn-price-ghost" onclick="orderProduct('playtime')">Custom dan
+                        Pesan</button>
                 </div>
 
                 <!-- Product: Seri Minimalist -->
                 <div class="price-card featured-price reveal">
                     <div class="price-name">Seri Minimalist</div>
                     <p class="price-sub">Untuk kenyamanan ekstra</p>
-                    <div class="price-tag">Rp 899K</div>
+                    <div class="price-tag">Rp 499.000</div>
                     <div class="price-period">Sudah termasuk perangkat INNOBAND</div>
 
                     <ul class="price-features">
@@ -451,7 +481,8 @@
                         <li>Kustomisasi sesuai keinginan Anda</li>
                     </ul>
 
-                    <button class="btn-price btn-price-solid" onclick="orderProduct('minimalist')">Custom dan Pesan</button>
+                    <button class="btn-price btn-price-solid" onclick="orderProduct('minimalist')">Custom dan
+                        Pesan</button>
                 </div>
 
             </div>
@@ -498,6 +529,7 @@
 
 
     <!-- Page script (deferred so DOM is ready) -->
+    <script type="module" src="firebase-db.js"></script>
     <script src="main.js" defer></script>
 
 </body>

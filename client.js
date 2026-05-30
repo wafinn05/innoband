@@ -37,27 +37,97 @@ var state = {
     selectedProfileId: null,
     selectedColor: 'Hitam',
     currentStep: 1,
-    orderProduct: null
+    orderProduct: null,
+    paymentMethod: 'qris',
+    paymentProofFile: null,
+    profiles: [],
+    orders: []
 };
 
 /* ============================================================
    INITIALIZATION
    ============================================================ */
 (function init() {
-    checkAuth();
-    loadTheme();
-    loadUserInfo();
-    renderProfiles();
-    renderTracking();
-    checkOrderParam();
+    // Hide body to prevent flash of content before auth check completes
+    document.body.style.visibility = 'hidden';
+    checkAuth(function() {
+        document.body.style.visibility = 'visible';
+        loadTheme();
+        loadUserInfo();
+
+        // Load profiles and orders asynchronously from Firebase on startup
+        loadProfilesFromDb().then(function() {
+            renderProfiles();
+            if (state.orderProduct) {
+                renderProfileSelection();
+            }
+        });
+
+        loadOrdersFromDb().then(function() {
+            renderTracking();
+            renderOrderHistory();
+        });
+
+        checkOrderParam();
+    });
 })();
 
-/** Redirect to landing page if not logged in */
-function checkAuth() {
-    var loggedIn = localStorage.getItem(STORAGE_KEYS.LOGGED_IN);
-    // if (loggedIn !== 'true') {
-    //     window.location.href = 'index.html';
-    // }
+function loadProfilesFromDb() {
+    var user = JSON.parse(localStorage.getItem(STORAGE_KEYS.USER) || '{}');
+    if (!user.email) return Promise.resolve([]);
+    
+    if (typeof window.dbGetProfiles === 'function') {
+        return window.dbGetProfiles(user.email).then(function(profiles) {
+            state.profiles = profiles;
+            return profiles;
+        });
+    }
+    return Promise.resolve([]);
+}
+
+function loadOrdersFromDb() {
+    var user = JSON.parse(localStorage.getItem(STORAGE_KEYS.USER) || '{}');
+    if (!user.email) return Promise.resolve([]);
+
+    if (typeof window.dbGetOrders === 'function') {
+        return window.dbGetOrders(user.email).then(function(orders) {
+            state.orders = orders;
+            return orders;
+        });
+    }
+    return Promise.resolve([]);
+}
+
+/** Redirect to landing page if not logged in, calls onAllowed() if user IS authenticated */
+function checkAuth(onAllowed) {
+    if (typeof window.firebaseAuth !== 'undefined') {
+        window.firebaseAuth.onAuthStateChanged(function(user) {
+            if (user) {
+                localStorage.setItem(STORAGE_KEYS.LOGGED_IN, 'true');
+                onAllowed();
+            } else {
+                localStorage.removeItem(STORAGE_KEYS.LOGGED_IN);
+                localStorage.removeItem(STORAGE_KEYS.USER);
+                localStorage.removeItem(STORAGE_KEYS.ORDER);
+                window.location.href = 'index.html';
+            }
+        });
+    } else {
+        // Firebase SDK not ready yet — fall back to localStorage flag
+        var loggedIn = localStorage.getItem(STORAGE_KEYS.LOGGED_IN);
+        if (loggedIn !== 'true') {
+            window.location.href = 'index.html';
+            return;
+        }
+        
+        // Wait for Firebase module to load before proceeding
+        var checkInterval = setInterval(function() {
+            if (typeof window.dbGetProfiles === 'function') {
+                clearInterval(checkInterval);
+                onAllowed();
+            }
+        }, 50);
+    }
 }
 
 /** Apply saved theme */
@@ -66,7 +136,7 @@ function loadTheme() {
     document.body.setAttribute('data-theme', saved);
 }
 
-/** Load user info into nav */
+/** Load user info into nav and setup company-specific features */
 function loadUserInfo() {
     var user = JSON.parse(localStorage.getItem(STORAGE_KEYS.USER) || '{}');
     var nameEl = document.getElementById('navUserName');
@@ -75,6 +145,17 @@ function loadUserInfo() {
     if (user.name) {
         if (nameEl) nameEl.textContent = user.name;
         if (avatarEl) avatarEl.textContent = user.name.charAt(0).toUpperCase();
+    }
+
+    // Show upload button and update headings for company accounts
+    if (user.type === 'perusahaan') {
+        var uploadBtn = document.getElementById('btnUploadCSV');
+        if (uploadBtn) uploadBtn.style.display = 'flex';
+
+        var titleEl = document.getElementById('dataDiriTitle');
+        var subtitleEl = document.getElementById('dataDiriSubtitle');
+        if (titleEl) titleEl.textContent = 'Data Diri Karyawan';
+        if (subtitleEl) subtitleEl.textContent = 'Kelola data diri karyawan yang akan disimpan di QR code gelang INNOBAND.';
     }
 }
 
@@ -115,10 +196,26 @@ function checkOrderParam() {
 
     btn.addEventListener('click', function () {
         if (confirm('Apakah kamu yakin ingin keluar?')) {
-            localStorage.removeItem(STORAGE_KEYS.LOGGED_IN);
-            localStorage.removeItem(STORAGE_KEYS.USER);
-            localStorage.removeItem(STORAGE_KEYS.ORDER);
-            window.location.href = 'index.html';
+            if (typeof window.dbLogout === 'function') {
+                window.dbLogout().then(function() {
+                    localStorage.removeItem(STORAGE_KEYS.LOGGED_IN);
+                    localStorage.removeItem(STORAGE_KEYS.USER);
+                    localStorage.removeItem(STORAGE_KEYS.ORDER);
+                    window.location.href = 'index.html';
+                }).catch(function(err) {
+                    console.error("Logout error:", err);
+                    // Fallback
+                    localStorage.removeItem(STORAGE_KEYS.LOGGED_IN);
+                    localStorage.removeItem(STORAGE_KEYS.USER);
+                    localStorage.removeItem(STORAGE_KEYS.ORDER);
+                    window.location.href = 'index.html';
+                });
+            } else {
+                localStorage.removeItem(STORAGE_KEYS.LOGGED_IN);
+                localStorage.removeItem(STORAGE_KEYS.USER);
+                localStorage.removeItem(STORAGE_KEYS.ORDER);
+                window.location.href = 'index.html';
+            }
         }
     });
 })();
@@ -150,11 +247,14 @@ function switchToTab(tabName) {
 
     if (tabName === 'datadiri') {
         document.getElementById('panelDataDiri').classList.add('active');
+        renderProfiles();
     } else if (tabName === 'pesan') {
         document.getElementById('panelPesan').classList.add('active');
-        // Refresh profile selection if order is active
         if (state.orderProduct) {
-            renderProfileSelection();
+            // Re-apply the full order flow UI (hides empty state, shows banner & steps)
+            showOrderFlow(state.orderProduct);
+        } else {
+            renderOrderHistory();
         }
     } else if (tabName === 'lacak') {
         document.getElementById('panelLacak').classList.add('active');
@@ -166,20 +266,9 @@ function switchToTab(tabName) {
    PROFILES — CRUD
    ============================================================ */
 
-/** Get all profiles from localStorage */
+/** Get all profiles from cached state */
 function getProfiles() {
-    var data = localStorage.getItem(STORAGE_KEYS.PROFILES);
-    return data ? JSON.parse(data) : [];
-}
-
-/** Save profiles array to localStorage */
-function saveProfiles(profiles) {
-    localStorage.setItem(STORAGE_KEYS.PROFILES, JSON.stringify(profiles));
-}
-
-/** Generate unique ID */
-function generateId() {
-    return 'prof_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
+    return state.profiles;
 }
 
 /** Render profile cards */
@@ -205,6 +294,8 @@ function renderProfiles() {
                     '<div class="profile-card-name">' + escapeHtml(p.name) + '</div>' +
                     (p.blood ? '<div class="profile-card-badge">Gol. Darah ' + escapeHtml(p.blood) + '</div>' : '') +
                 '</div>' +
+                // Mini QR code preview in top-right corner
+                '<div class="profile-qr-mini" id="qr-mini-' + p.id + '" title="QR Code - Klik untuk memperbesar" onclick="showQRModal(\'' + p.id + '\')" style="cursor:pointer;"></div>' +
             '</div>' +
             '<div class="profile-card-info">' +
                 '<div class="profile-info-row">' +
@@ -229,6 +320,10 @@ function renderProfiles() {
                 '</div>' +
             '</div>' +
             '<div class="profile-card-actions">' +
+                '<button class="btn-qr btn-sm" onclick="showQRModal(\'' + p.id + '\')">' +
+                    '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="3" height="3"/></svg>' +
+                    'QR Code' +
+                '</button>' +
                 '<button class="btn-secondary btn-sm" onclick="editProfile(\'' + p.id + '\')">' +
                     '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>' +
                     'Edit' +
@@ -240,6 +335,11 @@ function renderProfiles() {
             '</div>' +
         '</div>';
     }).join('');
+
+    // After DOM is updated, generate mini QR codes for all cards
+    setTimeout(function() {
+        initAllQRCodes(profiles);
+    }, 50);
 }
 
 /** Open modal for adding new profile */
@@ -289,14 +389,15 @@ function closeProfileModal() {
     document.body.style.overflow = '';
 }
 
-/** Save profile (create or update) */
+/** Save profile (create or update in Firebase) */
 function saveProfile(event) {
     event.preventDefault();
 
     var id = document.getElementById('profileId').value;
-    var profiles = getProfiles();
+    var user = JSON.parse(localStorage.getItem(STORAGE_KEYS.USER) || '{}');
 
     var profileData = {
+        id: id || null,
         name:           document.getElementById('profName').value.trim(),
         phone:          document.getElementById('profPhone').value.trim(),
         blood:          document.getElementById('profBlood').value,
@@ -306,30 +407,23 @@ function saveProfile(event) {
         emergencyPhone: document.getElementById('profEmergencyPhone').value.trim()
     };
 
-    if (id) {
-        // Update existing
-        profiles = profiles.map(function (p) {
-            if (p.id === id) {
-                return Object.assign({}, p, profileData);
-            }
-            return p;
-        });
-        showToast('Berhasil!', 'Data diri telah diperbarui.');
+    if (typeof window.dbSaveProfile === 'function') {
+        window.dbSaveProfile(profileData, user.email)
+            .then(function() {
+                showToast('Berhasil!', id ? 'Data diri telah diperbarui.' : 'Data diri baru telah ditambahkan.');
+                closeProfileModal();
+                loadProfilesFromDb().then(function() {
+                    renderProfiles();
+                    if (state.orderProduct) {
+                        renderProfileSelection();
+                    }
+                });
+            })
+            .catch(function(err) {
+                alert('Gagal menyimpan data diri: ' + err.message);
+            });
     } else {
-        // Create new
-        profileData.id = generateId();
-        profileData.createdAt = new Date().toISOString();
-        profiles.push(profileData);
-        showToast('Berhasil!', 'Data diri baru telah ditambahkan.');
-    }
-
-    saveProfiles(profiles);
-    renderProfiles();
-    closeProfileModal();
-
-    // Refresh order flow profile selection if active
-    if (state.orderProduct) {
-        renderProfileSelection();
+        alert('Layanan Database belum siap.');
     }
 }
 
@@ -338,24 +432,33 @@ function editProfile(id) {
     openProfileModal(id);
 }
 
-/** Delete profile */
+/** Delete profile from Firebase */
 function deleteProfile(id) {
     if (!confirm('Apakah kamu yakin ingin menghapus data diri ini?')) return;
 
-    var profiles = getProfiles();
-    profiles = profiles.filter(function (p) { return p.id !== id; });
-    saveProfiles(profiles);
-    renderProfiles();
-    showToast('Dihapus', 'Data diri telah dihapus.');
+    if (typeof window.dbDeleteProfile === 'function') {
+        window.dbDeleteProfile(id)
+            .then(function() {
+                showToast('Dihapus', 'Data diri telah dihapus.');
+                
+                // Reset selection if deleted profile was selected
+                if (state.selectedProfileId === id) {
+                    state.selectedProfileId = null;
+                    updateStep1Button();
+                }
 
-    // Reset selection if deleted profile was selected
-    if (state.selectedProfileId === id) {
-        state.selectedProfileId = null;
-        updateStep1Button();
-    }
-
-    if (state.orderProduct) {
-        renderProfileSelection();
+                loadProfilesFromDb().then(function() {
+                    renderProfiles();
+                    if (state.orderProduct) {
+                        renderProfileSelection();
+                    }
+                });
+            })
+            .catch(function(err) {
+                alert('Gagal menghapus data diri: ' + err.message);
+            });
+    } else {
+        alert('Layanan Database belum siap.');
     }
 }
 
@@ -363,7 +466,7 @@ function deleteProfile(id) {
    TRACKING — Lacak Pesanan
    ============================================================ */
 function renderTracking() {
-    var orders = JSON.parse(localStorage.getItem('innoband-orders') || '[]');
+    var orders = state.orders; // Read from Firebase state
     var dashboard = document.getElementById('trackingDashboard');
     var emptyState = document.getElementById('emptyTrackingState');
     var list = document.getElementById('trackingList');
@@ -412,10 +515,6 @@ function renderTracking() {
         <div class="tracking-card">
             <div class="tracking-map-container">
                 <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d126915.65973950262!2d106.75924765!3d-6.229746499999999!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69f3e945e34b9d%3A0x5371bf0fdad786a2!2sJakarta%2C%20Daerah%20Khusus%20Ibukota%20Jakarta!5e0!3m2!1sid!2sid!4v1714567890123!5m2!1sid!2sid" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-                <div class="tracking-map-overlay">
-                    <div class="tracking-map-overlay-pulse"></div>
-                    Simulasi Rute Langsung
-                </div>
             </div>
             
             <div class="tracking-details">
@@ -508,6 +607,81 @@ function renderTracking() {
     }).join('');
 }
 
+function renderOrderHistory() {
+    var orders = state.orders; // Read from Firebase state
+    var noOrderState = document.getElementById('noOrderState');
+    var orderListState = document.getElementById('orderListState');
+    var ordersGrid = document.getElementById('ordersGrid');
+    var orderBanner = document.getElementById('orderBanner');
+    var orderSteps = document.getElementById('orderSteps');
+
+    if (!noOrderState || !orderListState || !ordersGrid) return;
+
+    // Only update display styles if we are NOT currently in the order flow
+    var inOrderFlow = state.orderProduct !== null;
+
+    if (!inOrderFlow) {
+        // Ensure order flow is hidden when showing history
+        if (orderBanner) orderBanner.style.display = 'none';
+        if (orderSteps) orderSteps.style.display = 'none';
+
+        if (orders.length === 0) {
+            noOrderState.style.display = 'block';
+            orderListState.style.display = 'none';
+        } else {
+            noOrderState.style.display = 'none';
+            orderListState.style.display = 'block';
+        }
+    }
+
+    // Always render the grid HTML regardless of visibility
+    if (orders.length > 0) {
+
+        // Reverse to show newest first
+        var sortedOrders = orders.slice().reverse();
+
+        ordersGrid.innerHTML = sortedOrders.map(function(order) {
+            var orderId = order.id.replace('order_', 'ORD-').toUpperCase();
+            var date = new Date(order.createdAt).toLocaleDateString('id-ID', {
+                day: 'numeric', month: 'short', year: 'numeric'
+            });
+
+            return '<div class="profile-card" style="display: flex; flex-direction: column;">' +
+                '<div class="profile-card-header">' +
+                    '<div class="profile-card-avatar" style="background: var(--primary); color: white;">' +
+                        '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="3" ry="3"></rect><path d="M16 7V5a4 4 0 0 0-8 0v2"></path></svg>' +
+                    '</div>' +
+                    '<div>' +
+                        '<div class="profile-card-name">' + escapeHtml(order.productName) + '</div>' +
+                        '<div class="profile-card-badge">' + orderId + '</div>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="profile-card-info" style="flex-grow: 1;">' +
+                    '<div class="profile-info-row">' +
+                        '<span class="profile-info-label" style="width: 80px;">Tanggal</span>' +
+                        '<span class="profile-info-value">' + date + '</span>' +
+                    '</div>' +
+                    '<div class="profile-info-row">' +
+                        '<span class="profile-info-label" style="width: 80px;">Penerima</span>' +
+                        '<span class="profile-info-value">' + escapeHtml(order.profileName) + '</span>' +
+                    '</div>' +
+                    '<div class="profile-info-row">' +
+                        '<span class="profile-info-label" style="width: 80px;">Warna</span>' +
+                        '<span class="profile-info-value">' + escapeHtml(order.color) + '</span>' +
+                    '</div>' +
+                    '<div class="profile-info-row">' +
+                        '<span class="profile-info-label" style="width: 80px;">Total</span>' +
+                        '<span class="profile-info-value" style="font-weight: 600; color: var(--primary);">' + escapeHtml(order.price) + '</span>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="profile-card-actions" style="margin-top: 1rem; border-top: 1px solid var(--border); padding-top: 1rem;">' +
+                    '<button class="btn-secondary btn-sm" style="width: 100%; justify-content: center;" onclick="switchToTab(\'lacak\')">Lacak Pesanan</button>' +
+                '</div>' +
+            '</div>';
+        }).join('');
+    }
+}
+
 /* ============================================================
    ORDER FLOW
    ============================================================ */
@@ -517,10 +691,13 @@ function showOrderFlow(productKey) {
     var product = PRODUCTS[productKey];
     if (!product) return;
 
-    // Show banner & steps, hide empty state
+    // Show banner & steps, hide empty state and order history
     document.getElementById('orderBanner').style.display = 'flex';
     document.getElementById('orderSteps').style.display = 'flex';
     document.getElementById('noOrderState').style.display = 'none';
+    
+    var orderListState = document.getElementById('orderListState');
+    if (orderListState) orderListState.style.display = 'none';
 
     // Set product info
     document.getElementById('orderProductName').textContent = product.name;
@@ -554,7 +731,20 @@ function renderProfileSelection() {
     grid.style.display = 'grid';
     step1Next.style.display = 'block';
 
-    grid.innerHTML = profiles.map(function (p) {
+    var user = JSON.parse(localStorage.getItem(STORAGE_KEYS.USER) || '{}');
+    var isCompany = user.type === 'perusahaan';
+
+    var html = '';
+
+    if (isCompany && profiles.length > 1) {
+        var isSelectedAll = state.selectedProfileId === 'ALL';
+        html += '<div class="profile-select-card' + (isSelectedAll ? ' selected' : '') + '" onclick="selectProfile(\'ALL\')" style="border: 2px solid var(--primary); background: rgba(44, 255, 110, 0.05);">' +
+            '<div class="profile-select-name">📦 Pesan Untuk Semua Data (' + profiles.length + ' profil)</div>' +
+            '<div class="profile-select-detail">Buat pesanan untuk seluruh karyawan sekaligus (warna akan sama untuk semua).</div>' +
+        '</div>';
+    }
+
+    html += profiles.map(function (p) {
         var isSelected = state.selectedProfileId === p.id;
         return '<div class="profile-select-card' + (isSelected ? ' selected' : '') + '" onclick="selectProfile(\'' + p.id + '\')">' +
             '<div class="profile-select-name">' + escapeHtml(p.name) + '</div>' +
@@ -562,6 +752,8 @@ function renderProfileSelection() {
             '<div class="profile-select-detail" style="margin-top: 4px;">Darurat: ' + escapeHtml(p.emergencyName) + '</div>' +
         '</div>';
     }).join('');
+
+    grid.innerHTML = html;
 
     updateStep1Button();
 }
@@ -595,7 +787,24 @@ function goToStep(stepNum) {
         return;
     }
 
-    if (stepNum === 3) {
+    // Validate shipping form before proceeding to payment
+    if (stepNum === 4) {
+        var recipient = document.getElementById('shipRecipient').value.trim();
+        var phone    = document.getElementById('shipPhone').value.trim();
+        var address  = document.getElementById('shipAddress').value.trim();
+        var city     = document.getElementById('shipCity').value.trim();
+        if (!recipient || !phone || !address || !city) {
+            showToast('Perhatian', 'Lengkapi nama penerima, telepon, alamat, dan kota terlebih dahulu.');
+            return;
+        }
+    }
+
+    // Validate proof before going to summary
+    if (stepNum === 5) {
+        if (!state.paymentProofFile) {
+            showToast('Perhatian', 'Upload bukti pembayaran terlebih dahulu.');
+            return;
+        }
         populateSummary();
     }
 
@@ -605,8 +814,9 @@ function goToStep(stepNum) {
 
 /** Show specific step, hide others */
 function showStep(num) {
-    for (var i = 1; i <= 3; i++) {
+    for (var i = 1; i <= 5; i++) {
         var stepEl = document.getElementById('orderStep' + i);
+        if (!stepEl) continue;
         if (i === num) {
             stepEl.style.display = 'block';
             stepEl.classList.add('active-step');
@@ -620,52 +830,235 @@ function showStep(num) {
             stepEl.classList.remove('active-step', 'completed-step');
         }
     }
+
+    if (num === 2) {
+        var customNameGroup = document.getElementById('customNameGroup');
+        if (customNameGroup) {
+            customNameGroup.style.display = state.selectedProfileId === 'ALL' ? 'none' : 'flex';
+        }
+    }
+    if (num === 4) {
+        initPaymentStep();
+    }
 }
 
-/** Populate order summary */
+/** Populate order summary (Step 5) */
 function populateSummary() {
     var product = PRODUCTS[state.orderProduct];
     var profiles = getProfiles();
-    var selectedProfile = profiles.find(function (p) { return p.id === state.selectedProfileId; });
-    var customName = document.getElementById('customName').value.trim();
+    
+    var profileText    = '';
+    var customNameText = '';
+    var totalText      = '-';
 
-    document.getElementById('summaryProduct').textContent = product ? product.name : '-';
-    document.getElementById('summaryProfile').textContent = selectedProfile ? selectedProfile.name : '-';
-    document.getElementById('summaryColor').textContent = state.selectedColor;
-    document.getElementById('summaryName').textContent = customName || '(Tidak ada)';
-    document.getElementById('summaryTotal').textContent = product ? product.price : '-';
+    if (state.selectedProfileId === 'ALL') {
+        profileText    = 'Semua Karyawan (' + profiles.length + ' profil)';
+        customNameText = '(Tidak tersedia untuk pesanan massal)';
+        if (product) {
+            var rawPrice = parseInt(product.price.replace(/\D/g, '')) * 1000;
+            var total    = rawPrice * profiles.length;
+            totalText    = 'Rp ' + (total / 1000).toLocaleString('id-ID') + 'K';
+        }
+    } else {
+        var selectedProfile = profiles.find(function (p) { return p.id === state.selectedProfileId; });
+        profileText    = selectedProfile ? selectedProfile.name : '-';
+        customNameText = document.getElementById('customName').value.trim() || '(Tidak ada)';
+        totalText      = product ? product.price : '-';
+    }
+
+    var recipient = document.getElementById('shipRecipient').value.trim();
+    var phone     = document.getElementById('shipPhone').value.trim();
+    var address   = document.getElementById('shipAddress').value.trim();
+    var city      = document.getElementById('shipCity').value.trim();
+    var postal    = document.getElementById('shipPostal').value.trim();
+    var addressFull = address + (city ? ', ' + city : '') + (postal ? ' ' + postal : '');
+
+    document.getElementById('summaryProduct').textContent   = product ? product.name : '-';
+    document.getElementById('summaryProfile').textContent   = profileText;
+    document.getElementById('summaryColor').textContent     = state.selectedColor;
+    document.getElementById('summaryName').textContent      = customNameText;
+    document.getElementById('summaryRecipient').textContent = recipient + ' (' + phone + ')';
+    document.getElementById('summaryAddress').textContent   = addressFull;
+    document.getElementById('summaryPayMethod').textContent = state.paymentMethod === 'va' ? 'Transfer BCA' : 'QRIS';
+    document.getElementById('summaryProof').textContent     = state.paymentProofFile ? '✓ ' + state.paymentProofFile.name : '-';
+    document.getElementById('summaryTotal').textContent     = totalText;
 }
 
-/** Confirm order */
-function confirmOrder() {
+/** Initialize Payment Step (Step 4) */
+function initPaymentStep() {
+    // Update Total Amount
     var product = PRODUCTS[state.orderProduct];
     var profiles = getProfiles();
-    var selectedProfile = profiles.find(function (p) { return p.id === state.selectedProfileId; });
+    if (product) {
+        var totalText = '-';
+        if (state.selectedProfileId === 'ALL') {
+            var rawPrice = parseInt(product.price.replace(/\D/g, '')) * 1000;
+            var total = rawPrice * profiles.length;
+            totalText = 'Rp ' + (total / 1000).toLocaleString('id-ID') + '.000';
+        } else {
+            totalText = product.price;
+        }
+        document.getElementById('paymentTotalAmount').textContent = totalText;
+        document.getElementById('vaTotal').textContent = totalText;
+    }
+
+    // Generate QRIS if not generated yet
+    var qrisBox = document.getElementById('qrisCodeBox');
+    if (qrisBox && qrisBox.innerHTML === '') {
+        if (typeof QRCode !== 'undefined') {
+            new QRCode(qrisBox, {
+                text: "00020101021126570011ID.CO.QRIS.WWW01189360091531234567890214INNOBAND INDO0303UMI51440014ID.CO.QRIS.WWW0215ID12345678901230303UMI52045499530336054061500005802ID5918INNOBAND INDONESIA6007JAKARTA61051234562070703A016304A1B2", // Dummy QRIS string
+                width: 200,
+                height: 200,
+                colorDark: '#000000',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.M
+            });
+        }
+    }
+}
+
+/** Switch Payment Method Tabs */
+window.switchPayTab = function(method) {
+    state.paymentMethod = method;
+    
+    // Update Tabs
+    document.getElementById('tabQRIS').classList.toggle('active', method === 'qris');
+    document.getElementById('tabVA').classList.toggle('active', method === 'va');
+    
+    // Update Panels
+    document.getElementById('panelQRIS').style.display = method === 'qris' ? 'block' : 'none';
+    document.getElementById('panelVA').style.display = method === 'va' ? 'block' : 'none';
+};
+
+/** Copy Virtual Account Number */
+window.copyVA = function() {
+    var vaNumber = document.getElementById('vaNumber').textContent;
+    navigator.clipboard.writeText(vaNumber).then(function() {
+        showToast('Berhasil', 'Nomor Virtual Account disalin ke clipboard');
+    });
+};
+
+/** Handle Proof Upload */
+window.handleProofUpload = function(event) {
+    var file = event.target.files[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+        showToast('Error', 'Ukuran file maksimal 5MB');
+        return;
+    }
+
+    state.paymentProofFile = file;
+    
+    var reader = new FileReader();
+    reader.onload = function(e) {
+        var content = document.getElementById('proofUploadContent');
+        var preview = document.getElementById('proofPreview');
+        var filename = document.getElementById('proofFilename');
+        
+        if (file.type.startsWith('image/')) {
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+            content.style.display = 'none';
+        } else {
+            preview.style.display = 'none';
+            content.style.display = 'flex';
+            content.innerHTML = '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--green);"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg><p style="margin-top:0.5rem;font-weight:600;">File PDF Dipilih</p>';
+        }
+        
+        filename.textContent = file.name;
+        filename.style.display = 'block';
+        document.getElementById('proofUploadZone').classList.add('has-file');
+    };
+    reader.readAsDataURL(file);
+};
+
+/** Confirm order with Firebase */
+async function confirmOrder() {
+    var product = PRODUCTS[state.orderProduct];
+    var profiles = getProfiles();
+    var user = JSON.parse(localStorage.getItem(STORAGE_KEYS.USER) || '{}');
     var customName = document.getElementById('customName').value.trim();
 
-    // Save order to localStorage
-    var order = {
-        id: 'order_' + Date.now(),
-        product: state.orderProduct,
-        productName: product ? product.name : '',
-        profileId: state.selectedProfileId,
-        profileName: selectedProfile ? selectedProfile.name : '',
-        color: state.selectedColor,
-        customName: customName,
-        price: product ? product.price : '',
-        createdAt: new Date().toISOString()
+    // Shipping Data
+    var shippingData = {
+        recipient: document.getElementById('shipRecipient').value.trim(),
+        phone: document.getElementById('shipPhone').value.trim(),
+        address: document.getElementById('shipAddress').value.trim(),
+        city: document.getElementById('shipCity').value.trim(),
+        postal: document.getElementById('shipPostal').value.trim(),
+        note: document.getElementById('shipNote').value.trim()
     };
 
-    var orders = JSON.parse(localStorage.getItem('innoband-orders') || '[]');
-    orders.push(order);
-    localStorage.setItem('innoband-orders', JSON.stringify(orders));
+    if (typeof window.dbSaveOrder !== 'function') {
+        alert('Layanan Database belum siap.');
+        return;
+    }
 
-    // Clear URL params
-    localStorage.removeItem(STORAGE_KEYS.ORDER);
+    var btn = document.querySelector('.order-confirm-btn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Memproses...'; }
 
-    // Show success
-    document.getElementById('orderSuccessOverlay').classList.add('open');
-    document.body.style.overflow = 'hidden';
+    try {
+        if (state.selectedProfileId === 'ALL') {
+            // Bulk order creation - Single order entry
+            var rawPrice = product ? parseInt(product.price.replace(/\D/g, '')) * 1000 : 0;
+            var total = rawPrice * profiles.length;
+            var totalFormatted = 'Rp ' + (total / 1000).toLocaleString('id-ID') + 'K';
+
+            var order = {
+                product: state.orderProduct,
+                productName: product ? product.name : '',
+                profileId: 'BULK',
+                profileName: 'Pesanan Massal (' + profiles.length + ' data)',
+                color: state.selectedColor,
+                customName: '-', // Blank for mass order
+                price: totalFormatted,
+                isBulk: true,
+                quantity: profiles.length,
+                shipping: shippingData,
+                paymentMethod: state.paymentMethod,
+                paymentProof: state.paymentProofFile ? state.paymentProofFile.name : null
+            };
+            await window.dbSaveOrder(order, user.email);
+        } else {
+            // Single order creation
+            var selectedProfile = profiles.find(function (p) { return p.id === state.selectedProfileId; });
+            var order = {
+                product: state.orderProduct,
+                productName: product ? product.name : '',
+                profileId: state.selectedProfileId,
+                profileName: selectedProfile ? selectedProfile.name : '',
+                color: state.selectedColor,
+                customName: customName,
+                price: product ? product.price : '',
+                shipping: shippingData,
+                paymentMethod: state.paymentMethod,
+                paymentProof: state.paymentProofFile ? state.paymentProofFile.name : null
+            };
+            await window.dbSaveOrder(order, user.email);
+        }
+
+        // Clear URL params
+        localStorage.removeItem(STORAGE_KEYS.ORDER);
+
+        // Show success overlay
+        document.getElementById('orderSuccessOverlay').classList.add('open');
+        document.body.style.overflow = 'hidden';
+
+        // Reload orders in background
+        loadOrdersFromDb().then(function() {
+            renderTracking();
+            renderOrderHistory();
+        });
+    } catch (err) {
+        alert('Gagal membuat pesanan: ' + err.message);
+    } finally {
+        if (btn) { 
+            btn.disabled = false; 
+            btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Konfirmasi Pesanan'; 
+        }
+    }
 }
 
 /** Close order success */
@@ -682,18 +1075,137 @@ function closeOrderSuccess() {
     var url = window.location.pathname;
     window.history.replaceState({}, '', url);
 
-    // Switch to tracking tab instead of datadiri
-    switchToTab('lacak');
+    // Switch to pesanan saya tab
+    switchToTab('pesan');
 
     // Reset order panel
     document.getElementById('orderBanner').style.display = 'none';
     document.getElementById('orderSteps').style.display = 'none';
-    document.getElementById('noOrderState').style.display = 'block';
+    renderOrderHistory();
+}
+
+/* ============================================================
+   QR CODE GENERATION
+   ============================================================ */
+
+var _currentQRProfile = null; // profile shown in QR modal
+
+/**
+ * Build the text content that will be encoded in the QR code.
+ * Format is human-readable so any phone scanner can display it.
+ */
+function buildQRContent(profile) {
+    var lines = [];
+    lines.push('=== INNOBAND EMERGENCY INFO ===');
+    lines.push('Nama   : ' + (profile.name || '-'));
+    lines.push('Telepon: ' + (profile.phone || '-'));
+    if (profile.blood)   lines.push('Gol.Drh: ' + profile.blood);
+    if (profile.allergy) lines.push('Alergi : ' + profile.allergy);
+    if (profile.address) lines.push('Alamat : ' + profile.address);
+    lines.push('---');
+    lines.push('Darurat: ' + (profile.emergencyName || '-'));
+    lines.push('Telp.Dr: ' + (profile.emergencyPhone || '-'));
+    lines.push('================================');
+    return lines.join('\n');
+}
+
+/** Generate mini QR codes for all rendered profile cards */
+function initAllQRCodes(profiles) {
+    if (typeof QRCode === 'undefined') return; // library not yet loaded
+    profiles.forEach(function(p) {
+        var container = document.getElementById('qr-mini-' + p.id);
+        if (!container || container.querySelector('canvas,img')) return; // already generated
+        try {
+            new QRCode(container, {
+                text:           buildQRContent(p),
+                width:          72,
+                height:         72,
+                colorDark:      '#000000',
+                colorLight:     '#ffffff',
+                correctLevel:   QRCode.CorrectLevel.M
+            });
+        } catch(e) {
+            console.warn('QR generation failed for', p.id, e);
+        }
+    });
+}
+
+/** Show the full-size QR code modal for a profile */
+window.showQRModal = function(profileId) {
+    var profile = state.profiles.find(function(p) { return p.id === profileId; });
+    if (!profile) return;
+
+    _currentQRProfile = profile;
+
+    // Update modal header
+    var initials = profile.name ? profile.name.split(' ').map(function(w){ return w.charAt(0); }).join('').substring(0, 2).toUpperCase() : '?';
+    document.getElementById('qrModalAvatar').textContent = initials;
+    document.getElementById('qrModalName').textContent = profile.name || '-';
+    document.getElementById('qrModalSub').textContent = profile.blood ? 'Gol. Darah ' + profile.blood + ' · QR Code Gelang INNOBAND' : 'QR Code Gelang INNOBAND';
+
+    // Render info summary
+    var info = document.getElementById('qrModalInfo');
+    info.innerHTML =
+        '<div class="qr-info-row"><span>📞 Telepon</span><span>' + escapeHtml(profile.phone) + '</span></div>' +
+        (profile.allergy ? '<div class="qr-info-row"><span>⚠️ Alergi</span><span>' + escapeHtml(profile.allergy) + '</span></div>' : '') +
+        '<div class="qr-info-row"><span>🚨 Darurat</span><span>' + escapeHtml(profile.emergencyName) + ' — ' + escapeHtml(profile.emergencyPhone) + '</span></div>';
+
+    // Clear previous QR and generate new one at full size
+    var canvas = document.getElementById('qrModalCanvas');
+    canvas.innerHTML = '';
+    if (typeof QRCode !== 'undefined') {
+        new QRCode(canvas, {
+            text:         buildQRContent(profile),
+            width:        240,
+            height:       240,
+            colorDark:    '#000000',
+            colorLight:   '#ffffff',
+            correctLevel: QRCode.CorrectLevel.M
+        });
+    }
+
+    document.getElementById('qrModal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+};
+
+/** Close QR modal */
+window.closeQRModal = function() {
+    document.getElementById('qrModal').classList.remove('open');
+    document.body.style.overflow = '';
+    _currentQRProfile = null;
+};
+
+/** Download the QR code shown in the modal as a PNG */
+window.downloadCurrentQR = function() {
+    if (!_currentQRProfile) return;
+    var canvas = document.querySelector('#qrModalCanvas canvas');
+    if (!canvas) {
+        var img = document.querySelector('#qrModalCanvas img');
+        if (!img) return;
+        // Convert img src to canvas
+        var tmpCanvas = document.createElement('canvas');
+        tmpCanvas.width  = 240;
+        tmpCanvas.height = 240;
+        var ctx = tmpCanvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, 240, 240);
+        downloadCanvas(tmpCanvas);
+        return;
+    }
+    downloadCanvas(canvas);
+};
+
+function downloadCanvas(canvas) {
+    var link = document.createElement('a');
+    var safeName = (_currentQRProfile.name || 'profile').replace(/\s+/g, '_').toLowerCase();
+    link.download = 'innoband_qr_' + safeName + '.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
 }
 
 /* ============================================================
    TOAST NOTIFICATION
    ============================================================ */
+
 var toastTimer = null;
 
 function showToast(title, message) {
@@ -728,13 +1240,291 @@ document.getElementById('profileModal').addEventListener('click', function (e) {
     }
 });
 
+document.getElementById('qrModal').addEventListener('click', function (e) {
+    if (e.target === this) {
+        closeQRModal();
+    }
+});
+
 /* Close modal on Escape key */
 document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') {
         closeProfileModal();
+        closeUploadModal();
+        closeQRModal();
         var successOverlay = document.getElementById('orderSuccessOverlay');
         if (successOverlay.classList.contains('open')) {
             closeOrderSuccess();
         }
     }
 });
+
+/* ============================================================
+   BULK UPLOAD (Company Accounts)
+   ============================================================ */
+
+var uploadedRows = []; // holds parsed & validated rows
+
+/** Open the upload modal */
+window.openUploadModal = function() {
+    clearUpload();
+    document.getElementById('uploadModal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+};
+
+/** Close the upload modal */
+window.closeUploadModal = function() {
+    document.getElementById('uploadModal').classList.remove('open');
+    document.body.style.overflow = '';
+    clearUpload();
+};
+
+/** Reset upload state */
+window.clearUpload = function() {
+    uploadedRows = [];
+    document.getElementById('uploadFileInput').value = '';
+    document.getElementById('uploadFileInfo').style.display = 'none';
+    document.getElementById('uploadPreviewContainer').style.display = 'none';
+    document.getElementById('uploadErrors').style.display = 'none';
+    document.getElementById('uploadErrors').innerHTML = '';
+    document.getElementById('uploadPreviewBody').innerHTML = '';
+    document.getElementById('btnSaveUpload').disabled = true;
+};
+
+/** Download a blank CSV template */
+window.downloadCSVTemplate = function() {
+    var header = 'nama_lengkap,no_telepon,golongan_darah,alamat,alergi,kontak_darurat_nama,kontak_darurat_telepon';
+    var example = 'Budi Santoso,08123456789,A,Jl. Merdeka No.1 Jakarta,Tidak ada,Siti Santoso,08198765432';
+    var csvContent = header + '\n' + example + '\n';
+    var blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    var link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'template_data_karyawan_innoband.csv';
+    link.click();
+};
+
+/** Drag-and-drop handlers */
+window.handleDragOver = function(e) {
+    e.preventDefault();
+    document.getElementById('uploadDropzone').classList.add('drag-over');
+};
+window.handleDragLeave = function() {
+    document.getElementById('uploadDropzone').classList.remove('drag-over');
+};
+window.handleDrop = function(e) {
+    e.preventDefault();
+    document.getElementById('uploadDropzone').classList.remove('drag-over');
+    var files = e.dataTransfer.files;
+    if (files.length > 0) processFile(files[0]);
+};
+window.handleFileSelect = function(e) {
+    if (e.target.files.length > 0) processFile(e.target.files[0]);
+};
+
+/** Process selected file (CSV or Excel) */
+function processFile(file) {
+    var ext = file.name.split('.').pop().toLowerCase();
+    if (!['csv', 'xlsx', 'xls'].includes(ext)) {
+        showUploadError('Format file tidak didukung. Gunakan .csv, .xlsx, atau .xls');
+        return;
+    }
+
+    var reader = new FileReader();
+
+    if (ext === 'csv') {
+        reader.onload = function(e) {
+            var rows = parseCSV(e.target.result);
+            validateAndPreview(rows, file.name);
+        };
+        reader.readAsText(file);
+    } else {
+        // Excel — uses SheetJS (loaded via CDN)
+        reader.onload = function(e) {
+            try {
+                var data = new Uint8Array(e.target.result);
+                var workbook = XLSX.read(data, { type: 'array' });
+                var sheet = workbook.Sheets[workbook.SheetNames[0]];
+                var json = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+                // Normalise headers
+                var rows = json.map(function(row) {
+                    return normaliseRow(row);
+                });
+                validateAndPreview(rows, file.name);
+            } catch(err) {
+                showUploadError('Gagal membaca file Excel: ' + err.message);
+            }
+        };
+        reader.readAsArrayBuffer(file);
+    }
+}
+
+/** Parse CSV text into array of objects */
+function parseCSV(text) {
+    var lines = text.replace(/\r/g, '').split('\n').filter(function(l) { return l.trim() !== ''; });
+    if (lines.length < 2) return [];
+
+    var headers = lines[0].split(',').map(function(h) { return h.trim().toLowerCase().replace(/\s+/g, '_'); });
+    return lines.slice(1).map(function(line) {
+        var values = parseCSVLine(line);
+        var obj = {};
+        headers.forEach(function(h, i) { obj[h] = (values[i] || '').trim(); });
+        return normaliseRow(obj);
+    });
+}
+
+/** Safely split a CSV line respecting quoted fields */
+function parseCSVLine(line) {
+    var result = [];
+    var current = '';
+    var inQuotes = false;
+    for (var i = 0; i < line.length; i++) {
+        var c = line[i];
+        if (c === '"') {
+            inQuotes = !inQuotes;
+        } else if (c === ',' && !inQuotes) {
+            result.push(current);
+            current = '';
+        } else {
+            current += c;
+        }
+    }
+    result.push(current);
+    return result;
+}
+
+/** Normalise various column name spellings into our standard keys */
+function normaliseRow(row) {
+    function pick(obj, keys) {
+        for (var i = 0; i < keys.length; i++) {
+            var k = keys[i].toLowerCase().replace(/\s+/g, '_');
+            if (obj[k] !== undefined && obj[k] !== '') return String(obj[k]);
+            // Also try original casing
+            var origKeys = Object.keys(obj);
+            for (var j = 0; j < origKeys.length; j++) {
+                if (origKeys[j].toLowerCase().replace(/\s+/g, '_') === k) return String(obj[origKeys[j]]);
+            }
+        }
+        return '';
+    }
+    return {
+        name:           pick(row, ['nama_lengkap', 'nama', 'name', 'full_name']),
+        phone:          pick(row, ['no_telepon', 'telepon', 'no_hp', 'phone', 'hp']),
+        blood:          pick(row, ['golongan_darah', 'gol_darah', 'blood', 'blood_type']),
+        address:        pick(row, ['alamat', 'address']),
+        allergy:        pick(row, ['alergi', 'kondisi_medis', 'allergy']),
+        emergencyName:  pick(row, ['kontak_darurat_nama', 'nama_darurat', 'emergency_name']),
+        emergencyPhone: pick(row, ['kontak_darurat_telepon', 'telp_darurat', 'emergency_phone', 'emergency_tel'])
+    };
+}
+
+/** Validate parsed rows and show preview table */
+function validateAndPreview(rows, fileName) {
+    if (rows.length === 0) {
+        showUploadError('File kosong atau tidak dapat dibaca. Pastikan menggunakan template yang benar.');
+        return;
+    }
+    if (rows.length > 500) {
+        showUploadError('Maks. 500 baris per upload. File ini memiliki ' + rows.length + ' baris.');
+        return;
+    }
+
+    var valid = [];
+    var errors = [];
+
+    rows.forEach(function(row, idx) {
+        var rowNum = idx + 2; // +2 because row 1 = header
+        var rowErrors = [];
+        if (!row.name)           rowErrors.push('Nama wajib diisi');
+        if (!row.phone)          rowErrors.push('No. Telepon wajib diisi');
+        if (!row.emergencyName)  rowErrors.push('Kontak Darurat wajib diisi');
+        if (!row.emergencyPhone) rowErrors.push('Telepon Darurat wajib diisi');
+
+        if (rowErrors.length > 0) {
+            errors.push('Baris ' + rowNum + ' (' + (row.name || 'tanpa nama') + '): ' + rowErrors.join(', '));
+            row._valid = false;
+        } else {
+            row._valid = true;
+            valid.push(row);
+        }
+    });
+
+    // Show file info
+    document.getElementById('uploadFileInfo').style.display = 'flex';
+    document.getElementById('uploadFileName').textContent = fileName;
+    document.getElementById('uploadRowCount').textContent = rows.length + ' baris ditemukan';
+
+    // Render preview
+    var tbody = document.getElementById('uploadPreviewBody');
+    tbody.innerHTML = rows.map(function(row) {
+        var statusBadge = row._valid
+            ? '<span class="upload-badge upload-badge-ok">✓ Valid</span>'
+            : '<span class="upload-badge upload-badge-err">✗ Error</span>';
+        return '<tr class="' + (row._valid ? '' : 'upload-row-err') + '">' +
+            '<td>' + escapeHtml(row.name) + '</td>' +
+            '<td>' + escapeHtml(row.phone) + '</td>' +
+            '<td>' + escapeHtml(row.blood) + '</td>' +
+            '<td>' + escapeHtml(row.address) + '</td>' +
+            '<td>' + escapeHtml(row.allergy) + '</td>' +
+            '<td>' + escapeHtml(row.emergencyName) + '</td>' +
+            '<td>' + escapeHtml(row.emergencyPhone) + '</td>' +
+            '<td>' + statusBadge + '</td>' +
+        '</tr>';
+    }).join('');
+
+    document.getElementById('uploadPreviewContainer').style.display = 'block';
+    document.getElementById('uploadPreviewCount').textContent = valid.length + ' valid, ' + (rows.length - valid.length) + ' error';
+
+    // Show errors
+    var errEl = document.getElementById('uploadErrors');
+    if (errors.length > 0) {
+        errEl.innerHTML = '<strong>⚠ Baris berikut memiliki masalah dan akan dilewati:</strong><ul>' +
+            errors.map(function(e) { return '<li>' + escapeHtml(e) + '</li>'; }).join('') + '</ul>';
+        errEl.style.display = 'block';
+    } else {
+        errEl.style.display = 'none';
+    }
+
+    uploadedRows = valid;
+    document.getElementById('btnSaveUpload').disabled = valid.length === 0;
+}
+
+function showUploadError(msg) {
+    clearUpload();
+    var errEl = document.getElementById('uploadErrors');
+    errEl.innerHTML = '<strong>✗ ' + escapeHtml(msg) + '</strong>';
+    errEl.style.display = 'block';
+}
+
+/** Save all valid rows to Firestore */
+window.saveBulkProfiles = async function() {
+    if (uploadedRows.length === 0) return;
+
+    var user = JSON.parse(localStorage.getItem(STORAGE_KEYS.USER) || '{}');
+    if (!user.email) { alert('Sesi habis. Silakan login ulang.'); return; }
+
+    var btn = document.getElementById('btnSaveUpload');
+    btn.disabled = true;
+    btn.textContent = 'Menyimpan... (0/' + uploadedRows.length + ')';
+
+    var saved = 0;
+    var failed = 0;
+
+    for (var i = 0; i < uploadedRows.length; i++) {
+        try {
+            await window.dbSaveProfile(uploadedRows[i], user.email);
+            saved++;
+            btn.textContent = 'Menyimpan... (' + saved + '/' + uploadedRows.length + ')';
+        } catch(err) {
+            console.error('Failed to save row', i, err);
+            failed++;
+        }
+    }
+
+    closeUploadModal();
+
+    // Reload profiles
+    loadProfilesFromDb().then(function() {
+        renderProfiles();
+        showToast(saved + ' data berhasil disimpan' + (failed > 0 ? ', ' + failed + ' gagal.' : '.'));
+    });
+};
