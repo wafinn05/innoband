@@ -301,6 +301,23 @@ window.dbSaveOrder = async function(orderData, userEmail) {
     }
 };
 
+/**
+ * Listen to a specific order status changes
+ */
+window.dbListenOrder = function(orderId, callback) {
+    try {
+        const docRef = doc(db, "orders", orderId);
+        import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js").then((firestore) => {
+            firestore.onSnapshot(docRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    callback({ id: docSnap.id, ...docSnap.data() });
+                }
+            });
+        });
+    } catch (error) {
+        console.error("Listen Order Error:", error);
+    }
+};
 // Monitor Auth State
 onAuthStateChanged(auth, (user) => {
     if (user) {

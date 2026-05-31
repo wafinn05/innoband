@@ -545,8 +545,8 @@ function renderTracking() {
     emptyState.style.display = 'none';
     dashboard.style.display = 'block';
 
-    // Reverse to show newest first
-    var sortedOrders = orders.slice().reverse();
+    // The orders from DB are already newest first
+    var sortedOrders = orders.slice();
 
     list.innerHTML = sortedOrders.map(function(order) {
         var orderId = order.id.replace('order_', 'ORD-').toUpperCase();
@@ -744,7 +744,7 @@ function renderOrderHistory() {
     if (orders.length > 0) {
 
         // Reverse to show newest first
-        var sortedOrders = orders.slice().reverse();
+        var sortedOrders = orders.slice();
 
         ordersGrid.innerHTML = sortedOrders.map(function(order) {
             var orderId = order.id.replace('order_', 'ORD-').toUpperCase();
@@ -893,7 +893,7 @@ function goToStep(stepNum) {
         return;
     }
 
-    // Validate shipping form before proceeding to payment
+    // Validate shipping form before proceeding to summary (Step 4)
     if (stepNum === 4) {
         var recipient = document.getElementById('shipRecipient').value.trim();
         var phone    = document.getElementById('shipPhone').value.trim();
@@ -901,14 +901,6 @@ function goToStep(stepNum) {
         var city     = document.getElementById('shipCity').value.trim();
         if (!recipient || !phone || !address || !city) {
             showToast('Perhatian', 'Lengkapi nama penerima, telepon, alamat, dan kota terlebih dahulu.');
-            return;
-        }
-    }
-
-    // Validate proof before going to summary
-    if (stepNum === 5) {
-        if (!state.paymentProofFile) {
-            showToast('Perhatian', 'Upload bukti pembayaran terlebih dahulu.');
             return;
         }
         populateSummary();
@@ -920,7 +912,7 @@ function goToStep(stepNum) {
 
 /** Show specific step, hide others */
 function showStep(num) {
-    for (var i = 1; i <= 5; i++) {
+    for (var i = 1; i <= 4; i++) {
         var stepEl = document.getElementById('orderStep' + i);
         if (!stepEl) continue;
         if (i === num) {
@@ -943,10 +935,25 @@ function showStep(num) {
             customNameGroup.style.display = state.selectedProfileId === 'ALL' ? 'none' : 'flex';
         }
     }
-    if (num === 4) {
-        initPaymentStep();
-    }
 }
+
+/** Payment Modal Functions */
+window.openPaymentModal = function() {
+    initPaymentStep();
+    var modal = document.getElementById('modalPayment');
+    if (modal) {
+        modal.style.display = 'flex';
+        setTimeout(function() { modal.classList.add('show'); }, 10);
+    }
+};
+
+window.closePaymentModal = function() {
+    var modal = document.getElementById('modalPayment');
+    if (modal) {
+        modal.classList.remove('show');
+        setTimeout(function() { modal.style.display = 'none'; }, 300);
+    }
+};
 
 /** Populate order summary (Step 5) */
 function populateSummary() {
@@ -985,8 +992,6 @@ function populateSummary() {
     document.getElementById('summaryName').textContent      = customNameText;
     document.getElementById('summaryRecipient').textContent = recipient + ' (' + phone + ')';
     document.getElementById('summaryAddress').textContent   = addressFull;
-    document.getElementById('summaryPayMethod').textContent = state.paymentMethod === 'va' ? 'Transfer BCA' : 'QRIS';
-    document.getElementById('summaryProof').textContent     = state.paymentProofFile ? '✓ ' + state.paymentProofFile.name : '-';
     document.getElementById('summaryTotal').textContent     = totalText;
 }
 
@@ -1014,8 +1019,8 @@ function initPaymentStep() {
         if (typeof QRCode !== 'undefined') {
             new QRCode(qrisBox, {
                 text: "00020101021126570011ID.CO.QRIS.WWW01189360091531234567890214INNOBAND INDO0303UMI51440014ID.CO.QRIS.WWW0215ID12345678901230303UMI52045499530336054061500005802ID5918INNOBAND INDONESIA6007JAKARTA61051234562070703A016304A1B2", // Dummy QRIS string
-                width: 200,
-                height: 200,
+                width: 220,
+                height: 220,
                 colorDark: '#000000',
                 colorLight: '#ffffff',
                 correctLevel: QRCode.CorrectLevel.M
@@ -1082,6 +1087,11 @@ window.handleProofUpload = function(event) {
 
 /** Confirm order with Firebase */
 async function confirmOrder() {
+    if (!state.paymentProofFile) {
+        showToast('Perhatian', 'Upload bukti pembayaran terlebih dahulu.');
+        return;
+    }
+
     var product = PRODUCTS[state.orderProduct];
     var profiles = getProfiles();
     var user = JSON.parse(localStorage.getItem(STORAGE_KEYS.USER) || '{}');
@@ -1205,9 +1215,9 @@ async function confirmOrder() {
         // Clear URL params
         localStorage.removeItem(STORAGE_KEYS.ORDER);
 
-        // Show success overlay
-        document.getElementById('orderSuccessOverlay').classList.add('open');
-        document.body.style.overflow = 'hidden';
+        // Show real-time order status popup
+        closePaymentModal();
+        openOrderStatus(order, savedOrderId);
 
         // Reload orders in background
         loadOrdersFromDb().then(function() {
@@ -1777,3 +1787,76 @@ window.saveBulkProfiles = async function() {
         showToast(saved + ' data berhasil disimpan' + (failed > 0 ? ', ' + failed + ' gagal.' : '.'));
     });
 };
+
+
+/** Open and track real-time order status popup */
+window.openOrderStatus = function(order, orderId) {
+    var modal = document.getElementById("modalOrderStatus");
+    if (!modal) return;
+    
+    // Set initial data
+    document.getElementById("statusOrderId").textContent = orderId;
+    
+    var dateObj = new Date();
+    var options = { hour: "2-digit", minute: "2-digit", year: "numeric", month: "long", day: "numeric" };
+    document.getElementById("statusOrderTime").textContent = dateObj.toLocaleDateString("id-ID", options);
+    
+    document.getElementById("statusOrderMethod").textContent = order.paymentMethod === "qris" ? "QRIS" : "Bank Transfer";
+    document.getElementById("statusOrderAmount").textContent = order.price;
+    document.getElementById("statusOrderProduct").textContent = order.productName;
+    document.getElementById("statusOrderQty").textContent = "x" + (order.quantity || 1);
+    document.getElementById("statusOrderPrice").textContent = order.price;
+    document.getElementById("statusOrderTotal").textContent = order.price;
+    
+    modal.style.display = "flex";
+    
+    // Setup listener
+    if (typeof window.dbListenOrder === "function") {
+        window.dbListenOrder(orderId, function(updatedOrder) {
+            var badge = document.getElementById("statusOrderBadge");
+            var title = document.getElementById("statusTitle");
+            var iconSvg = document.getElementById("statusIcon");
+            
+            if (updatedOrder.status === "approved" || updatedOrder.status === "processing") {
+                badge.className = "badge-success";
+                badge.textContent = "Berhasil";
+                title.textContent = "Pembayaran Berhasil Dikonfirmasi";
+                iconSvg.innerHTML = `<rect x="8" y="14" width="42" height="46" rx="4" fill="none" stroke="#3A3AB8" stroke-width="2.5"/><rect x="14" y="20" width="42" height="46" rx="4" fill="white" stroke="#3A3AB8" stroke-width="2.5"/><line x1="22" y1="34" x2="46" y2="34" stroke="#3A3AB8" stroke-width="2" stroke-linecap="round"/><line x1="22" y1="41" x2="38" y2="41" stroke="#3A3AB8" stroke-width="2" stroke-linecap="round"/><circle cx="50" cy="50" r="12" fill="#5ECC6F"/><polyline points="44,50 49,55 57,45" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>`;
+            } else if (updatedOrder.status === "rejected") {
+                badge.className = "badge-rejected";
+                badge.textContent = "Ditolak";
+                title.textContent = "Pembayaran Ditolak Admin";
+                iconSvg.innerHTML = `<circle cx="35" cy="35" r="30" fill="none" stroke="#E74C3C" stroke-width="2.5"/><line x1="25" y1="25" x2="45" y2="45" stroke="#E74C3C" stroke-width="3" stroke-linecap="round"/><line x1="45" y1="25" x2="25" y2="45" stroke="#E74C3C" stroke-width="3" stroke-linecap="round"/>`;
+            } else {
+                badge.className = "badge-pending";
+                badge.textContent = "Menunggu";
+                title.textContent = "Menunggu Konfirmasi Pembayaran oleh Admin";
+                iconSvg.innerHTML = `<rect x="8" y="14" width="42" height="46" rx="4" fill="none" stroke="#F5A623" stroke-width="2.5"/><rect x="14" y="20" width="42" height="46" rx="4" fill="white" stroke="#F5A623" stroke-width="2.5"/><line x1="22" y1="34" x2="46" y2="34" stroke="#F5A623" stroke-width="2" stroke-linecap="round"/><line x1="22" y1="41" x2="38" y2="41" stroke="#F5A623" stroke-width="2" stroke-linecap="round"/><circle cx="50" cy="50" r="12" fill="#F5A623"/><circle cx="50" cy="50" r="2" fill="white"/><circle cx="45" cy="50" r="2" fill="white"/><circle cx="55" cy="50" r="2" fill="white"/>`;
+            }
+        });
+    }
+};
+
+window.closeOrderStatus = function() {
+    var modal = document.getElementById("modalOrderStatus");
+    if (modal) modal.style.display = "none";
+    
+    // Close payment modal if it was open
+    var payModal = document.getElementById("modalPayment");
+    if (payModal) payModal.style.display = "none";
+    
+    // Reset order state
+    state.orderProduct = null;
+    state.selectedProfileId = null;
+    state.currentStep = 1;
+    var url = window.location.pathname;
+    window.history.replaceState({}, "", url);
+    
+    showStep(1);
+    
+    // Redirect user to tracking tab to see their new order
+    if (typeof switchToTab === 'function') {
+        switchToTab('lacak');
+    }
+};
+
