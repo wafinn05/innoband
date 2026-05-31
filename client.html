@@ -667,20 +667,20 @@
         <div class="modal" style="max-width: 800px; width: 90%; border-radius: 12px; overflow: hidden; padding: 0; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1); max-height: 90vh; display: flex; flex-direction: column;">
             
             <!-- Header -->
-            <div style="background: var(--card-bg); padding: 1.5rem 1.5rem 1.25rem; position: relative; border-bottom: 1px solid var(--border-color); flex-shrink: 0;">
+            <div class="payment-modal-header">
                 <button onclick="closePaymentModal()" style="position:absolute; top: 1.25rem; right: 1.25rem; background: transparent; border: none; color: #94a3b8; cursor: pointer; padding: 0.5rem; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: all 0.2s;" onmouseover="this.style.background='#f1f5f9'; this.style.color='#0f172a'" onmouseout="this.style.background='transparent'; this.style.color='#94a3b8'">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                 </button>
-                <div style="display: flex; align-items: center; gap: 1rem;">
-                    <div style="width:48px;height:48px;background:rgba(44, 255, 110, 0.15);color:var(--green);border-radius:12px;display:flex;align-items:center;justify-content:center; flex-shrink:0;">
+                <div class="payment-modal-header-content">
+                    <div class="payment-modal-title-icon">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                             <rect x="3" y="5" width="18" height="14" rx="2" ry="2"></rect>
                             <line x1="3" y1="10" x2="21" y2="10"></line>
                         </svg>
                     </div>
                     <div style="text-align: left;">
-                        <h3 style="margin: 0; font-size: 1.25rem; font-weight: 700;">Selesaikan Pembayaran</h3>
-                        <p style="margin: 0.25rem 0 0; color: var(--gray-text); font-size: 0.9rem;">Satu langkah lagi untuk cetak INNOBAND!</p>
+                        <h3 class="payment-modal-title">Selesaikan Pembayaran</h3>
+                        <p class="payment-modal-subtitle">Satu langkah lagi untuk cetak INNOBAND!</p>
                     </div>
                 </div>
             </div>

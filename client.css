@@ -2568,3 +2568,67 @@ tr.upload-row-err td {
     .payment-modal-body > .payment-methods { grid-area: methods; margin-bottom: 0 !important; }
 }
 
+
+
+/* Payment Modal Header Styles */
+.payment-modal-header {
+    background: var(--card-bg);
+    padding: 1.5rem 1.5rem 1.25rem;
+    position: relative;
+    border-bottom: 1px solid var(--border-color);
+    flex-shrink: 0;
+}
+.payment-modal-header-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+.payment-modal-title-icon {
+    width: 48px;
+    height: 48px;
+    background: rgba(44, 255, 110, 0.15);
+    color: var(--green);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.payment-modal-title {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+.payment-modal-subtitle {
+    margin: 0.25rem 0 0;
+    color: var(--gray-text);
+    font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+    /* Header */
+    .payment-modal-header { padding: 1rem; }
+    .payment-modal-header-content { gap: 0.75rem; }
+    .payment-modal-title-icon { width: 36px; height: 36px; border-radius: 8px; }
+    .payment-modal-title-icon svg { width: 20px; height: 20px; }
+    .payment-modal-title { font-size: 1.1rem; }
+    .payment-modal-subtitle { font-size: 0.8rem; }
+    
+    /* Total banner */
+    .payment-total-banner { 
+        padding: 1rem 1.25rem; 
+        margin-bottom: 1rem;
+    }
+    .payment-total-label { font-size: 0.8rem; }
+    .payment-total-amount { font-size: 1.2rem; }
+    
+    /* Tabs */
+    .payment-tabs { margin-bottom: 1rem; gap: 0.5rem; }
+    .payment-tab { 
+        padding: 0.75rem 0.5rem; 
+        font-size: 0.85rem; 
+        border-radius: 8px;
+    }
+    .payment-tab svg { width: 14px; height: 14px; }
+}
+
