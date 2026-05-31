@@ -19,7 +19,7 @@
     <link rel="stylesheet" href="style.css">
 </head>
 
-<body data-theme="dark">
+<body data-theme="light">
 
     <!-- Toast Notification -->
     <div id="toastNotif" class="toast-notif" role="alert" aria-live="polite">
@@ -61,25 +61,7 @@
         <!-- Right-side controls -->
         <div class="nav-controls">
 
-            <!-- Theme toggle -->
-            <button class="nav-theme-toggle" id="themeToggle" aria-label="Ganti tema">
-                <!-- Moon icon (shown on dark mode) -->
-                <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z" />
-                </svg>
-                <!-- Sun icon (shown on light mode) -->
-                <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true">
-                    <circle cx="12" cy="12" r="5" />
-                    <line x1="12" y1="1" x2="12" y2="3" />
-                    <line x1="12" y1="21" x2="12" y2="23" />
-                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
-                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
-                    <line x1="1" y1="12" x2="3" y2="12" />
-                    <line x1="21" y1="12" x2="23" y2="12" />
-                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
-                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
-                </svg>
-            </button>
+            
 
             <!-- Profile icon -->
             <button class="nav-profile" aria-label="Profil pengguna">
@@ -108,6 +90,40 @@
         <a href="#cta" class="drawer-link">Kontak</a>
         <a href="client.html" class="drawer-link" id="clientDrawerLink"
             onclick="event.preventDefault(); closeDrawer(); setTimeout(function(){ document.getElementById('clientMenuLink').click(); }, 300);">Client</a>
+    </div>
+
+    <!-- User Profile Modal -->
+    <div id="userProfileModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
+        <div style="background: #ffffff; border-radius: 12px; padding: 2rem; max-width: 420px; width: 90%; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid rgba(0,0,0,0.08);">
+                <div>
+                    <h2 style="margin: 0 0 0.25rem 0; color: #0f172a; font-size: 1.35rem; font-weight: 700;">Profil Akun</h2>
+                    <p style="margin: 0; color: #64748b; font-size: 0.9rem;">Atur informasi data diri akun Anda.</p>
+                </div>
+                <button id="closeUserProfileIdx" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #64748b; padding: 0.5rem; line-height: 1;">&times;</button>
+            </div>
+            
+            <form id="userProfileFormIdx">
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #0f172a; font-size: 0.9rem;">Email (Tidak dapat diubah)</label>
+                    <input type="email" id="profileEmailIdx" readonly style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.03); color: #64748b; cursor: not-allowed; border: 1px solid rgba(0,0,0,0.15); padding: 0.75rem 1rem; border-radius: 8px; font-family: inherit;" disabled>
+                </div>
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #0f172a; font-size: 0.9rem;">Nama Lengkap</label>
+                    <input type="text" id="profileNameIdx" required style="width: 100%; box-sizing: border-box; background: #ffffff; color: #0f172a; border: 1px solid rgba(0,0,0,0.15); padding: 0.75rem 1rem; border-radius: 8px; font-family: inherit;">
+                </div>
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #0f172a; font-size: 0.9rem;">No. Telepon / WhatsApp</label>
+                    <input type="tel" id="profilePhoneIdx" required style="width: 100%; box-sizing: border-box; background: #ffffff; color: #0f172a; border: 1px solid rgba(0,0,0,0.15); padding: 0.75rem 1rem; border-radius: 8px; font-family: inherit;">
+                </div>
+                
+                <button type="submit" class="btn-primary" style="width: 100%; margin-bottom: 1.5rem; padding: 0.8rem; font-size: 1rem; border-radius: 8px; background: #00933f; color: #ffffff; border: none; cursor: pointer;">Simpan Perubahan</button>
+            </form>
+            
+            <div style="border-top: 1px solid rgba(0,0,0,0.08); padding-top: 1.5rem; text-align: center;">
+                <button id="btnDeleteAccountIdx" type="button" style="background: none; border: none; color: #ef4444; font-weight: 600; font-size: 0.9rem; cursor: pointer; text-decoration: underline; font-family: inherit;">Hapus Akun Permanen</button>
+            </div>
+        </div>
     </div>
 
     <!-- ============================================================

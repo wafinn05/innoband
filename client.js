@@ -11,32 +11,32 @@
    CONSTANTS & STATE
    ============================================================ */
 var STORAGE_KEYS = {
-    PROFILES:  'innoband-profiles',
-    USER:      'innoband-user',
+    PROFILES: 'innoband-profiles',
+    USER: 'innoband-user',
     LOGGED_IN: 'innoband-loggedin',
-    THEME:     'innoband-theme',
-    ORDER:     'innoband-order'
+    THEME: 'innoband-theme',
+    ORDER: 'innoband-order'
 };
 
 var PRODUCTS = {
     playtime: {
-        name:  'Seri Playtime',
-        desc:  'Gelang INNOBAND untuk si kecil aktif',
-        price: 'Rp 399K',
+        name: 'Seri Playtime',
+        desc: 'Gelang INNOBAND untuk si kecil aktif',
+        price: 'Rp 399.000',
         priceNum: 399000
     },
     minimalist: {
-        name:  'Seri Minimalist',
-        desc:  'Gelang INNOBAND untuk kenyamanan ekstra',
-        price: 'Rp 899K',
+        name: 'Seri Minimalist',
+        desc: 'Gelang INNOBAND untuk kenyamanan ekstra',
+        price: 'Rp 899.000',
         priceNum: 899000
     }
 };
 
 // TELEGRAM BOT CONFIGURATION
 // Masukkan Token Bot dari @BotFather dan Chat ID kamu di sini
-var TELEGRAM_BOT_TOKEN = '8887160716:AAGm7f_SqkmjHUt9a-qCR1dDhKjONzmI9LQ'; 
-var TELEGRAM_CHAT_ID = '-1003922553114'; 
+var TELEGRAM_BOT_TOKEN = '8887160716:AAGm7f_SqkmjHUt9a-qCR1dDhKjONzmI9LQ';
+var TELEGRAM_CHAT_ID = '-1003922553114';
 
 var state = {
     selectedProfileId: null,
@@ -55,20 +55,20 @@ var state = {
 (function init() {
     // Hide body to prevent flash of content before auth check completes
     document.body.style.visibility = 'hidden';
-    checkAuth(function() {
+    checkAuth(function () {
         document.body.style.visibility = 'visible';
         loadTheme();
         loadUserInfo();
 
         // Load profiles and orders asynchronously from Firebase on startup
-        loadProfilesFromDb().then(function() {
+        loadProfilesFromDb().then(function () {
             renderProfiles();
             if (state.orderProduct) {
                 renderProfileSelection();
             }
         });
 
-        loadOrdersFromDb().then(function() {
+        loadOrdersFromDb().then(function () {
             renderTracking();
             renderOrderHistory();
         });
@@ -80,20 +80,20 @@ var state = {
 function loadProfilesFromDb() {
     var user = JSON.parse(localStorage.getItem(STORAGE_KEYS.USER) || '{}');
     if (!user.email) return Promise.resolve([]);
-    
+
     // Set up real-time listener if available
     if (typeof window.dbListenProfiles === 'function') {
-        window.dbListenProfiles(user.email, function(profiles) {
+        window.dbListenProfiles(user.email, function (profiles) {
             state.profiles = profiles;
             if (typeof window.renderProfiles === 'function') {
                 window.renderProfiles();
             } else if (typeof renderProfiles !== 'undefined') {
                 renderProfiles();
             }
-            
+
             // Tutup modal SOS otomatis jika peringatan diselesaikan (isAlert false)
             if (typeof _currentSosProfileId !== 'undefined' && _currentSosProfileId) {
-                var p = profiles.find(function(item) { return item.id === _currentSosProfileId; });
+                var p = profiles.find(function (item) { return item.id === _currentSosProfileId; });
                 if (p && !p.isAlert) {
                     closeSosModal();
                 }
@@ -102,7 +102,7 @@ function loadProfilesFromDb() {
     }
 
     if (typeof window.dbGetProfiles === 'function') {
-        return window.dbGetProfiles(user.email).then(function(profiles) {
+        return window.dbGetProfiles(user.email).then(function (profiles) {
             state.profiles = profiles;
             return profiles;
         });
@@ -114,8 +114,25 @@ function loadOrdersFromDb() {
     var user = JSON.parse(localStorage.getItem(STORAGE_KEYS.USER) || '{}');
     if (!user.email) return Promise.resolve([]);
 
+    // Set up real-time listener if available
+    if (typeof window.dbListenOrders === 'function') {
+        window.dbListenOrders(user.email, function (orders) {
+            state.orders = orders;
+            if (typeof window.renderTracking === 'function') {
+                window.renderTracking();
+            } else if (typeof renderTracking !== 'undefined') {
+                renderTracking();
+            }
+            if (typeof window.renderOrderHistory === 'function') {
+                window.renderOrderHistory();
+            } else if (typeof renderOrderHistory !== 'undefined') {
+                renderOrderHistory();
+            }
+        });
+    }
+
     if (typeof window.dbGetOrders === 'function') {
-        return window.dbGetOrders(user.email).then(function(orders) {
+        return window.dbGetOrders(user.email).then(function (orders) {
             state.orders = orders;
             return orders;
         });
@@ -126,7 +143,7 @@ function loadOrdersFromDb() {
 /** Redirect to landing page if not logged in, calls onAllowed() if user IS authenticated */
 function checkAuth(onAllowed) {
     if (typeof window.firebaseAuth !== 'undefined') {
-        window.firebaseAuth.onAuthStateChanged(function(user) {
+        window.firebaseAuth.onAuthStateChanged(function (user) {
             if (user) {
                 localStorage.setItem(STORAGE_KEYS.LOGGED_IN, 'true');
                 onAllowed();
@@ -144,9 +161,9 @@ function checkAuth(onAllowed) {
             window.location.href = 'index.html';
             return;
         }
-        
+
         // Wait for Firebase module to load before proceeding
-        var checkInterval = setInterval(function() {
+        var checkInterval = setInterval(function () {
             if (typeof window.dbGetProfiles === 'function') {
                 clearInterval(checkInterval);
                 onAllowed();
@@ -179,8 +196,8 @@ function loadUserInfo() {
 
         var titleEl = document.getElementById('dataDiriTitle');
         var subtitleEl = document.getElementById('dataDiriSubtitle');
-        if (titleEl) titleEl.textContent = 'Data Diri Karyawan';
-        if (subtitleEl) subtitleEl.textContent = 'Kelola data diri karyawan yang akan disimpan di QR code gelang INNOBAND.';
+        if (titleEl) titleEl.textContent = 'Data Diri';
+        if (subtitleEl) subtitleEl.textContent = 'Kelola data diri yang akan disimpan di QR code gelang INNOBAND.';
     }
 }
 
@@ -197,20 +214,6 @@ function checkOrderParam() {
     }
 }
 
-/* ============================================================
-   THEME TOGGLE
-   ============================================================ */
-(function initTheme() {
-    var btn = document.getElementById('themeToggle');
-    if (!btn) return;
-
-    btn.addEventListener('click', function () {
-        var current = document.body.getAttribute('data-theme');
-        var next = current === 'dark' ? 'light' : 'dark';
-        document.body.setAttribute('data-theme', next);
-        localStorage.setItem(STORAGE_KEYS.THEME, next);
-    });
-})();
 
 /* ============================================================
    LOGOUT
@@ -222,12 +225,12 @@ function checkOrderParam() {
     btn.addEventListener('click', function () {
         if (confirm('Apakah kamu yakin ingin keluar?')) {
             if (typeof window.dbLogout === 'function') {
-                window.dbLogout().then(function() {
+                window.dbLogout().then(function () {
                     localStorage.removeItem(STORAGE_KEYS.LOGGED_IN);
                     localStorage.removeItem(STORAGE_KEYS.USER);
                     localStorage.removeItem(STORAGE_KEYS.ORDER);
                     window.location.href = 'index.html';
-                }).catch(function(err) {
+                }).catch(function (err) {
                     console.error("Logout error:", err);
                     // Fallback
                     localStorage.removeItem(STORAGE_KEYS.LOGGED_IN);
@@ -296,7 +299,9 @@ function getProfiles() {
     return state.profiles;
 }
 
-/** Render profile cards */
+/** State: which event group is currently expanded */
+var expandedEventGroup = null;
+
 function renderProfiles() {
     var profiles = getProfiles();
     var grid = document.getElementById('profilesGrid');
@@ -309,67 +314,209 @@ function renderProfiles() {
     }
 
     emptyState.style.display = 'none';
+
+    // Sort profiles: Alerts on top, sorted by newest alert first
+    profiles.sort(function (a, b) {
+        if (a.isAlert && !b.isAlert) return -1;
+        if (!a.isAlert && b.isAlert) return 1;
+        if (a.isAlert && b.isAlert) {
+            var timeA = a.alertTime ? new Date(a.alertTime).getTime() : 0;
+            var timeB = b.alertTime ? new Date(b.alertTime).getTime() : 0;
+            return timeB - timeA;
+        }
+        return 0;
+    });
+
+    var user = JSON.parse(localStorage.getItem(STORAGE_KEYS.USER) || '{}');
+    var isCompany = user.type === 'perusahaan';
+
+    if (isCompany) {
+        renderProfilesGrouped(profiles, grid);
+    } else {
+        renderProfilesFlat(profiles, grid);
+    }
+}
+
+/** Render profiles as grouped event cards (company accounts) */
+function renderProfilesGrouped(profiles, grid) {
+    // Group by eventName; use fallback key for profiles without event
+    var groups = {};
+    profiles.forEach(function (p) {
+        var key = (p.eventName && p.eventName.trim()) ? p.eventName.trim() : '__no_event__';
+        if (!groups[key]) groups[key] = { eventName: key, purpose: p.eventPurpose, members: [] };
+        groups[key].members.push(p);
+    });
+
+    var groupKeys = Object.keys(groups);
+
+    // Preserve expanded group across re-renders (if still valid)
+    if (expandedEventGroup && !groups[expandedEventGroup]) expandedEventGroup = null;
+
+    var purposeIcon = {
+        'konser': '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>',
+        'olahraga': '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M4.93 4.93l4.24 4.24"/><path d="M14.83 9.17l4.24-4.24"/><path d="M14.83 14.83l4.24 4.24"/><path d="M9.17 14.83l-4.24 4.24"/></svg>',
+        '__no_event__': '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>'
+    };
+
+    var html = '';
+
+    // If a group is expanded, show back button + that group's profiles
+    if (expandedEventGroup && groups[expandedEventGroup]) {
+        var group = groups[expandedEventGroup];
+        var displayName = group.eventName === '__no_event__' ? 'Data Diri Umum' : group.eventName;
+        var purpose = group.purpose || '__no_event__';
+
+        html += '<div class="event-group-back" onclick="collapseEventGroup()">' +
+            '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>' +
+            '<span>Kembali</span>' +
+            '</div>' +
+            '<div class="event-group-title-bar">' +
+            '<div class="event-group-title-icon" data-purpose="' + purpose + '">' + (purposeIcon[purpose] || purposeIcon['__no_event__']) + '</div>' +
+            '<div>' +
+            '<div class="event-group-title-name">' + escapeHtml(displayName) + '</div>' +
+            '<div class="event-group-title-sub">' + group.members.length + ' peserta</div>' +
+            '</div>' +
+            '</div>';
+
+        html += '<div class="profiles-grid-inner">';
+        group.members.forEach(function (p) {
+            html += renderSingleProfileCard(p);
+        });
+        html += '</div>';
+
+        grid.innerHTML = html;
+        grid.className = 'profiles-grid profiles-grid-expanded';
+
+    } else {
+        // Show event group summary cards
+        html = '<div class="event-groups-grid">';
+        groupKeys.forEach(function (key) {
+            var group = groups[key];
+            var displayName = key === '__no_event__' ? 'Data Diri Umum' : key;
+            var purpose = group.purpose || '__no_event__';
+            var count = group.members.length;
+            var initials = displayName.split(' ').map(function (w) { return w.charAt(0); }).join('').substring(0, 2).toUpperCase();
+
+            html += '<div class="event-group-card" onclick="expandEventGroup(\'' + escapeAttr(key) + '\')">' +
+                '<div class="event-group-card-top">' +
+                '<div class="event-group-card-icon" data-purpose="' + purpose + '">' + (purposeIcon[purpose] || purposeIcon['__no_event__']) + '</div>' +
+                '<div class="event-group-card-badge">' + count + ' Peserta</div>' +
+                '</div>' +
+                '<div class="event-group-card-name">' + escapeHtml(displayName) + '</div>' +
+                (purpose !== '__no_event__' ? '<div class="event-group-card-type">' + (purpose === 'konser' ? 'Konser' : 'Event Olahraga') + '</div>' : '') +
+                '<div class="event-group-card-footer">' +
+                '<span>Lihat Peserta</span>' +
+                '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>' +
+                '</div>' +
+                '</div>';
+        });
+        html += '</div>';
+
+        grid.innerHTML = html;
+        grid.className = '';
+    }
+
+    // Render QR codes for visible profile cards
+    setTimeout(function () {
+        var allVisible = profiles.filter(function (p) {
+            if (!expandedEventGroup) return false;
+            var key = (p.eventName && p.eventName.trim()) ? p.eventName.trim() : '__no_event__';
+            return key === expandedEventGroup;
+        });
+        if (allVisible.length > 0) initAllQRCodes(allVisible);
+    }, 50);
+}
+
+/** Expand a specific event group */
+window.expandEventGroup = function (key) {
+    expandedEventGroup = key;
+    renderProfiles();
+    var header = document.querySelector('#panelDataDiri .section-header');
+    if (header) header.style.display = 'none';
+};
+
+/** Collapse back to event groups view */
+window.collapseEventGroup = function () {
+    expandedEventGroup = null;
+    renderProfiles();
+    var header = document.querySelector('#panelDataDiri .section-header');
+    if (header) header.style.display = 'flex';
+};
+
+/** Escape for use in HTML attributes */
+function escapeAttr(str) {
+    if (!str) return '';
+    return str.replace(/'/g, '&#39;').replace(/"/g, '&quot;');
+}
+
+/** Render profile cards flat (non-company accounts) */
+function renderProfilesFlat(profiles, grid) {
+    grid.className = 'profiles-grid';
     grid.innerHTML = profiles.map(function (p) {
-        var initials = p.name ? p.name.split(' ').map(function(w){ return w.charAt(0); }).join('').substring(0, 2).toUpperCase() : '?';
-
-        var alertClass = p.isAlert ? ' card-alert' : '';
-        var alertHeaderHtml = p.isAlert ? 
-            '<div style="margin-bottom: 1rem;"><button class="btn-danger" style="width:100%; font-weight:bold; display:flex; align-items:center; justify-content:center; gap:0.5rem;" onclick="showSosModal(\'' + p.id + '\')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg> LIHAT LAPORAN DARURAT</button></div>' : '';
-
-        return '<div class="profile-card' + alertClass + '">' +
-            alertHeaderHtml +
-            '<div class="profile-card-header">' +
-                '<div class="profile-card-avatar">' + initials + '</div>' +
-                '<div>' +
-                    '<div class="profile-card-name">' + escapeHtml(p.name) + '</div>' +
-                    (p.blood ? '<div class="profile-card-badge">Gol. Darah ' + escapeHtml(p.blood) + '</div>' : '') +
-                '</div>' +
-                // Mini QR code preview in top-right corner
-                '<div class="profile-qr-mini" id="qr-mini-' + p.id + '" title="QR Code - Klik untuk memperbesar" onclick="showQRModal(\'' + p.id + '\')" style="cursor:pointer;"></div>' +
-            '</div>' +
-            '<div class="profile-card-info">' +
-                '<div class="profile-info-row">' +
-                    '<svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>' +
-                    '<span class="profile-info-label">Telepon</span>' +
-                    '<span class="profile-info-value">' + escapeHtml(p.phone) + '</span>' +
-                '</div>' +
-                (p.address ? '<div class="profile-info-row">' +
-                    '<svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>' +
-                    '<span class="profile-info-label">Alamat</span>' +
-                    '<span class="profile-info-value">' + escapeHtml(p.address) + '</span>' +
-                '</div>' : '') +
-                (p.allergy ? '<div class="profile-info-row">' +
-                    '<svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>' +
-                    '<span class="profile-info-label">Alergi</span>' +
-                    '<span class="profile-info-value">' + escapeHtml(p.allergy) + '</span>' +
-                '</div>' : '') +
-                '<div class="profile-info-row">' +
-                    '<svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>' +
-                    '<span class="profile-info-label">Darurat</span>' +
-                    '<span class="profile-info-value">' + escapeHtml(p.emergencyName) + ' (' + escapeHtml(p.emergencyPhone) + ')</span>' +
-                '</div>' +
-            '</div>' +
-            '<div class="profile-card-actions">' +
-                '<button class="btn-qr btn-sm" onclick="showQRModal(\'' + p.id + '\')">' +
-                    '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="3" height="3"/></svg>' +
-                    'QR Code' +
-                '</button>' +
-                '<button class="btn-secondary btn-sm" onclick="editProfile(\'' + p.id + '\')">' +
-                    '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>' +
-                    'Edit' +
-                '</button>' +
-                '<button class="btn-danger btn-sm" onclick="deleteProfile(\'' + p.id + '\')">' +
-                    '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>' +
-                    'Hapus' +
-                '</button>' +
-            '</div>' +
-        '</div>';
+        return renderSingleProfileCard(p);
     }).join('');
 
-    // After DOM is updated, generate mini QR codes for all cards
-    setTimeout(function() {
+    setTimeout(function () {
         initAllQRCodes(profiles);
     }, 50);
+}
+
+/** Render a single profile card HTML string */
+function renderSingleProfileCard(p) {
+    var initials = p.name ? p.name.split(' ').map(function (w) { return w.charAt(0); }).join('').substring(0, 2).toUpperCase() : '?';
+
+    var alertClass = p.isAlert ? ' card-alert' : '';
+    var alertHeaderHtml = p.isAlert ?
+        '<div style="margin-bottom: 1rem;"><button class="btn-danger" style="width:100%; font-weight:bold; display:flex; align-items:center; justify-content:center; gap:0.5rem;" onclick="showSosModal(\'' + p.id + '\')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg> LIHAT LAPORAN DARURAT</button></div>' : '';
+
+    return '<div class="profile-card' + alertClass + '">' +
+        alertHeaderHtml +
+        '<div class="profile-card-header">' +
+        '<div class="profile-card-avatar">' + initials + '</div>' +
+        '<div>' +
+        '<div class="profile-card-name">' + escapeHtml(p.name) + '</div>' +
+        (p.blood ? '<div class="profile-card-badge">Gol. Darah ' + escapeHtml(p.blood) + '</div>' : '') +
+        '</div>' +
+        // Mini QR code preview in top-right corner
+        '<div class="profile-qr-mini" id="qr-mini-' + p.id + '" title="QR Code - Klik untuk memperbesar" onclick="showQRModal(\'' + p.id + '\')" style="cursor:pointer;"></div>' +
+        '</div>' +
+        '<div class="profile-card-info">' +
+        '<div class="profile-info-row">' +
+        '<svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>' +
+        '<span class="profile-info-label">Telepon</span>' +
+        '<span class="profile-info-value">' + escapeHtml(p.phone) + '</span>' +
+        '</div>' +
+        (p.address ? '<div class="profile-info-row">' +
+            '<svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>' +
+            '<span class="profile-info-label">Alamat</span>' +
+            '<span class="profile-info-value">' + escapeHtml(p.address) + '</span>' +
+            '</div>' : '') +
+        (p.allergy ? '<div class="profile-info-row">' +
+            '<svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>' +
+            '<span class="profile-info-label">Alergi</span>' +
+            '<span class="profile-info-value">' + escapeHtml(p.allergy) + '</span>' +
+            '</div>' : '') +
+        '<div class="profile-info-row">' +
+        '<svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>' +
+        '<span class="profile-info-label">Darurat</span>' +
+        '<span class="profile-info-value">' + escapeHtml(p.emergencyName) + ' (' + escapeHtml(p.emergencyPhone) + ')</span>' +
+        '</div>' +
+        '</div>' +
+        '<div class="profile-card-actions">' +
+        '<button class="btn-qr btn-sm" onclick="showQRModal(\'' + p.id + '\')">' +
+        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="3" height="3"/></svg>' +
+        'QR Code' +
+        '</button>' +
+        '<button class="btn-secondary btn-sm" onclick="editProfile(\'' + p.id + '\')">' +
+        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>' +
+        'Edit' +
+        '</button>' +
+        '<button class="btn-danger btn-sm" onclick="deleteProfile(\'' + p.id + '\')">' +
+        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>' +
+        'Hapus' +
+        '</button>' +
+        '</div>' +
+        '</div>';
 }
 
 /** Open modal for adding new profile */
@@ -383,7 +530,7 @@ function openProfileModal(profileId) {
 
     form.reset();
     document.getElementById('profileId').value = '';
-    
+
     // Hide event details groups initially
     if (document.getElementById('groupGate')) document.getElementById('groupGate').style.display = 'none';
     if (document.getElementById('groupNumber')) document.getElementById('groupNumber').style.display = 'none';
@@ -409,7 +556,7 @@ function openProfileModal(profileId) {
             document.getElementById('profAllergy').value = profile.allergy || '';
             document.getElementById('profEmergencyName').value = profile.emergencyName || '';
             document.getElementById('profEmergencyPhone').value = profile.emergencyPhone || '';
-            
+
             if (isCompany) {
                 document.getElementById('profRegistrationId').value = profile.registrationId || '';
                 document.getElementById('profEventPurpose').value = profile.eventPurpose || '';
@@ -433,7 +580,7 @@ function openProfileModal(profileId) {
 }
 
 /** Toggle event details based on purpose */
-window.toggleEventDetails = function() {
+window.toggleEventDetails = function () {
     var purpose = document.getElementById('profEventPurpose').value;
     document.getElementById('groupGate').style.display = purpose === 'konser' ? 'flex' : 'none';
     document.getElementById('groupNumber').style.display = purpose === 'olahraga' ? 'flex' : 'none';
@@ -456,15 +603,15 @@ function saveProfile(event) {
 
     var profileData = {
         id: id || null,
-        name:           document.getElementById('profName').value.trim(),
-        phone:          document.getElementById('profPhone').value.trim(),
-        blood:          document.getElementById('profBlood').value,
-        address:        document.getElementById('profAddress').value.trim(),
-        allergy:        document.getElementById('profAllergy').value.trim(),
-        emergencyName:  document.getElementById('profEmergencyName').value.trim(),
+        name: document.getElementById('profName').value.trim(),
+        phone: document.getElementById('profPhone').value.trim(),
+        blood: document.getElementById('profBlood').value,
+        address: document.getElementById('profAddress').value.trim(),
+        allergy: document.getElementById('profAllergy').value.trim(),
+        emergencyName: document.getElementById('profEmergencyName').value.trim(),
         emergencyPhone: document.getElementById('profEmergencyPhone').value.trim()
     };
-    
+
     if (isCompany) {
         profileData.registrationId = document.getElementById('profRegistrationId').value.trim();
         profileData.eventPurpose = document.getElementById('profEventPurpose').value;
@@ -474,17 +621,17 @@ function saveProfile(event) {
 
     if (typeof window.dbSaveProfile === 'function') {
         window.dbSaveProfile(profileData, user.email)
-            .then(function() {
+            .then(function () {
                 showToast('Berhasil!', id ? 'Data diri telah diperbarui.' : 'Data diri baru telah ditambahkan.');
                 closeProfileModal();
-                loadProfilesFromDb().then(function() {
+                loadProfilesFromDb().then(function () {
                     renderProfiles();
                     if (state.orderProduct) {
                         renderProfileSelection();
                     }
                 });
             })
-            .catch(function(err) {
+            .catch(function (err) {
                 alert('Gagal menyimpan data diri: ' + err.message);
             });
     } else {
@@ -503,23 +650,23 @@ function deleteProfile(id) {
 
     if (typeof window.dbDeleteProfile === 'function') {
         window.dbDeleteProfile(id)
-            .then(function() {
+            .then(function () {
                 showToast('Dihapus', 'Data diri telah dihapus.');
-                
+
                 // Reset selection if deleted profile was selected
                 if (state.selectedProfileId === id) {
                     state.selectedProfileId = null;
                     updateStep1Button();
                 }
 
-                loadProfilesFromDb().then(function() {
+                loadProfilesFromDb().then(function () {
                     renderProfiles();
                     if (state.orderProduct) {
                         renderProfileSelection();
                     }
                 });
             })
-            .catch(function(err) {
+            .catch(function (err) {
                 alert('Gagal menghapus data diri: ' + err.message);
             });
     } else {
@@ -548,42 +695,41 @@ function renderTracking() {
     // The orders from DB are already newest first
     var sortedOrders = orders.slice();
 
-    list.innerHTML = sortedOrders.map(function(order) {
+    list.innerHTML = sortedOrders.map(function (order) {
         var orderId = order.id.replace('order_', 'ORD-').toUpperCase();
         var orderDate = new Date(order.createdAt);
-        
+
         // Read actual status from database
         var status = order.status || 'processing'; // default to processing for old orders
 
         var isPending = status === 'pending_payment';
         var isRejected = status === 'rejected';
-        
-        // For processing orders, we still simulate the later steps for visual effect
-        var isConfirmed = status === 'processing' || status === 'shipping' || status === 'delivered';
-        var isPacked = false, isShipping = false, isDelivered = false;
-        
-        if (isConfirmed) {
-            var t2 = new Date(orderDate.getTime() + 1000 * 60 * 60 * 2); // +2 hours
-            var t3 = new Date(orderDate.getTime() + 1000 * 60 * 60 * 24); // +1 day
-            var t4 = new Date(orderDate.getTime() + 1000 * 60 * 60 * 48); // +2 days
-            var now = new Date();
-            
-            isPacked = now > t2;
-            isShipping = status === 'shipping' || (status !== 'pending_payment' && now > t3);
-            isDelivered = status === 'delivered' || (status !== 'pending_payment' && now > t4);
-        }
+        var isProcessing = status === 'processing';
+        var isShipping = status === 'shipping';
+        var isDelivered = status === 'delivered';
+
+        var step1Completed = isProcessing || isShipping || isDelivered;
+        var step1Active = isPending;
+
+        var step2Completed = isShipping || isDelivered;
+        var step2Active = isProcessing;
+
+        var step3Completed = isDelivered;
+        var step3Active = isShipping;
+
+        var step4Completed = isDelivered;
+        var step4Active = false; // Delivered is just completed
 
         function fTime(d) {
-            return d.toLocaleDateString('id-ID', {day: 'numeric', month: 'short'}) + ', ' + 
-                   d.toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'});
+            return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }) + ', ' +
+                d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
         }
 
         // Generate progress percentage for the line
         var progress = 0;
         if (isDelivered) progress = 100;
-        else if (isShipping) progress = 75;
-        else if (isPacked) progress = 50;
-        else if (isConfirmed) progress = 25;
+        else if (isShipping) progress = 66;
+        else if (isProcessing) progress = 33;
         else if (isPending) progress = 0;
 
         // Get destination for the map
@@ -625,8 +771,8 @@ function renderTracking() {
                     <div class="timeline-line-progress" style="height: ${progress}%;"></div>
                 </div>
                 
-                <!-- Step 0: Menunggu Pembayaran -->
-                <div class="timeline-step ${isPending ? 'active' : 'completed'}">
+                <!-- Step 1: Menunggu Pembayaran -->
+                <div class="timeline-step ${step1Completed ? 'completed' : (step1Active ? 'active' : '')}">
                     <div class="timeline-icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
                     </div>
@@ -637,19 +783,8 @@ function renderTracking() {
                     </div>
                 </div>
                 
-                <!-- Step 1: Confirmed -->
-                <div class="timeline-step ${isConfirmed ? (isPacked ? 'completed' : 'active') : ''}">
-                    <div class="timeline-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                    </div>
-                    <div class="timeline-content">
-                        <h4>Pesanan Dikonfirmasi</h4>
-                        <p>Pesanan telah di-ACC admin dan menunggu diproses.</p>
-                    </div>
-                </div>
-                
-                <!-- Step 2: Packed -->
-                <div class="timeline-step ${isPacked ? (isShipping ? 'completed' : 'active') : ''}">
+                <!-- Step 2: Dikemas -->
+                <div class="timeline-step ${step2Completed ? 'completed' : (step2Active ? 'active' : '')}">
                     <div class="timeline-icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
                     </div>
@@ -659,14 +794,25 @@ function renderTracking() {
                     </div>
                 </div>
                 
-                <!-- Step 3: Shipping -->
-                <div class="timeline-step ${isShipping ? (isDelivered ? 'completed' : 'active') : ''}">
+                <!-- Step 3: Dalam Perjalanan -->
+                <div class="timeline-step ${step3Completed ? 'completed' : (step3Active ? 'active' : '')}">
                     <div class="timeline-icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
                     </div>
                     <div class="timeline-content">
                         <h4>Dalam Perjalanan</h4>
                         <p>Paket telah diserahkan ke kurir logistik.</p>
+                    </div>
+                </div>
+
+                <!-- Step 4: Paket Sudah Sampai -->
+                <div class="timeline-step ${step4Completed ? 'completed' : (step4Active ? 'active' : '')}">
+                    <div class="timeline-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                    </div>
+                    <div class="timeline-content">
+                        <h4>Paket Sudah Sampai</h4>
+                        <p>Pesanan telah tiba di alamat tujuan.</p>
                     </div>
                 </div>
             </div>`;
@@ -691,7 +837,7 @@ function renderTracking() {
                     <div class="tracking-meta">
                         <div class="tracking-meta-row">
                             <span style="color: var(--gray-text);">Penerima:</span>
-                            <span style="font-weight: 600;">${order.profileName}</span>
+                            <span style="font-weight: 600;">${order.shipping && order.shipping.recipient ? order.shipping.recipient : order.profileName}</span>
                         </div>
                         <div class="tracking-meta-row">
                             <span style="color: var(--gray-text);">Warna:</span>
@@ -746,7 +892,7 @@ function renderOrderHistory() {
         // Reverse to show newest first
         var sortedOrders = orders.slice();
 
-        ordersGrid.innerHTML = sortedOrders.map(function(order) {
+        ordersGrid.innerHTML = sortedOrders.map(function (order) {
             var orderId = order.id.replace('order_', 'ORD-').toUpperCase();
             var date = new Date(order.createdAt).toLocaleDateString('id-ID', {
                 day: 'numeric', month: 'short', year: 'numeric'
@@ -754,36 +900,36 @@ function renderOrderHistory() {
 
             return '<div class="profile-card" style="display: flex; flex-direction: column;">' +
                 '<div class="profile-card-header">' +
-                    '<div class="profile-card-avatar" style="background: var(--primary); color: white;">' +
-                        '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="3" ry="3"></rect><path d="M16 7V5a4 4 0 0 0-8 0v2"></path></svg>' +
-                    '</div>' +
-                    '<div>' +
-                        '<div class="profile-card-name">' + escapeHtml(order.productName) + '</div>' +
-                        '<div class="profile-card-badge">' + orderId + '</div>' +
-                    '</div>' +
+                '<div class="profile-card-avatar" style="background: var(--primary); color: white;">' +
+                '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="3" ry="3"></rect><path d="M16 7V5a4 4 0 0 0-8 0v2"></path></svg>' +
+                '</div>' +
+                '<div>' +
+                '<div class="profile-card-name">' + escapeHtml(order.productName) + '</div>' +
+                '<div class="profile-card-badge">' + orderId + '</div>' +
+                '</div>' +
                 '</div>' +
                 '<div class="profile-card-info" style="flex-grow: 1;">' +
-                    '<div class="profile-info-row">' +
-                        '<span class="profile-info-label" style="width: 80px;">Tanggal</span>' +
-                        '<span class="profile-info-value">' + date + '</span>' +
-                    '</div>' +
-                    '<div class="profile-info-row">' +
-                        '<span class="profile-info-label" style="width: 80px;">Penerima</span>' +
-                        '<span class="profile-info-value">' + escapeHtml(order.profileName) + '</span>' +
-                    '</div>' +
-                    '<div class="profile-info-row">' +
-                        '<span class="profile-info-label" style="width: 80px;">Warna</span>' +
-                        '<span class="profile-info-value">' + escapeHtml(order.color) + '</span>' +
-                    '</div>' +
-                    '<div class="profile-info-row">' +
-                        '<span class="profile-info-label" style="width: 80px;">Total</span>' +
-                        '<span class="profile-info-value" style="font-weight: 600; color: var(--primary);">' + escapeHtml(order.price) + '</span>' +
-                    '</div>' +
+                '<div class="profile-info-row">' +
+                '<span class="profile-info-label" style="width: 80px;">Tanggal</span>' +
+                '<span class="profile-info-value">' + date + '</span>' +
+                '</div>' +
+                '<div class="profile-info-row">' +
+                '<span class="profile-info-label" style="width: 80px;">Penerima</span>' +
+                '<span class="profile-info-value">' + escapeHtml(order.profileName) + '</span>' +
+                '</div>' +
+                '<div class="profile-info-row">' +
+                '<span class="profile-info-label" style="width: 80px;">Warna</span>' +
+                '<span class="profile-info-value">' + escapeHtml(order.color) + '</span>' +
+                '</div>' +
+                '<div class="profile-info-row">' +
+                '<span class="profile-info-label" style="width: 80px;">Total</span>' +
+                '<span class="profile-info-value" style="font-weight: 600; color: var(--primary);">' + escapeHtml(order.price) + '</span>' +
+                '</div>' +
                 '</div>' +
                 '<div class="profile-card-actions" style="margin-top: 1rem; border-top: 1px solid var(--border); padding-top: 1rem;">' +
-                    '<button class="btn-secondary btn-sm" style="width: 100%; justify-content: center;" onclick="switchToTab(\'lacak\')">Lacak Pesanan</button>' +
+                '<button class="btn-secondary btn-sm" style="width: 100%; justify-content: center;" onclick="switchToTab(\'lacak\')">Lacak Pesanan</button>' +
                 '</div>' +
-            '</div>';
+                '</div>';
         }).join('');
     }
 }
@@ -801,7 +947,7 @@ function showOrderFlow(productKey) {
     document.getElementById('orderBanner').style.display = 'flex';
     document.getElementById('orderSteps').style.display = 'flex';
     document.getElementById('noOrderState').style.display = 'none';
-    
+
     var orderListState = document.getElementById('orderListState');
     if (orderListState) orderListState.style.display = 'none';
 
@@ -845,18 +991,18 @@ function renderProfileSelection() {
     if (isCompany && profiles.length > 1) {
         var isSelectedAll = state.selectedProfileId === 'ALL';
         html += '<div class="profile-select-card' + (isSelectedAll ? ' selected' : '') + '" onclick="selectProfile(\'ALL\')" style="border: 2px solid var(--primary); background: rgba(44, 255, 110, 0.05);">' +
-            '<div class="profile-select-name">📦 Pesan Untuk Semua Data (' + profiles.length + ' profil)</div>' +
-            '<div class="profile-select-detail">Buat pesanan untuk seluruh karyawan sekaligus (warna akan sama untuk semua).</div>' +
-        '</div>';
+            '<div class="profile-select-name"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px; vertical-align: text-bottom;"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg> Pesan Untuk Semua Data (' + profiles.length + ' profil)</div>' +
+            '<div class="profile-select-detail">Buat pesanan untuk seluruh pengguna sekaligus (warna akan sama untuk semua).</div>' +
+            '</div>';
     }
 
     html += profiles.map(function (p) {
         var isSelected = state.selectedProfileId === p.id;
         return '<div class="profile-select-card' + (isSelected ? ' selected' : '') + '" onclick="selectProfile(\'' + p.id + '\')">' +
             '<div class="profile-select-name">' + escapeHtml(p.name) + '</div>' +
-            '<div class="profile-select-detail">' + escapeHtml(p.phone) + (p.blood ? ' · Gol. ' + escapeHtml(p.blood) : '') + '</div>' +
+            '<div class="profile-select-detail">' + escapeHtml(p.phone) + (p.blood ? ' <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-top: -2px;"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"></path></svg> Gol. ' + escapeHtml(p.blood) : '') + '</div>' +
             '<div class="profile-select-detail" style="margin-top: 4px;">Darurat: ' + escapeHtml(p.emergencyName) + '</div>' +
-        '</div>';
+            '</div>';
     }).join('');
 
     grid.innerHTML = html;
@@ -896,9 +1042,9 @@ function goToStep(stepNum) {
     // Validate shipping form before proceeding to summary (Step 4)
     if (stepNum === 4) {
         var recipient = document.getElementById('shipRecipient').value.trim();
-        var phone    = document.getElementById('shipPhone').value.trim();
-        var address  = document.getElementById('shipAddress').value.trim();
-        var city     = document.getElementById('shipCity').value.trim();
+        var phone = document.getElementById('shipPhone').value.trim();
+        var address = document.getElementById('shipAddress').value.trim();
+        var city = document.getElementById('shipCity').value.trim();
         if (!recipient || !phone || !address || !city) {
             showToast('Perhatian', 'Lengkapi nama penerima, telepon, alamat, dan kota terlebih dahulu.');
             return;
@@ -938,20 +1084,20 @@ function showStep(num) {
 }
 
 /** Payment Modal Functions */
-window.openPaymentModal = function() {
+window.openPaymentModal = function () {
     initPaymentStep();
     var modal = document.getElementById('modalPayment');
     if (modal) {
         modal.style.display = 'flex';
-        setTimeout(function() { modal.classList.add('show'); }, 10);
+        setTimeout(function () { modal.classList.add('show'); }, 10);
     }
 };
 
-window.closePaymentModal = function() {
+window.closePaymentModal = function () {
     var modal = document.getElementById('modalPayment');
     if (modal) {
         modal.classList.remove('show');
-        setTimeout(function() { modal.style.display = 'none'; }, 300);
+        setTimeout(function () { modal.style.display = 'none'; }, 300);
     }
 };
 
@@ -959,40 +1105,40 @@ window.closePaymentModal = function() {
 function populateSummary() {
     var product = PRODUCTS[state.orderProduct];
     var profiles = getProfiles();
-    
-    var profileText    = '';
+
+    var profileText = '';
     var customNameText = '';
-    var totalText      = '-';
+    var totalText = '-';
 
     if (state.selectedProfileId === 'ALL') {
-        profileText    = 'Semua Karyawan (' + profiles.length + ' profil)';
+        profileText = 'Semua Pengguna (' + profiles.length + ' profil)';
         customNameText = '(Tidak tersedia untuk pesanan massal)';
         if (product) {
-            var rawPrice = parseInt(product.price.replace(/\D/g, '')) * 1000;
-            var total    = rawPrice * profiles.length;
-            totalText    = 'Rp ' + (total / 1000).toLocaleString('id-ID') + 'K';
+            var rawPrice = product.priceNum;
+            var total = rawPrice * profiles.length;
+            totalText = 'Rp ' + total.toLocaleString('id-ID');
         }
     } else {
         var selectedProfile = profiles.find(function (p) { return p.id === state.selectedProfileId; });
-        profileText    = selectedProfile ? selectedProfile.name : '-';
+        profileText = selectedProfile ? selectedProfile.name : '-';
         customNameText = document.getElementById('customName').value.trim() || '(Tidak ada)';
-        totalText      = product ? product.price : '-';
+        totalText = product ? product.price : '-';
     }
 
     var recipient = document.getElementById('shipRecipient').value.trim();
-    var phone     = document.getElementById('shipPhone').value.trim();
-    var address   = document.getElementById('shipAddress').value.trim();
-    var city      = document.getElementById('shipCity').value.trim();
-    var postal    = document.getElementById('shipPostal').value.trim();
+    var phone = document.getElementById('shipPhone').value.trim();
+    var address = document.getElementById('shipAddress').value.trim();
+    var city = document.getElementById('shipCity').value.trim();
+    var postal = document.getElementById('shipPostal').value.trim();
     var addressFull = address + (city ? ', ' + city : '') + (postal ? ' ' + postal : '');
 
-    document.getElementById('summaryProduct').textContent   = product ? product.name : '-';
-    document.getElementById('summaryProfile').textContent   = profileText;
-    document.getElementById('summaryColor').textContent     = state.selectedColor;
-    document.getElementById('summaryName').textContent      = customNameText;
+    document.getElementById('summaryProduct').textContent = product ? product.name : '-';
+    document.getElementById('summaryProfile').textContent = profileText;
+    document.getElementById('summaryColor').textContent = state.selectedColor;
+    document.getElementById('summaryName').textContent = customNameText;
     document.getElementById('summaryRecipient').textContent = recipient + ' (' + phone + ')';
-    document.getElementById('summaryAddress').textContent   = addressFull;
-    document.getElementById('summaryTotal').textContent     = totalText;
+    document.getElementById('summaryAddress').textContent = addressFull;
+    document.getElementById('summaryTotal').textContent = totalText;
 }
 
 /** Initialize Payment Step (Step 4) */
@@ -1003,9 +1149,9 @@ function initPaymentStep() {
     if (product) {
         var totalText = '-';
         if (state.selectedProfileId === 'ALL') {
-            var rawPrice = parseInt(product.price.replace(/\D/g, '')) * 1000;
+            var rawPrice = product.priceNum;
             var total = rawPrice * profiles.length;
-            totalText = 'Rp ' + (total / 1000).toLocaleString('id-ID') + '.000';
+            totalText = 'Rp ' + total.toLocaleString('id-ID');
         } else {
             totalText = product.price;
         }
@@ -1030,28 +1176,28 @@ function initPaymentStep() {
 }
 
 /** Switch Payment Method Tabs */
-window.switchPayTab = function(method) {
+window.switchPayTab = function (method) {
     state.paymentMethod = method;
-    
+
     // Update Tabs
     document.getElementById('tabQRIS').classList.toggle('active', method === 'qris');
     document.getElementById('tabVA').classList.toggle('active', method === 'va');
-    
+
     // Update Panels
     document.getElementById('panelQRIS').style.display = method === 'qris' ? 'block' : 'none';
     document.getElementById('panelVA').style.display = method === 'va' ? 'block' : 'none';
 };
 
 /** Copy Virtual Account Number */
-window.copyVA = function() {
+window.copyVA = function () {
     var vaNumber = document.getElementById('vaNumber').textContent;
-    navigator.clipboard.writeText(vaNumber).then(function() {
+    navigator.clipboard.writeText(vaNumber).then(function () {
         showToast('Berhasil', 'Nomor Virtual Account disalin ke clipboard');
     });
 };
 
 /** Handle Proof Upload */
-window.handleProofUpload = function(event) {
+window.handleProofUpload = function (event) {
     var file = event.target.files[0];
     if (!file) return;
 
@@ -1061,13 +1207,13 @@ window.handleProofUpload = function(event) {
     }
 
     state.paymentProofFile = file;
-    
+
     var reader = new FileReader();
-    reader.onload = function(e) {
+    reader.onload = function (e) {
         var content = document.getElementById('proofUploadContent');
         var preview = document.getElementById('proofPreview');
         var filename = document.getElementById('proofFilename');
-        
+
         if (file.type.startsWith('image/')) {
             preview.src = e.target.result;
             preview.style.display = 'block';
@@ -1077,7 +1223,7 @@ window.handleProofUpload = function(event) {
             content.style.display = 'flex';
             content.innerHTML = '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--green);"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg><p style="margin-top:0.5rem;font-weight:600;">File PDF Dipilih</p>';
         }
-        
+
         filename.textContent = file.name;
         filename.style.display = 'block';
         document.getElementById('proofUploadZone').classList.add('has-file');
@@ -1119,9 +1265,9 @@ async function confirmOrder() {
         var savedOrderId = null;
         if (state.selectedProfileId === 'ALL') {
             // Bulk order creation - Single order entry
-            var rawPrice = product ? parseInt(product.price.replace(/\D/g, '')) * 1000 : 0;
+            var rawPrice = product ? product.priceNum : 0;
             var total = rawPrice * profiles.length;
-            var totalFormatted = 'Rp ' + (total / 1000).toLocaleString('id-ID') + 'K';
+            var totalFormatted = 'Rp ' + total.toLocaleString('id-ID');
 
             var order = {
                 product: state.orderProduct,
@@ -1161,36 +1307,36 @@ async function confirmOrder() {
             try {
                 var formData = new FormData();
                 formData.append('chat_id', TELEGRAM_CHAT_ID);
-                
+
                 var qty = state.selectedProfileId === 'ALL' ? profiles.length : 1;
                 var caption = "🔔 <b>PESANAN BARU (MENUNGGU ACC)</b>\n" +
-                              "━━━━━━━━━━━━━━━━━━━━\n" +
-                              "<b>ID Pesanan:</b> <code>" + savedOrderId + "</code>\n" +
-                              "<b>Pemesan:</b> " + (user.name || '-') + "\n" +
-                              "<b>Email:</b> " + (user.email || 'Guest') + "\n" +
-                              "<b>No. HP:</b> " + (user.phone || '-') + "\n\n" +
-                              "📦 <b>Rincian Produk:</b>\n" +
-                              "• Jumlah Pesanan: " + qty + " pcs\n" +
-                              "• Nama Produk: " + order.productName + "\n" +
-                              "• Warna: " + order.color + "\n" +
-                              "• Custom Nama: " + (order.customName || '-') + "\n" +
-                              "• Total Tagihan: <b>" + order.price + "</b>\n\n" +
-                              "🚚 <b>Data Pengiriman:</b>\n" +
-                              "• Penerima: " + shippingData.recipient + "\n" +
-                              "• No. Telp: " + shippingData.phone + "\n" +
-                              "• Kota: " + shippingData.city + "\n" +
-                              "• Alamat Lengkap:\n" + shippingData.address + "\n\n" +
-                              "⚠️ <i>Silakan cek gambar bukti transfer di atas sebelum menekan ACC.</i>";
-                              
+                    "━━━━━━━━━━━━━━━━━━━━\n" +
+                    "<b>ID Pesanan:</b> <code>" + savedOrderId + "</code>\n" +
+                    "<b>Pemesan:</b> " + (user.name || '-') + "\n" +
+                    "<b>Email:</b> " + (user.email || 'Guest') + "\n" +
+                    "<b>No. HP:</b> " + (user.phone || '-') + "\n\n" +
+                    "📦 <b>Rincian Produk:</b>\n" +
+                    "• Jumlah Pesanan: " + qty + " pcs\n" +
+                    "• Nama Produk: " + order.productName + "\n" +
+                    "• Warna: " + order.color + "\n" +
+                    "• Custom Nama: " + (order.customName || '-') + "\n" +
+                    "• Total Tagihan: <b>" + order.price + "</b>\n\n" +
+                    "🚚 <b>Data Pengiriman:</b>\n" +
+                    "• Penerima: " + shippingData.recipient + "\n" +
+                    "• No. Telp: " + shippingData.phone + "\n" +
+                    "• Kota: " + shippingData.city + "\n" +
+                    "• Alamat Lengkap:\n" + shippingData.address + "\n\n" +
+                    "⚠️ <i>Silakan cek gambar bukti transfer di atas sebelum menekan ACC.</i>";
+
                 var inlineKeyboard = {
                     inline_keyboard: [[
                         { text: "✅ ACC", callback_data: "acc_" + savedOrderId },
                         { text: "❌ Tolak", callback_data: "rej_" + savedOrderId }
                     ]]
                 };
-                
+
                 formData.append('reply_markup', JSON.stringify(inlineKeyboard));
-                
+
                 if (state.paymentProofFile) {
                     formData.append('caption', caption);
                     formData.append('parse_mode', 'HTML');
@@ -1220,16 +1366,16 @@ async function confirmOrder() {
         openOrderStatus(order, savedOrderId);
 
         // Reload orders in background
-        loadOrdersFromDb().then(function() {
+        loadOrdersFromDb().then(function () {
             renderTracking();
             renderOrderHistory();
         });
     } catch (err) {
         alert('Gagal membuat pesanan: ' + err.message);
     } finally {
-        if (btn) { 
-            btn.disabled = false; 
-            btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Konfirmasi Pesanan'; 
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Konfirmasi Pesanan';
         }
     }
 }
@@ -1277,19 +1423,19 @@ function buildQRContent(profile) {
 /** Generate mini QR codes for all rendered profile cards */
 function initAllQRCodes(profiles) {
     if (typeof QRCode === 'undefined') return; // library not yet loaded
-    profiles.forEach(function(p) {
+    profiles.forEach(function (p) {
         var container = document.getElementById('qr-mini-' + p.id);
         if (!container || container.querySelector('canvas,img')) return; // already generated
         try {
             new QRCode(container, {
-                text:           buildQRContent(p),
-                width:          72,
-                height:         72,
-                colorDark:      '#000000',
-                colorLight:     '#ffffff',
-                correctLevel:   QRCode.CorrectLevel.M
+                text: buildQRContent(p),
+                width: 72,
+                height: 72,
+                colorDark: '#000000',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.M
             });
-        } catch(e) {
+        } catch (e) {
             console.warn('QR generation failed for', p.id, e);
         }
     });
@@ -1298,12 +1444,12 @@ function initAllQRCodes(profiles) {
 var _currentSosProfileId = null;
 
 /** Show the SOS Alert Details Modal */
-window.showSosModal = function(profileId) {
-    var profile = state.profiles.find(function(p) { return p.id === profileId; });
+window.showSosModal = function (profileId) {
+    var profile = state.profiles.find(function (p) { return p.id === profileId; });
     if (!profile) return;
-    
+
     _currentSosProfileId = profileId;
-    
+
     // Format timestamp
     var alertTimeStr = "-";
     if (profile.alertTime) {
@@ -1319,15 +1465,15 @@ window.showSosModal = function(profileId) {
         }
     }
     document.getElementById('sosAlertTime').textContent = alertTimeStr;
-    
+
     // Set Maps link and Iframe
     var mapsLinkBtn = document.getElementById('sosAlertMaps');
     var mapContainer = document.getElementById('sosMapContainer');
-    
+
     if (profile.alertMapsLink) {
         mapsLinkBtn.href = profile.alertMapsLink;
         mapsLinkBtn.style.display = 'inline-flex';
-        
+
         // Coba ekstrak koordinat (lat,lng) dari link maps
         var match = profile.alertMapsLink.match(/query=([^&]+)/);
         if (match && match[1]) {
@@ -1343,33 +1489,33 @@ window.showSosModal = function(profileId) {
         mapContainer.innerHTML = '';
         mapContainer.style.display = 'none';
     }
-    
+
     document.getElementById('modalSos').style.display = 'flex';
 };
 
-window.closeSosModal = function() {
+window.closeSosModal = function () {
     document.getElementById('modalSos').style.display = 'none';
     _currentSosProfileId = null;
 };
 
-window.resolveSosAlert = async function() {
+window.resolveSosAlert = async function () {
     if (!_currentSosProfileId) return;
-    
+
     // Nonaktifkan sementara
     document.body.style.cursor = 'wait';
     try {
-        var profile = state.profiles.find(function(p) { return p.id === _currentSosProfileId; });
+        var profile = state.profiles.find(function (p) { return p.id === _currentSosProfileId; });
         if (profile) {
             profile.isAlert = false;
             // update in Firebase
             var user = JSON.parse(localStorage.getItem(STORAGE_KEYS.USER) || '{}');
             await window.dbSaveProfile(profile, user.email);
-            
+
             closeSosModal();
             renderProfiles();
             showToast("Peringatan telah diselesaikan.");
         }
-    } catch(err) {
+    } catch (err) {
         console.error(err);
         showToast("Gagal menyelesaikan peringatan.", true);
     }
@@ -1377,14 +1523,14 @@ window.resolveSosAlert = async function() {
 };
 
 /** Show the full-size QR code modal for a profile */
-window.showQRModal = function(profileId) {
-    var profile = state.profiles.find(function(p) { return p.id === profileId; });
+window.showQRModal = function (profileId) {
+    var profile = state.profiles.find(function (p) { return p.id === profileId; });
     if (!profile) return;
 
     _currentQRProfile = profile;
 
     // Update modal header
-    var initials = profile.name ? profile.name.split(' ').map(function(w){ return w.charAt(0); }).join('').substring(0, 2).toUpperCase() : '?';
+    var initials = profile.name ? profile.name.split(' ').map(function (w) { return w.charAt(0); }).join('').substring(0, 2).toUpperCase() : '?';
     document.getElementById('qrModalAvatar').textContent = initials;
     document.getElementById('qrModalName').textContent = profile.name || '-';
     document.getElementById('qrModalSub').textContent = profile.blood ? 'Gol. Darah ' + profile.blood + ' · QR Code Gelang INNOBAND' : 'QR Code Gelang INNOBAND';
@@ -1392,20 +1538,20 @@ window.showQRModal = function(profileId) {
     // Render info summary
     var info = document.getElementById('qrModalInfo');
     info.innerHTML =
-        '<div class="qr-info-row"><span>📞 Telepon</span><span>' + escapeHtml(profile.phone) + '</span></div>' +
-        (profile.allergy ? '<div class="qr-info-row"><span>⚠️ Alergi</span><span>' + escapeHtml(profile.allergy) + '</span></div>' : '') +
-        '<div class="qr-info-row"><span>🚨 Darurat</span><span>' + escapeHtml(profile.emergencyName) + ' — ' + escapeHtml(profile.emergencyPhone) + '</span></div>';
+        '<div class="qr-info-row"><span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 4px; margin-top:-2px;"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg> Telepon</span><span>' + escapeHtml(profile.phone) + '</span></div>' +
+        (profile.allergy ? '<div class="qr-info-row"><span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 4px; margin-top:-2px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg> Alergi</span><span>' + escapeHtml(profile.allergy) + '</span></div>' : '') +
+        '<div class="qr-info-row"><span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 4px; margin-top:-2px;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg> Darurat</span><span>' + escapeHtml(profile.emergencyName) + ' — ' + escapeHtml(profile.emergencyPhone) + '</span></div>';
 
     // Clear previous QR and generate new one at full size
     var canvas = document.getElementById('qrModalCanvas');
     canvas.innerHTML = '';
     if (typeof QRCode !== 'undefined') {
         new QRCode(canvas, {
-            text:         buildQRContent(profile),
-            width:        240,
-            height:       240,
-            colorDark:    '#000000',
-            colorLight:   '#ffffff',
+            text: buildQRContent(profile),
+            width: 240,
+            height: 240,
+            colorDark: '#000000',
+            colorLight: '#ffffff',
             correctLevel: QRCode.CorrectLevel.M
         });
     }
@@ -1415,14 +1561,14 @@ window.showQRModal = function(profileId) {
 };
 
 /** Close QR modal */
-window.closeQRModal = function() {
+window.closeQRModal = function () {
     document.getElementById('qrModal').classList.remove('open');
     document.body.style.overflow = '';
     _currentQRProfile = null;
 };
 
 /** Download the QR code shown in the modal as a PNG */
-window.downloadCurrentQR = function() {
+window.downloadCurrentQR = function () {
     if (!_currentQRProfile) return;
     var canvas = document.querySelector('#qrModalCanvas canvas');
     if (!canvas) {
@@ -1430,7 +1576,7 @@ window.downloadCurrentQR = function() {
         if (!img) return;
         // Convert img src to canvas
         var tmpCanvas = document.createElement('canvas');
-        tmpCanvas.width  = 240;
+        tmpCanvas.width = 240;
         tmpCanvas.height = 240;
         var ctx = tmpCanvas.getContext('2d');
         ctx.drawImage(img, 0, 0, 240, 240);
@@ -1512,21 +1658,21 @@ document.addEventListener('keydown', function (e) {
 var uploadedRows = []; // holds parsed & validated rows
 
 /** Open the upload modal */
-window.openUploadModal = function() {
+window.openUploadModal = function () {
     clearUpload();
     document.getElementById('uploadModal').classList.add('open');
     document.body.style.overflow = 'hidden';
 };
 
 /** Close the upload modal */
-window.closeUploadModal = function() {
+window.closeUploadModal = function () {
     document.getElementById('uploadModal').classList.remove('open');
     document.body.style.overflow = '';
     clearUpload();
 };
 
 /** Reset upload state */
-window.clearUpload = function() {
+window.clearUpload = function () {
     uploadedRows = [];
     document.getElementById('uploadFileInput').value = '';
     document.getElementById('uploadFileInfo').style.display = 'none';
@@ -1538,7 +1684,7 @@ window.clearUpload = function() {
 };
 
 /** Download a blank CSV template */
-window.downloadCSVTemplate = function() {
+window.downloadCSVTemplate = function () {
     var user = JSON.parse(localStorage.getItem(STORAGE_KEYS.USER) || '{}');
     var isCompany = user.type === 'perusahaan';
 
@@ -1559,20 +1705,20 @@ window.downloadCSVTemplate = function() {
 };
 
 /** Drag-and-drop handlers */
-window.handleDragOver = function(e) {
+window.handleDragOver = function (e) {
     e.preventDefault();
     document.getElementById('uploadDropzone').classList.add('drag-over');
 };
-window.handleDragLeave = function() {
+window.handleDragLeave = function () {
     document.getElementById('uploadDropzone').classList.remove('drag-over');
 };
-window.handleDrop = function(e) {
+window.handleDrop = function (e) {
     e.preventDefault();
     document.getElementById('uploadDropzone').classList.remove('drag-over');
     var files = e.dataTransfer.files;
     if (files.length > 0) processFile(files[0]);
 };
-window.handleFileSelect = function(e) {
+window.handleFileSelect = function (e) {
     if (e.target.files.length > 0) processFile(e.target.files[0]);
 };
 
@@ -1587,25 +1733,25 @@ function processFile(file) {
     var reader = new FileReader();
 
     if (ext === 'csv') {
-        reader.onload = function(e) {
+        reader.onload = function (e) {
             var rows = parseCSV(e.target.result);
             validateAndPreview(rows, file.name);
         };
         reader.readAsText(file);
     } else {
         // Excel — uses SheetJS (loaded via CDN)
-        reader.onload = function(e) {
+        reader.onload = function (e) {
             try {
                 var data = new Uint8Array(e.target.result);
                 var workbook = XLSX.read(data, { type: 'array' });
                 var sheet = workbook.Sheets[workbook.SheetNames[0]];
                 var json = XLSX.utils.sheet_to_json(sheet, { defval: '' });
                 // Normalise headers
-                var rows = json.map(function(row) {
+                var rows = json.map(function (row) {
                     return normaliseRow(row);
                 });
                 validateAndPreview(rows, file.name);
-            } catch(err) {
+            } catch (err) {
                 showUploadError('Gagal membaca file Excel: ' + err.message);
             }
         };
@@ -1615,14 +1761,14 @@ function processFile(file) {
 
 /** Parse CSV text into array of objects */
 function parseCSV(text) {
-    var lines = text.replace(/\r/g, '').split('\n').filter(function(l) { return l.trim() !== ''; });
+    var lines = text.replace(/\r/g, '').split('\n').filter(function (l) { return l.trim() !== ''; });
     if (lines.length < 2) return [];
 
-    var headers = lines[0].split(',').map(function(h) { return h.trim().toLowerCase().replace(/\s+/g, '_'); });
-    return lines.slice(1).map(function(line) {
+    var headers = lines[0].split(',').map(function (h) { return h.trim().toLowerCase().replace(/\s+/g, '_'); });
+    return lines.slice(1).map(function (line) {
         var values = parseCSVLine(line);
         var obj = {};
-        headers.forEach(function(h, i) { obj[h] = (values[i] || '').trim(); });
+        headers.forEach(function (h, i) { obj[h] = (values[i] || '').trim(); });
         return normaliseRow(obj);
     });
 }
@@ -1662,17 +1808,17 @@ function normaliseRow(row) {
         return '';
     }
     return {
-        name:           pick(row, ['nama_lengkap', 'nama', 'name', 'full_name']),
-        phone:          pick(row, ['no_telepon', 'telepon', 'no_hp', 'phone', 'hp']),
-        blood:          pick(row, ['golongan_darah', 'gol_darah', 'blood', 'blood_type']),
-        address:        pick(row, ['alamat', 'address']),
-        allergy:        pick(row, ['alergi', 'kondisi_medis', 'allergy']),
-        emergencyName:  pick(row, ['kontak_darurat_nama', 'nama_darurat', 'emergency_name']),
+        name: pick(row, ['nama_lengkap', 'nama', 'name', 'full_name']),
+        phone: pick(row, ['no_telepon', 'telepon', 'no_hp', 'phone', 'hp']),
+        blood: pick(row, ['golongan_darah', 'gol_darah', 'blood', 'blood_type']),
+        address: pick(row, ['alamat', 'address']),
+        allergy: pick(row, ['alergi', 'kondisi_medis', 'allergy']),
+        emergencyName: pick(row, ['kontak_darurat_nama', 'nama_darurat', 'emergency_name']),
         emergencyPhone: pick(row, ['kontak_darurat_telepon', 'telp_darurat', 'emergency_phone', 'emergency_tel']),
         registrationId: pick(row, ['id_registrasi', 'registration_id', 'id_regis', 'id_peserta']),
-        eventPurpose:   pick(row, ['keperluan', 'event_purpose', 'purpose', 'tujuan', 'jenis_event']),
-        eventGate:      pick(row, ['nomor_gate', 'gate', 'event_gate']),
-        eventNumber:    pick(row, ['no_punggung', 'no_peserta', 'nomor_peserta', 'event_number'])
+        eventPurpose: pick(row, ['keperluan', 'event_purpose', 'purpose', 'tujuan', 'jenis_event']),
+        eventGate: pick(row, ['nomor_gate', 'gate', 'event_gate']),
+        eventNumber: pick(row, ['no_punggung', 'no_peserta', 'nomor_peserta', 'event_number'])
     };
 }
 
@@ -1690,12 +1836,12 @@ function validateAndPreview(rows, fileName) {
     var valid = [];
     var errors = [];
 
-    rows.forEach(function(row, idx) {
+    rows.forEach(function (row, idx) {
         var rowNum = idx + 2; // +2 because row 1 = header
         var rowErrors = [];
-        if (!row.name)           rowErrors.push('Nama wajib diisi');
-        if (!row.phone)          rowErrors.push('No. Telepon wajib diisi');
-        if (!row.emergencyName)  rowErrors.push('Kontak Darurat wajib diisi');
+        if (!row.name) rowErrors.push('Nama wajib diisi');
+        if (!row.phone) rowErrors.push('No. Telepon wajib diisi');
+        if (!row.emergencyName) rowErrors.push('Kontak Darurat wajib diisi');
         if (!row.emergencyPhone) rowErrors.push('Telepon Darurat wajib diisi');
 
         if (rowErrors.length > 0) {
@@ -1714,10 +1860,10 @@ function validateAndPreview(rows, fileName) {
 
     // Render preview
     var tbody = document.getElementById('uploadPreviewBody');
-    tbody.innerHTML = rows.map(function(row) {
+    tbody.innerHTML = rows.map(function (row) {
         var statusBadge = row._valid
-            ? '<span class="upload-badge upload-badge-ok">✓ Valid</span>'
-            : '<span class="upload-badge upload-badge-err">✗ Error</span>';
+            ? '<span class="upload-badge upload-badge-ok"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 4px; margin-top:-1px;"><polyline points="20 6 9 17 4 12"></polyline></svg> Valid</span>'
+            : '<span class="upload-badge upload-badge-err"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 4px; margin-top:-1px;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> Error</span>';
         return '<tr class="' + (row._valid ? '' : 'upload-row-err') + '">' +
             '<td>' + escapeHtml(row.name) + '</td>' +
             '<td>' + escapeHtml(row.phone) + '</td>' +
@@ -1727,7 +1873,7 @@ function validateAndPreview(rows, fileName) {
             '<td>' + escapeHtml(row.emergencyName) + '</td>' +
             '<td>' + escapeHtml(row.emergencyPhone) + '</td>' +
             '<td>' + statusBadge + '</td>' +
-        '</tr>';
+            '</tr>';
     }).join('');
 
     document.getElementById('uploadPreviewContainer').style.display = 'block';
@@ -1737,7 +1883,7 @@ function validateAndPreview(rows, fileName) {
     var errEl = document.getElementById('uploadErrors');
     if (errors.length > 0) {
         errEl.innerHTML = '<strong>⚠ Baris berikut memiliki masalah dan akan dilewati:</strong><ul>' +
-            errors.map(function(e) { return '<li>' + escapeHtml(e) + '</li>'; }).join('') + '</ul>';
+            errors.map(function (e) { return '<li>' + escapeHtml(e) + '</li>'; }).join('') + '</ul>';
         errEl.style.display = 'block';
     } else {
         errEl.style.display = 'none';
@@ -1750,12 +1896,12 @@ function validateAndPreview(rows, fileName) {
 function showUploadError(msg) {
     clearUpload();
     var errEl = document.getElementById('uploadErrors');
-    errEl.innerHTML = '<strong>✗ ' + escapeHtml(msg) + '</strong>';
+    errEl.innerHTML = '<strong><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 4px; margin-top:-2px;"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg> ' + escapeHtml(msg) + '</strong>';
     errEl.style.display = 'block';
 }
 
 /** Save all valid rows to Firestore */
-window.saveBulkProfiles = async function() {
+window.saveBulkProfiles = async function () {
     if (uploadedRows.length === 0) return;
 
     var user = JSON.parse(localStorage.getItem(STORAGE_KEYS.USER) || '{}');
@@ -1773,7 +1919,7 @@ window.saveBulkProfiles = async function() {
             await window.dbSaveProfile(uploadedRows[i], user.email);
             saved++;
             btn.textContent = 'Menyimpan... (' + saved + '/' + uploadedRows.length + ')';
-        } catch(err) {
+        } catch (err) {
             console.error('Failed to save row', i, err);
             failed++;
         }
@@ -1782,7 +1928,7 @@ window.saveBulkProfiles = async function() {
     closeUploadModal();
 
     // Reload profiles
-    loadProfilesFromDb().then(function() {
+    loadProfilesFromDb().then(function () {
         renderProfiles();
         showToast(saved + ' data berhasil disimpan' + (failed > 0 ? ', ' + failed + ' gagal.' : '.'));
     });
@@ -1790,33 +1936,33 @@ window.saveBulkProfiles = async function() {
 
 
 /** Open and track real-time order status popup */
-window.openOrderStatus = function(order, orderId) {
+window.openOrderStatus = function (order, orderId) {
     var modal = document.getElementById("modalOrderStatus");
     if (!modal) return;
-    
+
     // Set initial data
     document.getElementById("statusOrderId").textContent = orderId;
-    
+
     var dateObj = new Date();
     var options = { hour: "2-digit", minute: "2-digit", year: "numeric", month: "long", day: "numeric" };
     document.getElementById("statusOrderTime").textContent = dateObj.toLocaleDateString("id-ID", options);
-    
+
     document.getElementById("statusOrderMethod").textContent = order.paymentMethod === "qris" ? "QRIS" : "Bank Transfer";
     document.getElementById("statusOrderAmount").textContent = order.price;
     document.getElementById("statusOrderProduct").textContent = order.productName;
     document.getElementById("statusOrderQty").textContent = "x" + (order.quantity || 1);
     document.getElementById("statusOrderPrice").textContent = order.price;
     document.getElementById("statusOrderTotal").textContent = order.price;
-    
+
     modal.style.display = "flex";
-    
+
     // Setup listener
     if (typeof window.dbListenOrder === "function") {
-        window.dbListenOrder(orderId, function(updatedOrder) {
+        window.dbListenOrder(orderId, function (updatedOrder) {
             var badge = document.getElementById("statusOrderBadge");
             var title = document.getElementById("statusTitle");
             var iconSvg = document.getElementById("statusIcon");
-            
+
             if (updatedOrder.status === "approved" || updatedOrder.status === "processing") {
                 badge.className = "badge-success";
                 badge.textContent = "Berhasil";
@@ -1837,26 +1983,107 @@ window.openOrderStatus = function(order, orderId) {
     }
 };
 
-window.closeOrderStatus = function() {
+window.closeOrderStatus = function () {
     var modal = document.getElementById("modalOrderStatus");
     if (modal) modal.style.display = "none";
-    
+
     // Close payment modal if it was open
     var payModal = document.getElementById("modalPayment");
     if (payModal) payModal.style.display = "none";
-    
+
     // Reset order state
     state.orderProduct = null;
     state.selectedProfileId = null;
     state.currentStep = 1;
     var url = window.location.pathname;
     window.history.replaceState({}, "", url);
-    
+
     showStep(1);
-    
+
     // Redirect user to tracking tab to see their new order
     if (typeof switchToTab === 'function') {
         switchToTab('lacak');
     }
 };
+
+/* User Profile Logic for Client Dashboard */
+document.addEventListener('DOMContentLoaded', function () {
+    var navProfile = document.querySelector('.client-nav-user');
+    var profileModal = document.getElementById('userProfileModal');
+    var profileForm = document.getElementById('userProfileForm');
+    var closeBtn = document.getElementById('closeUserProfile');
+    var delBtn = document.getElementById('btnDeleteAccount');
+
+    if (navProfile && profileModal) {
+        navProfile.addEventListener('click', function (e) {
+            e.preventDefault();
+            var userStr = localStorage.getItem('innoband-user');
+            if (userStr) {
+                var user = JSON.parse(userStr);
+                document.getElementById('profileEmail').value = user.email || '';
+                document.getElementById('profileNameModal').value = user.name || '';
+                document.getElementById('profilePhone').value = user.phone || '';
+                profileModal.style.display = 'flex';
+            }
+        });
+    }
+
+    if (closeBtn && profileModal) {
+        closeBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            profileModal.style.display = 'none';
+        });
+    }
+
+    if (profileForm) {
+        profileForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            var email = document.getElementById('profileEmail').value;
+            var name = document.getElementById('profileNameModal').value;
+            var phone = document.getElementById('profilePhone').value;
+
+            if (typeof window.dbUpdateUser === 'function') {
+                window.dbUpdateUser(email, name, phone).then(function () {
+                    var userStr = localStorage.getItem('innoband-user');
+                    if (userStr) {
+                        var user = JSON.parse(userStr);
+                        user.name = name;
+                        user.phone = phone;
+                        localStorage.setItem('innoband-user', JSON.stringify(user));
+
+                        // Update UI Name in Navbar
+                        var navUserName = document.getElementById('navUserName');
+                        if (navUserName) navUserName.textContent = name;
+                        var navAvatar = document.getElementById('navAvatar');
+                        if (navAvatar) navAvatar.textContent = name.charAt(0).toUpperCase();
+                    }
+                    profileModal.style.display = 'none';
+                    if (typeof showToast === 'function') {
+                        showToast('Profil berhasil diperbarui!', 'success');
+                    } else { alert('Profil berhasil diperbarui!'); }
+                }).catch(function (err) {
+                    alert('Gagal memperbarui profil: ' + err.message);
+                });
+            }
+        });
+    }
+
+    if (delBtn) {
+        delBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            if (confirm('Apakah Anda yakin ingin menghapus akun? Semua data diri Anda akan hilang secara permanen.')) {
+                var email = document.getElementById('profileEmail').value;
+                if (typeof window.dbDeleteAccount === 'function') {
+                    window.dbDeleteAccount(email).then(function () {
+                        localStorage.removeItem('innoband-loggedin');
+                        localStorage.removeItem('innoband-user');
+                        window.location.href = 'index.html';
+                    }).catch(function (err) {
+                        alert('Gagal menghapus akun: ' + err.message + '. Anda mungkin perlu logout dan login kembali untuk melakukan aksi ini.');
+                    });
+                }
+            }
+        });
+    }
+});
 

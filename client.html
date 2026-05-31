@@ -4,19 +4,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Dashboard klien INNOBAND — kelola data diri untuk gelang pintar dan pesan produk kustom.">
+    <meta name="description"
+        content="Dashboard klien INNOBAND — kelola data diri untuk gelang pintar dan pesan produk kustom.">
     <title>INNOBAND — Dashboard Client</title>
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400&family=Inter:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
 
     <!-- Client stylesheet -->
     <link rel="stylesheet" href="client.css">
 </head>
 
-<body data-theme="dark">
+<body data-theme="light">
 
     <!-- ============================================================
          TOP NAVIGATION
@@ -25,7 +28,8 @@
         <div class="client-nav-left">
             <a href="index.html" class="client-nav-logo">Innoband</a>
             <a href="index.html" class="client-nav-back">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
                     <path d="M19 12H5"></path>
                     <path d="M12 19l-7-7 7-7"></path>
                 </svg>
@@ -33,12 +37,21 @@
             </a>
         </div>
 
-        <div class="client-nav-right">
-            <!-- Theme toggle -->
-            <button class="client-theme-toggle" id="themeToggle" aria-label="Ganti tema">
-                <svg class="icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z" /></svg>
-                <svg class="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5" /><line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" /><line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" /><line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" /><line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" /></svg>
+        <!-- Tab Navigation -->
+        <div class="client-tabs">
+            <button class="client-tab active" data-tab="datadiri" id="tabDataDiri">
+                Data Diri
             </button>
+            <button class="client-tab" data-tab="pesan" id="tabPesan">
+                Pesanan Saya
+            </button>
+            <button class="client-tab" data-tab="lacak" id="tabLacak">
+                Lacak Pesanan
+            </button>
+        </div>
+
+        <div class="client-nav-right">
+
 
             <!-- User info -->
             <div class="client-nav-user">
@@ -48,7 +61,8 @@
 
             <!-- Logout -->
             <button class="client-logout-btn" id="logoutBtn">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
                     <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
                     <polyline points="16 17 21 12 16 7"></polyline>
                     <line x1="21" y1="12" x2="9" y2="12"></line>
@@ -64,20 +78,6 @@
          ============================================================ -->
     <main class="client-main">
 
-        <!-- Tab Navigation -->
-        <div class="client-tabs">
-            <button class="client-tab active" data-tab="datadiri" id="tabDataDiri">
-                Data Diri
-            </button>
-            <button class="client-tab" data-tab="pesan" id="tabPesan">
-                Pesanan Saya
-            </button>
-            <button class="client-tab" data-tab="lacak" id="tabLacak">
-                Lacak Pesanan
-            </button>
-        </div>
-
-
         <!-- ==========================================
              TAB 1: DATA DIRI
              ========================================== -->
@@ -91,15 +91,17 @@
                 <div class="section-header-actions">
                     <!-- Upload bulk button: only visible for company accounts -->
                     <button class="btn-secondary" id="btnUploadCSV" onclick="openUploadModal()" style="display:none;">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                            <polyline points="17 8 12 3 7 8"/>
-                            <line x1="12" y1="3" x2="12" y2="15"/>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                            <polyline points="17 8 12 3 7 8" />
+                            <line x1="12" y1="3" x2="12" y2="15" />
                         </svg>
-                        Upload File (CSV/Excel)
+                        Upload File
                     </button>
                     <button class="btn-primary" id="btnAddProfile" onclick="openProfileModal()">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                             <line x1="12" y1="5" x2="12" y2="19"></line>
                             <line x1="5" y1="12" x2="19" y2="12"></line>
                         </svg>
@@ -122,9 +124,11 @@
                     </svg>
                 </div>
                 <h3>Belum Ada Data Diri</h3>
-                <p>Tambahkan data diri untuk disimpan di QR code gelang INNOBAND Anda. Data ini akan membantu dalam identifikasi dan kontak darurat.</p>
+                <p>Tambahkan data diri untuk disimpan di QR code gelang INNOBAND Anda. Data ini akan membantu dalam
+                    identifikasi dan kontak darurat.</p>
                 <button class="btn-primary" onclick="openProfileModal()">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                        stroke-linecap="round" stroke-linejoin="round">
                         <line x1="12" y1="5" x2="12" y2="19"></line>
                         <line x1="5" y1="12" x2="19" y2="12"></line>
                     </svg>
@@ -152,7 +156,7 @@
                     <h3 id="orderProductName">Seri Playtime</h3>
                     <p id="orderProductDesc">Gelang INNOBAND untuk si kecil aktif</p>
                 </div>
-                <div class="order-banner-price" id="orderProductPrice">Rp 399K</div>
+                <div class="order-banner-price" id="orderProductPrice">Rp 399.000</div>
             </div>
 
             <!-- No product selected state -->
@@ -164,7 +168,8 @@
                     </svg>
                 </div>
                 <h3>Belum Ada Pesanan</h3>
-                <p>Kamu bisa memesan gelang INNOBAND dari halaman utama. Pilih produk yang sesuai dan klik "Custom dan Pesan".</p>
+                <p>Kamu bisa memesan gelang INNOBAND dari halaman utama. Pilih produk yang sesuai dan klik "Custom dan
+                    Pesan".</p>
                 <a href="index.html#pricing" class="btn-primary">Lihat Produk</a>
             </div>
 
@@ -176,7 +181,8 @@
                         <p>Riwayat pesanan gelang INNOBAND milikmu.</p>
                     </div>
                     <a href="index.html#pricing" class="btn-primary">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                             <line x1="12" y1="5" x2="12" y2="19"></line>
                             <line x1="5" y1="12" x2="19" y2="12"></line>
                         </svg>
@@ -206,7 +212,8 @@
                     <!-- No profiles warning -->
                     <div id="noProfilesWarning" style="display: none;">
                         <div class="empty-state" style="border-style: dashed; padding: 2rem;">
-                            <div class="empty-state-icon" style="width: 56px; height: 56px; border-radius: 14px; margin-bottom: 1rem;">
+                            <div class="empty-state-icon"
+                                style="width: 56px; height: 56px; border-radius: 14px; margin-bottom: 1rem;">
                                 <svg viewBox="0 0 24 24" style="width: 28px; height: 28px;">
                                     <circle cx="12" cy="12" r="10"></circle>
                                     <line x1="12" y1="8" x2="12" y2="12"></line>
@@ -222,7 +229,13 @@
                     </div>
 
                     <div style="margin-top: 1rem; text-align: right;" id="step1Next" class="step-nav-btn">
-                        <button class="btn-primary" onclick="goToStep(2)" id="btnNextStep1" disabled>Lanjut ke Kustomisasi →</button>
+                        <button class="btn-primary" onclick="goToStep(2)" id="btnNextStep1" disabled>Lanjut ke
+                            Kustomisasi 
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M5 12h14"></path>
+                                <path d="M12 5l7 7-7 7"></path>
+                            </svg>
+                        </button>
                     </div>
                 </div>
 
@@ -234,7 +247,9 @@
                     </div>
 
                     <!-- Color selection -->
-                    <label style="font-size: 0.85rem; color: var(--gray-text); font-weight: 500; display: block; margin-bottom: 0.8rem;">Pilih Warna Gelang</label>
+                    <label
+                        style="font-size: 0.85rem; color: var(--gray-text); font-weight: 500; display: block; margin-bottom: 0.8rem;">Pilih
+                        Warna Gelang</label>
                     <div class="customize-grid" id="colorGrid">
                         <div class="color-option selected" data-color="Hitam" onclick="selectColor(this)">
                             <div class="color-swatch" style="background: #1a1a1a;"></div>
@@ -264,13 +279,26 @@
 
                     <!-- Name grafik -->
                     <div class="customize-input-group" id="customNameGroup">
-                        <label for="customName">Grafik Nama di Gelang <span style="color: var(--gray-text); font-weight: 400;">(opsional)</span></label>
+                        <label for="customName">Grafik Nama di Gelang <span
+                                style="color: var(--gray-text); font-weight: 400;">(opsional)</span></label>
                         <input type="text" id="customName" placeholder="Contoh: Budi, Anisa, dll." maxlength="20">
                     </div>
 
-                    <div style="display: flex; gap: 0.8rem; justify-content: flex-end; flex-wrap: wrap;">
-                        <button class="btn-secondary" onclick="goToStep(1)">← Kembali</button>
-                        <button class="btn-primary" onclick="goToStep(3)">Lanjut ke Pengiriman →</button>
+                    <div style="display: flex; gap: 0.8rem; justify-content: flex-end; align-items: center; flex-wrap: wrap;">
+                        <button class="btn-secondary" onclick="goToStep(1)">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M19 12H5"></path>
+                                <path d="M12 19l-7-7 7-7"></path>
+                            </svg>
+                            Kembali
+                        </button>
+                        <button class="btn-primary" onclick="goToStep(3)">
+                            Lanjut ke Pengiriman 
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M5 12h14"></path>
+                                <path d="M12 5l7 7-7 7"></path>
+                            </svg>
+                        </button>
                     </div>
                 </div>
 
@@ -292,7 +320,8 @@
                         </div>
                         <div class="form-group">
                             <label for="shipAddress">Alamat Lengkap <span class="required">*</span></label>
-                            <textarea id="shipAddress" rows="3" placeholder="Jl. Contoh No. 123, Kelurahan, Kecamatan, Kota, Provinsi"></textarea>
+                            <textarea id="shipAddress" rows="3"
+                                placeholder="Jl. Contoh No. 123, Kelurahan, Kecamatan, Kota, Provinsi"></textarea>
                         </div>
                         <div class="form-row">
                             <div class="form-group">
@@ -305,14 +334,28 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="shipNote">Catatan untuk Kurir <span style="color: var(--gray-text); font-weight: 400;">(opsional)</span></label>
+                            <label for="shipNote">Catatan untuk Kurir <span
+                                    style="color: var(--gray-text); font-weight: 400;">(opsional)</span></label>
                             <input type="text" id="shipNote" placeholder="Contoh: Titip ke satpam, pintu merah, dll.">
                         </div>
                     </div>
 
-                    <div style="display: flex; gap: 0.8rem; justify-content: flex-end; flex-wrap: wrap; margin-top: 1.5rem;">
-                        <button class="btn-secondary" onclick="goToStep(2)">← Kembali</button>
-                        <button class="btn-primary" onclick="goToStep(4)" id="btnNextStep3">Selanjutnya →</button>
+                    <div
+                        style="display: flex; gap: 0.8rem; justify-content: flex-end; align-items: center; flex-wrap: wrap; margin-top: 1.5rem;">
+                        <button class="btn-secondary" onclick="goToStep(2)">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M19 12H5"></path>
+                                <path d="M12 19l-7-7 7-7"></path>
+                            </svg>
+                            Kembali
+                        </button>
+                        <button class="btn-primary" onclick="goToStep(4)" id="btnNextStep3">
+                            Selanjutnya 
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M5 12h14"></path>
+                                <path d="M12 5l7 7-7 7"></path>
+                            </svg>
+                        </button>
                     </div>
                 </div>
 
@@ -355,11 +398,20 @@
                         </div>
                     </div>
 
-                    <div style="display: flex; gap: 0.8rem; justify-content: flex-end; flex-wrap: wrap; margin-top: 1.5rem;">
-                        <button class="btn-secondary" onclick="goToStep(3)">← Kembali</button>
-                        <button class="btn-primary order-confirm-btn" onclick="openPaymentModal()" style="width: auto;">
+                    <div
+                        style="display: flex; gap: 0.8rem; justify-content: flex-end; align-items: center; flex-wrap: wrap; margin-top: 1.5rem;">
+                        <button class="btn-secondary" onclick="goToStep(3)">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                <rect x="3" y="5" width="18" height="14" rx="2" ry="2"></rect><line x1="3" y1="10" x2="21" y2="10"></line>
+                                <path d="M19 12H5"></path>
+                                <path d="M12 19l-7-7 7-7"></path>
+                            </svg>
+                            Kembali
+                        </button>
+                        <button class="btn-primary order-confirm-btn" onclick="openPaymentModal()" style="width: auto;">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="5" width="18" height="14" rx="2" ry="2"></rect>
+                                <line x1="3" y1="10" x2="21" y2="10"></line>
                             </svg>
                             Pilih Pembayaran & Pesan
                         </button>
@@ -375,7 +427,7 @@
              TAB 3: LACAK PESANAN
              ========================================== -->
         <div class="tab-panel" id="panelLacak">
-            
+
             <div class="section-header">
                 <div>
                     <h2>Lacak Pesanan</h2>
@@ -398,7 +450,7 @@
 
             <!-- Tracking Dashboard -->
             <div id="trackingDashboard" style="display: none;">
-                
+
                 <!-- If multiple orders, a selector could be here. For now, we will render a list of tracking cards -->
                 <div class="tracking-list" id="trackingList">
                     <!-- Cards will be populated by JS -->
@@ -467,12 +519,10 @@
                 </div>
 
                 <!-- KHUSUS PERUSAHAAN (Akan ditampilkan via JS) -->
-                <div id="companyFields" style="display: none; border-top: 1px dashed #cbd5e1; padding-top: 15px; margin-top: 10px;">
+                <div id="companyFields"
+                    style="display: none; flex-direction: column; gap: 1.2rem; border-top: 1px dashed #cbd5e1; padding-top: 15px; margin-top: 10px;">
+                    <!-- Row 1: Keperluan and Nama Acara -->
                     <div class="form-row">
-                        <div class="form-group">
-                            <label for="profRegistrationId">ID Registrasi</label>
-                            <input type="text" id="profRegistrationId" placeholder="Contoh: TKT-12345">
-                        </div>
                         <div class="form-group">
                             <label for="profEventPurpose">Keperluan</label>
                             <select id="profEventPurpose" onchange="toggleEventDetails()">
@@ -481,16 +531,31 @@
                                 <option value="olahraga">Event Olahraga</option>
                             </select>
                         </div>
+                        <div class="form-group" id="groupEventName" style="display: none;">
+                            <label for="profEventName">Nama Acara <span class="required">*</span></label>
+                            <input type="text" id="profEventName"
+                                placeholder="Contoh: Konser Taylor Swift / Jakarta Marathon">
+                        </div>
                     </div>
-                    
-                    <div class="form-group" id="groupGate" style="display: none;">
-                        <label for="profEventGate">Nomor Gate (Opsional)</label>
-                        <input type="text" id="profEventGate" placeholder="Contoh: Gate 4A">
-                    </div>
-                    
-                    <div class="form-group" id="groupNumber" style="display: none;">
-                        <label for="profEventNumber">No Punggung / Peserta (Opsional)</label>
-                        <input type="text" id="profEventNumber" placeholder="Contoh: 10">
+
+                    <!-- Row 2: ID Registrasi and Additional Details -->
+                    <div class="form-row" id="rowDetails" style="display: none;">
+                        <div class="form-group">
+                            <label for="profRegistrationId">ID Registrasi</label>
+                            <input type="text" id="profRegistrationId" placeholder="Contoh: TKT-12345">
+                        </div>
+                        <div class="form-group" id="groupSeat" style="display: none;">
+                            <label for="profEventSeat">Tempat Duduk (Opsional)</label>
+                            <input type="text" id="profEventSeat" placeholder="Contoh: VIP Row A Seat 1">
+                        </div>
+                        <div class="form-group" id="groupGate" style="display: none;">
+                            <label for="profEventGate">Nomor Gate (Opsional)</label>
+                            <input type="text" id="profEventGate" placeholder="Contoh: Gate 4A">
+                        </div>
+                        <div class="form-group" id="groupNumber" style="display: none;">
+                            <label for="profEventNumber">No Punggung / Peserta (Opsional)</label>
+                            <input type="text" id="profEventNumber" placeholder="Contoh: 10">
+                        </div>
                     </div>
                 </div>
 
@@ -506,13 +571,15 @@
     <div class="order-success-overlay" id="orderSuccessOverlay">
         <div class="order-success-card">
             <div class="order-success-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                    stroke-linejoin="round">
                     <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                     <polyline points="22 4 12 14.01 9 11.01"></polyline>
                 </svg>
             </div>
             <h2>Pesanan Berhasil Dikonfirmasi</h2>
-            <p>Terima kasih telah memesan gelang INNOBAND. Tim logistik kami akan segera memproses pesanan Anda dan menghubungi Anda melalui nomor telepon yang terdaftar.</p>
+            <p>Terima kasih telah memesan gelang INNOBAND. Tim logistik kami akan segera memproses pesanan Anda dan
+                menghubungi Anda melalui nomor telepon yang terdaftar.</p>
             <button class="btn-primary" onclick="closeOrderSuccess()">Tutup & Kembali ke Dashboard</button>
         </div>
     </div>
@@ -523,7 +590,8 @@
          ============================================================ -->
     <div class="success-toast" id="successToast">
         <div class="success-toast-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                stroke-linejoin="round">
                 <polyline points="20 6 9 17 4 12"></polyline>
             </svg>
         </div>
@@ -541,40 +609,51 @@
     <div class="modal-overlay" id="uploadModal">
         <div class="modal modal-wide">
             <button class="modal-close" onclick="closeUploadModal()">&times;</button>
-            <h2>Upload Data Karyawan</h2>
-            <p class="modal-subtitle">Upload file CSV atau Excel (.xlsx) untuk menambahkan banyak data diri sekaligus.</p>
+            <h2>Upload Data Diri</h2>
+            <p class="modal-subtitle">Upload file CSV atau Excel (.xlsx) untuk menambahkan banyak data diri sekaligus.
+            </p>
 
             <!-- Template download -->
             <div class="upload-template-bar">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="7 10 12 15 17 10" />
+                    <line x1="12" y1="15" x2="12" y2="3" />
+                </svg>
                 <span>Gunakan template yang sesuai:</span>
                 <button class="btn-link" onclick="downloadCSVTemplate()">Download Template CSV</button>
             </div>
 
             <!-- Drop zone -->
-            <div class="upload-dropzone" id="uploadDropzone"
-                 ondragover="handleDragOver(event)"
-                 ondragleave="handleDragLeave(event)"
-                 ondrop="handleDrop(event)">
+            <div class="upload-dropzone" id="uploadDropzone" ondragover="handleDragOver(event)"
+                ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
                 <div class="upload-dropzone-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                        <polyline points="17 8 12 3 7 8"/>
-                        <line x1="12" y1="3" x2="12" y2="15"/>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="17 8 12 3 7 8" />
+                        <line x1="12" y1="3" x2="12" y2="15" />
                     </svg>
                 </div>
                 <p class="upload-dropzone-text">Seret & lepas file di sini</p>
                 <p class="upload-dropzone-hint">atau</p>
                 <label class="btn-secondary upload-browse-btn">
                     Pilih File
-                    <input type="file" id="uploadFileInput" accept=".csv,.xlsx,.xls" style="display:none" onchange="handleFileSelect(event)">
+                    <input type="file" id="uploadFileInput" accept=".csv,.xlsx,.xls" style="display:none"
+                        onchange="handleFileSelect(event)">
                 </label>
-                <p class="upload-dropzone-formats">Format yang didukung: .csv, .xlsx, .xls &nbsp;|&nbsp; Maks. 500 baris</p>
+                <p class="upload-dropzone-formats">Format yang didukung: .csv, .xlsx, .xls &nbsp;|&nbsp; Maks. 500 baris
+                </p>
             </div>
 
             <!-- File info bar (visible after file selected) -->
             <div class="upload-file-info" id="uploadFileInfo" style="display:none">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" />
+                    <polyline points="13 2 13 9 20 9" />
+                </svg>
                 <span id="uploadFileName">nama-file.csv</span>
                 <span id="uploadRowCount" class="upload-row-count"></span>
                 <button class="btn-link upload-clear-btn" onclick="clearUpload()">× Hapus</button>
@@ -613,7 +692,10 @@
             <div class="upload-actions">
                 <button class="btn-secondary" onclick="closeUploadModal()">Batal</button>
                 <button class="btn-primary" id="btnSaveUpload" onclick="saveBulkProfiles()" disabled>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12" />
+                    </svg>
                     Simpan Semua Data
                 </button>
             </div>
@@ -651,10 +733,11 @@
             <div class="qr-modal-actions">
                 <button class="btn-secondary" onclick="closeQRModal()">Tutup</button>
                 <button class="btn-primary" id="btnDownloadQR" onclick="downloadCurrentQR()">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                        <polyline points="7 10 12 15 17 10"/>
-                        <line x1="12" y1="15" x2="12" y2="3"/>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="7 10 12 15 17 10" />
+                        <line x1="12" y1="15" x2="12" y2="3" />
                     </svg>
                     Download QR Code
                 </button>
@@ -664,16 +747,25 @@
 
     <!-- Payment Modal -->
     <div id="modalPayment" class="modal-backdrop" style="display: none;">
-        <div class="modal" style="max-width: 800px; width: 90%; border-radius: 12px; overflow: hidden; padding: 0; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1); max-height: 90vh; display: flex; flex-direction: column;">
-            
+        <div class="modal"
+            style="max-width: 800px; width: 90%; border-radius: 12px; overflow: hidden; padding: 0; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1); max-height: 90vh; display: flex; flex-direction: column;">
+
             <!-- Header -->
             <div class="payment-modal-header">
-                <button onclick="closePaymentModal()" style="position:absolute; top: 1.25rem; right: 1.25rem; background: transparent; border: none; color: #94a3b8; cursor: pointer; padding: 0.5rem; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: all 0.2s;" onmouseover="this.style.background='#f1f5f9'; this.style.color='#0f172a'" onmouseout="this.style.background='transparent'; this.style.color='#94a3b8'">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                <button onclick="closePaymentModal()"
+                    style="position:absolute; top: 1.25rem; right: 1.25rem; background: transparent; border: none; color: #94a3b8; cursor: pointer; padding: 0.5rem; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: all 0.2s;"
+                    onmouseover="this.style.background='#f1f5f9'; this.style.color='#0f172a'"
+                    onmouseout="this.style.background='transparent'; this.style.color='#94a3b8'">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
                 </button>
                 <div class="payment-modal-header-content">
                     <div class="payment-modal-title-icon">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                             <rect x="3" y="5" width="18" height="14" rx="2" ry="2"></rect>
                             <line x1="3" y1="10" x2="21" y2="10"></line>
                         </svg>
@@ -684,24 +776,34 @@
                     </div>
                 </div>
             </div>
-            
+
             <!-- Body -->
             <div class="payment-modal-body">
-                
+
                 <!-- 1. Total amount display -->
                 <div class="payment-total-banner">
                     <span class="payment-total-label">Total yang harus dibayar</span>
-                    <span class="payment-total-amount" id="paymentTotalAmount">Rp 899K</span>
+                    <span class="payment-total-amount" id="paymentTotalAmount">Rp 899.000</span>
                 </div>
 
                 <!-- 2. Method toggle -->
                 <div class="payment-tabs" style="margin-bottom: 0.5rem;">
                     <button class="payment-tab active" id="tabQRIS" onclick="switchPayTab('qris')">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="3" height="3"/></svg>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="7" height="7" />
+                            <rect x="14" y="3" width="7" height="7" />
+                            <rect x="3" y="14" width="7" height="7" />
+                            <rect x="14" y="14" width="3" height="3" />
+                        </svg>
                         QRIS
                     </button>
                     <button class="payment-tab" id="tabVA" onclick="switchPayTab('va')">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
+                            <line x1="1" y1="10" x2="23" y2="10" />
+                        </svg>
                         Transfer Bank
                     </button>
                 </div>
@@ -735,7 +837,12 @@
                                 <div class="va-number-wrap">
                                     <span class="va-number" id="vaNumber">1234567890</span>
                                     <button class="va-copy-btn" onclick="copyVA()" title="Salin nomor rekening">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                            stroke-linejoin="round">
+                                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                                        </svg>
                                         Salin
                                     </button>
                                 </div>
@@ -750,40 +857,69 @@
                             </div>
                         </div>
                         <div class="va-notice">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                            <span>Transfer sesuai nominal <strong>tepat</strong> agar verifikasi otomatis. Jangan bulatkan.</span>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10" />
+                                <line x1="12" y1="8" x2="12" y2="12" />
+                                <line x1="12" y1="16" x2="12.01" y2="16" />
+                            </svg>
+                            <span>Transfer sesuai nominal <strong>tepat</strong> agar verifikasi otomatis. Jangan
+                                bulatkan.</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- 4. Upload Bukti Pembayaran -->
                 <div class="upload-proof-section">
-                    <div class="upload-proof-label" style="font-weight: 600; font-size: 0.9rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    <div class="upload-proof-label"
+                        style="font-weight: 600; font-size: 0.9rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                            <polyline points="17 8 12 3 7 8" />
+                            <line x1="12" y1="3" x2="12" y2="15" />
+                        </svg>
                         Upload Bukti Pembayaran <span class="required" style="color:red;">*</span>
                     </div>
-                    <label class="proof-upload-zone" id="proofUploadZone" for="proofFileInput" style="padding: 1rem; border: 2px dashed var(--card-border); border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; cursor: pointer; background: rgba(0,0,0,0.02); transition: 0.2s; min-height: 120px;">
+                    <label class="proof-upload-zone" id="proofUploadZone" for="proofFileInput"
+                        style="padding: 1rem; border: 2px dashed var(--card-border); border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; cursor: pointer; background: rgba(0,0,0,0.02); transition: 0.2s; min-height: 120px;">
                         <div class="proof-upload-content" id="proofUploadContent">
-                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--gray-text)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:0.25rem;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-                            <p style="margin:0; font-size: 0.85rem; font-weight: 500; color: var(--text);">Klik untuk unggah bukti</p>
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--gray-text)"
+                                stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                                style="margin-bottom:0.25rem;">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                                <circle cx="8.5" cy="8.5" r="1.5" />
+                                <polyline points="21 15 16 10 5 21" />
+                            </svg>
+                            <p style="margin:0; font-size: 0.85rem; font-weight: 500; color: var(--text);">Klik untuk
+                                unggah bukti</p>
                             <span style="font-size: 0.7rem; color: var(--gray-text);">JPG, PNG (maks. 5MB)</span>
                         </div>
-                        <img id="proofPreview" class="proof-preview-img" style="display:none; max-width: 100%; max-height: 120px; border-radius: 8px; margin: 0 auto; object-fit: contain;" alt="Preview bukti">
+                        <img id="proofPreview" class="proof-preview-img"
+                            style="display:none; max-width: 100%; max-height: 120px; border-radius: 8px; margin: 0 auto; object-fit: contain;"
+                            alt="Preview bukti">
                     </label>
-                    <input type="file" id="proofFileInput" accept="image/*,.pdf" style="display:none;" onchange="handleProofUpload(event)">
-                    <p class="proof-filename" id="proofFilename" style="display:none; text-align: center; font-size: 0.8rem; color: var(--green); margin-top: 0.5rem; font-weight: 600;"></p>
+                    <input type="file" id="proofFileInput" accept="image/*,.pdf" style="display:none;"
+                        onchange="handleProofUpload(event)">
+                    <p class="proof-filename" id="proofFilename"
+                        style="display:none; text-align: center; font-size: 0.8rem; color: var(--green); margin-top: 0.5rem; font-weight: 600;">
+                    </p>
                 </div>
 
                 <!-- 5. Confirm button -->
                 <div class="order-confirm-btn-wrap" style="margin-top: 1rem;">
-                    <button class="btn-primary order-confirm-btn" onclick="confirmOrder()" style="width:100%; font-size:1rem; font-weight:600; padding:1rem; border-radius:10px; display:flex; align-items:center; justify-content:center; gap:0.5rem; box-shadow: 0 4px 6px -1px rgba(44, 255, 110, 0.2);">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    <button class="btn-primary order-confirm-btn" onclick="confirmOrder()"
+                        style="width:100%; font-size:1rem; font-weight:600; padding:1rem; border-radius:10px; display:flex; align-items:center; justify-content:center; gap:0.5rem; box-shadow: 0 4px 6px -1px rgba(44, 255, 110, 0.2);">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
                         Konfirmasi Pembayaran
                     </button>
                 </div>
             </div>
-            </div>
         </div>
+    </div>
     </div>
 
     <!-- Order Status Modal -->
@@ -792,14 +928,15 @@
             <!-- Header -->
             <div class="header">
                 <svg id="statusIcon" viewBox="0 0 70 70" xmlns="http://www.w3.org/2000/svg" width="70" height="70">
-                    <rect x="8" y="14" width="42" height="46" rx="4" fill="none" stroke="#F5A623" stroke-width="2.5"/>
-                    <rect x="14" y="20" width="42" height="46" rx="4" fill="white" stroke="#F5A623" stroke-width="2.5"/>
-                    <line x1="22" y1="34" x2="46" y2="34" stroke="#F5A623" stroke-width="2" stroke-linecap="round"/>
-                    <line x1="22" y1="41" x2="38" y2="41" stroke="#F5A623" stroke-width="2" stroke-linecap="round"/>
-                    <circle cx="50" cy="50" r="12" fill="#F5A623"/>
-                    <circle cx="50" cy="50" r="2" fill="white"/>
-                    <circle cx="45" cy="50" r="2" fill="white"/>
-                    <circle cx="55" cy="50" r="2" fill="white"/>
+                    <rect x="8" y="14" width="42" height="46" rx="4" fill="none" stroke="#F5A623" stroke-width="2.5" />
+                    <rect x="14" y="20" width="42" height="46" rx="4" fill="white" stroke="#F5A623"
+                        stroke-width="2.5" />
+                    <line x1="22" y1="34" x2="46" y2="34" stroke="#F5A623" stroke-width="2" stroke-linecap="round" />
+                    <line x1="22" y1="41" x2="38" y2="41" stroke="#F5A623" stroke-width="2" stroke-linecap="round" />
+                    <circle cx="50" cy="50" r="12" fill="#F5A623" />
+                    <circle cx="50" cy="50" r="2" fill="white" />
+                    <circle cx="45" cy="50" r="2" fill="white" />
+                    <circle cx="55" cy="50" r="2" fill="white" />
                 </svg>
                 <h2 id="statusTitle">Menunggu Konfirmasi Pembayaran oleh Admin</h2>
             </div>
@@ -811,26 +948,26 @@
             <div class="section">
                 <p class="section-title">Detail Pesanan</p>
                 <table>
-                <tr>
-                    <td class="label">ID Pesanan</td>
-                    <td class="value">: &nbsp;<span id="statusOrderId">-</span></td>
-                </tr>
-                <tr>
-                    <td class="label">Waktu Pesanan</td>
-                    <td class="value">: &nbsp;<span id="statusOrderTime">-</span></td>
-                </tr>
-                <tr>
-                    <td class="label">Metode Pembayaran</td>
-                    <td class="value">: &nbsp;<span id="statusOrderMethod">-</span></td>
-                </tr>
-                <tr>
-                    <td class="label">Status</td>
-                    <td class="value">: &nbsp;<span class="badge-pending" id="statusOrderBadge">Menunggu</span></td>
-                </tr>
-                <tr>
-                    <td class="label">Tagihan</td>
-                    <td class="value">: &nbsp;<span id="statusOrderAmount">-</span></td>
-                </tr>
+                    <tr>
+                        <td class="label">ID Pesanan</td>
+                        <td class="value">: &nbsp;<span id="statusOrderId">-</span></td>
+                    </tr>
+                    <tr>
+                        <td class="label">Waktu Pesanan</td>
+                        <td class="value">: &nbsp;<span id="statusOrderTime">-</span></td>
+                    </tr>
+                    <tr>
+                        <td class="label">Metode Pembayaran</td>
+                        <td class="value">: &nbsp;<span id="statusOrderMethod">-</span></td>
+                    </tr>
+                    <tr>
+                        <td class="label">Status</td>
+                        <td class="value">: &nbsp;<span class="badge-pending" id="statusOrderBadge">Menunggu</span></td>
+                    </tr>
+                    <tr>
+                        <td class="label">Tagihan</td>
+                        <td class="value">: &nbsp;<span id="statusOrderAmount">-</span></td>
+                    </tr>
                 </table>
             </div>
 
@@ -841,18 +978,20 @@
             <div class="section">
                 <p class="section-title">Item yang Dipesan</p>
                 <table>
-                <tr>
-                    <td class="label"><span id="statusOrderProduct">-</span> &nbsp; <span id="statusOrderQty">x1</span></td>
-                    <td class="bold-value" id="statusOrderPrice">-</td>
-                </tr>
-                <tr>
-                    <td class="label">Pengiriman</td>
-                    <td class="right-value">Sesuai Alamat</td>
-                </tr>
-                <tr>
-                    <td class="label" style="font-weight:600; color:#1a1a1a; padding-top:8px;">Total Bayar</td>
-                    <td class="right-value" id="statusOrderTotal" style="font-weight:700; color:#1a1a1a; padding-top:8px;">-</td>
-                </tr>
+                    <tr>
+                        <td class="label"><span id="statusOrderProduct">-</span> &nbsp; <span
+                                id="statusOrderQty">x1</span></td>
+                        <td class="bold-value" id="statusOrderPrice">-</td>
+                    </tr>
+                    <tr>
+                        <td class="label">Pengiriman</td>
+                        <td class="right-value">Sesuai Alamat</td>
+                    </tr>
+                    <tr>
+                        <td class="label" style="font-weight:600; color:#1a1a1a; padding-top:8px;">Total Bayar</td>
+                        <td class="right-value" id="statusOrderTotal"
+                            style="font-weight:700; color:#1a1a1a; padding-top:8px;">-</td>
+                    </tr>
                 </table>
             </div>
 
@@ -866,8 +1005,9 @@
             <!-- Wave Bottom -->
             <div class="wave-bottom">
                 <svg width="360" height="14" xmlns="http://www.w3.org/2000/svg">
-                <path d="M0,0 Q9,14 18,0 Q27,14 36,0 Q45,14 54,0 Q63,14 72,0 Q81,14 90,0 Q99,14 108,0 Q117,14 126,0 Q135,14 144,0 Q153,14 162,0 Q171,14 180,0 Q189,14 198,0 Q207,14 216,0 Q225,14 234,0 Q243,14 252,0 Q261,14 270,0 Q279,14 288,0 Q297,14 306,0 Q315,14 324,0 Q333,14 342,0 Q351,14 360,0"
-                        fill="none" stroke="#ddd" stroke-width="1.5"/>
+                    <path
+                        d="M0,0 Q9,14 18,0 Q27,14 36,0 Q45,14 54,0 Q63,14 72,0 Q81,14 90,0 Q99,14 108,0 Q117,14 126,0 Q135,14 144,0 Q153,14 162,0 Q171,14 180,0 Q189,14 198,0 Q207,14 216,0 Q225,14 234,0 Q243,14 252,0 Q261,14 270,0 Q279,14 288,0 Q297,14 306,0 Q315,14 324,0 Q333,14 342,0 Q351,14 360,0"
+                        fill="none" stroke="#ddd" stroke-width="1.5" />
                 </svg>
             </div>
         </div>
@@ -875,45 +1015,128 @@
 
     <!-- SOS Alert Modal -->
     <div id="modalSos" class="modal-backdrop">
-        <div class="modal" style="max-width: 500px; border-radius: 12px; overflow: hidden; padding: 0; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);">
+        <div class="modal"
+            style="max-width: 500px; border-radius: 12px; overflow: hidden; padding: 0; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);">
             <!-- Header -->
             <div style="background: #fef2f2; padding: 1.5rem 1.5rem 1.25rem; position: relative;">
-                <button onclick="closeSosModal()" style="position:absolute; top: 1.25rem; right: 1.25rem; background: transparent; border: none; color: #94a3b8; cursor: pointer; padding: 0.5rem; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: all 0.2s;" onmouseover="this.style.background='#f1f5f9'; this.style.color='#0f172a'" onmouseout="this.style.background='transparent'; this.style.color='#94a3b8'">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                <button onclick="closeSosModal()"
+                    style="position:absolute; top: 1.25rem; right: 1.25rem; background: transparent; border: none; color: #94a3b8; cursor: pointer; padding: 0.5rem; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: all 0.2s;"
+                    onmouseover="this.style.background='#f1f5f9'; this.style.color='#0f172a'"
+                    onmouseout="this.style.background='transparent'; this.style.color='#94a3b8'">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
                 </button>
                 <div style="display: flex; align-items: center; gap: 1rem;">
-                    <div style="width:48px;height:48px;background:#fee2e2;color:#dc2626;border-radius:12px;display:flex;align-items:center;justify-content:center; flex-shrink:0;">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                    <div
+                        style="width:48px;height:48px;background:#fee2e2;color:#dc2626;border-radius:12px;display:flex;align-items:center;justify-content:center; flex-shrink:0;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path
+                                d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z">
+                            </path>
+                            <line x1="12" y1="9" x2="12" y2="13"></line>
+                            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                        </svg>
                     </div>
                     <div style="text-align: left;">
-                        <h3 style="margin: 0; color: #991b1b; font-size: 1.25rem; font-weight: 700;">Laporan Darurat SOS</h3>
-                        <p style="margin: 0.25rem 0 0; color: #b91c1c; font-size: 0.9rem; font-weight: 500;">Peringatan aktif dari gelang INNOBAND</p>
+                        <h3 style="margin: 0; color: #991b1b; font-size: 1.25rem; font-weight: 700;">Laporan Darurat SOS
+                        </h3>
+                        <p style="margin: 0.25rem 0 0; color: #b91c1c; font-size: 0.9rem; font-weight: 500;">Peringatan
+                            aktif dari gelang INNOBAND</p>
                     </div>
                 </div>
             </div>
-            
+
             <!-- Body -->
             <div style="padding: 1.5rem;">
                 <div style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.5rem;">
                     <div>
-                        <p style="color:#64748b;font-size:0.85rem;text-transform:uppercase;letter-spacing:0.5px;font-weight:600;margin:0 0 0.25rem;">Waktu Kejadian</p>
+                        <p
+                            style="color:#64748b;font-size:0.85rem;text-transform:uppercase;letter-spacing:0.5px;font-weight:600;margin:0 0 0.25rem;">
+                            Waktu Kejadian</p>
                         <h4 id="sosAlertTime" style="margin:0;font-size:1.1rem;color:#0f172a;">-</h4>
                     </div>
-                    
-                    <div id="sosMapContainer" style="width: 100%; height: 220px; background: #e2e8f0; border-radius: 12px; overflow: hidden; display: none; border: 1px solid #cbd5e1;">
+
+                    <div id="sosMapContainer"
+                        style="width: 100%; height: 220px; background: #e2e8f0; border-radius: 12px; overflow: hidden; display: none; border: 1px solid #cbd5e1;">
                         <!-- Iframe will be injected here -->
                     </div>
                 </div>
 
-                <a id="sosAlertMaps" href="#" target="_blank" style="display:none;align-items:center;gap:0.5rem;background:#f8fafc;padding:0.875rem 1rem;border-radius:10px;text-decoration:none;color:#3b82f6;font-weight:600;margin-bottom:1rem;border:1px solid #bfdbfe;width:100%;justify-content:center; transition: 0.2s;">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                <a id="sosAlertMaps" href="#" target="_blank"
+                    style="display:none;align-items:center;gap:0.5rem;background:#f8fafc;padding:0.875rem 1rem;border-radius:10px;text-decoration:none;color:#3b82f6;font-weight:600;margin-bottom:1rem;border:1px solid #bfdbfe;width:100%;justify-content:center; transition: 0.2s;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                        <circle cx="12" cy="10" r="3"></circle>
+                    </svg>
                     Buka Rute di Google Maps
                 </a>
 
-                <button class="btn-primary" onclick="resolveSosAlert()" style="width:100%;background:#16a34a;border:none;padding:1rem;font-size:1rem;font-weight:600;border-radius:10px;display:flex;align-items:center;justify-content:center;gap:0.5rem;box-shadow: 0 4px 6px -1px rgba(22, 163, 74, 0.2);">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                <button class="btn-primary" onclick="resolveSosAlert()"
+                    style="width:100%;background:#16a34a;border:none;padding:1rem;font-size:1rem;font-weight:600;border-radius:10px;display:flex;align-items:center;justify-content:center;gap:0.5rem;box-shadow: 0 4px 6px -1px rgba(22, 163, 74, 0.2);">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
                     Tandai Selesai & Hapus Peringatan
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Profile Modal -->
+    <div id="userProfileModal"
+        style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
+        <div
+            style="background: #ffffff; border-radius: 12px; padding: 2rem; max-width: 420px; width: 90%; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);">
+            <div
+                style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid rgba(0,0,0,0.08);">
+                <div>
+                    <h2 style="margin: 0 0 0.25rem 0; color: #0f172a; font-size: 1.35rem; font-weight: 700;">Profil Akun
+                    </h2>
+                    <p style="margin: 0; color: #64748b; font-size: 0.9rem;">Atur informasi data diri akun Anda.</p>
+                </div>
+                <button id="closeUserProfile"
+                    style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #64748b; padding: 0.5rem; line-height: 1;">&times;</button>
+            </div>
+
+            <form id="userProfileForm">
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label
+                        style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #0f172a; font-size: 0.9rem;">Email
+                        (Tidak dapat diubah)</label>
+                    <input type="email" id="profileEmail" readonly
+                        style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.03); color: #64748b; cursor: not-allowed; border: 1px solid rgba(0,0,0,0.15); padding: 0.75rem 1rem; border-radius: 8px; font-family: inherit;"
+                        disabled>
+                </div>
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label
+                        style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #0f172a; font-size: 0.9rem;">Nama
+                        Lengkap</label>
+                    <input type="text" id="profileNameModal" required
+                        style="width: 100%; box-sizing: border-box; background: #ffffff; color: #0f172a; border: 1px solid rgba(0,0,0,0.15); padding: 0.75rem 1rem; border-radius: 8px; font-family: inherit;">
+                </div>
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label
+                        style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #0f172a; font-size: 0.9rem;">No.
+                        Telepon / WhatsApp</label>
+                    <input type="tel" id="profilePhone" required
+                        style="width: 100%; box-sizing: border-box; background: #ffffff; color: #0f172a; border: 1px solid rgba(0,0,0,0.15); padding: 0.75rem 1rem; border-radius: 8px; font-family: inherit;">
+                </div>
+
+                <button type="submit" class="btn-primary"
+                    style="width: 100%; margin-bottom: 1.5rem; padding: 0.8rem; font-size: 1rem; border-radius: 8px; background: #00933f; color: #ffffff; border: none; cursor: pointer;">Simpan
+                    Perubahan</button>
+            </form>
+
+            <div style="border-top: 1px solid rgba(0,0,0,0.08); padding-top: 1.5rem; text-align: center;">
+                <button id="btnDeleteAccount" type="button"
+                    style="background: none; border: none; color: #ef4444; font-weight: 600; font-size: 0.9rem; cursor: pointer; text-decoration: underline; font-family: inherit;">Hapus
+                    Akun Permanen</button>
             </div>
         </div>
     </div>

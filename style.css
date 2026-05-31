@@ -1,4 +1,4 @@
-/* ============================================================
+﻿/* ============================================================
    INNOBAND — Landing Page Stylesheet
    File  : style.css
    Desc  : Global design tokens, component styles, animations,
@@ -15,14 +15,14 @@
 }
 
 :root {
-    --black:      #0a0a0a;
-    --white:      #f5f4f0;
-    --green:      #2cff6e;
-    --green-dark: #00c44a;
-    --green-dim:  rgba(44, 255, 110, 0.12);
-    --gray:       #1a1a1a;
-    --gray-mid:   #2e2e2e;
-    --gray-text:  #9a9a9a;
+    --black:      #f7f6f2;
+    --white:      #111111;
+    --green:      #00933f;
+    --green-dark: #006e2e;
+    --green-dim:  rgba(0, 147, 63, 0.10);
+    --gray:       #eceae5;
+    --gray-mid:   #d4d2cc;
+    --gray-text:  #666666;
     --font-head:  'Plus Jakarta Sans', sans-serif;
     --font-body:  'Inter', sans-serif;
 
@@ -38,27 +38,7 @@
     --leading-relaxed:1.75;
 
     /* Nav background as a variable so light mode can override */
-    --nav-bg:          rgba(10, 10, 10, 0.96);
-    --nav-border:      rgba(255, 255, 255, 0.06);
-    --nav-icon-border: rgba(255, 255, 255, 0.15);
-}
-
-/* ── Light theme overrides ── */
-[data-theme="light"] {
-    /* Page backgrounds */
-    --black:      #f7f6f2;         /* page bg — warm off-white       */
-    --white:      #111111;         /* primary text — near-black       */
-    --gray:       #eceae5;         /* card/section bg                 */
-    --gray-mid:   #d4d2cc;         /* dividers, mid-tone              */
-    --gray-text:  #666666;         /* secondary text                  */
-
-    /* Green shifted to a darker, readable forest green */
-    --green:      #00933f;
-    --green-dark: #006e2e;
-    --green-dim:  rgba(0, 147, 63, 0.10);
-
-    /* Nav */
-    --nav-bg:          rgba(247, 246, 242, 0.97);
+    --nav-bg:          rgba(247, 246, 242, 0.98);
     --nav-border:      rgba(0, 0, 0, 0.08);
     --nav-icon-border: rgba(0, 0, 0, 0.15);
 }
@@ -164,12 +144,9 @@ nav {
 }
 
 /* Show moon on dark mode, hide sun */
-[data-theme="dark"]  .icon-sun  { display: none; }
-[data-theme="dark"]  .icon-moon { display: block; }
-
 /* Show sun on light mode, hide moon */
-[data-theme="light"] .icon-moon { display: none; }
-[data-theme="light"] .icon-sun  { display: block; }
+.icon-moon { display: none; }
+.icon-sun  { display: block; }
 
 /* Profile icon button */
 .nav-profile {
@@ -1825,143 +1802,143 @@ footer {
 
 /* ============================================================
    LIGHT THEME — overrides for hardcoded dark element colors
-   All selectors are prefixed with [data-theme="light"] so they
+   All selectors are prefixed with so they
    only apply when the user switches to the light mode.
    ============================================================ */
 
 /* — Hero background rings — */
-[data-theme="light"] .hero-bg-ring {
+.hero-bg-ring {
     border-color: rgba(0, 147, 63, 0.12);
 }
 
 /* — Hero title animation keeps white text but we make it dark — */
-[data-theme="light"] .hero-title {
+.hero-title {
     color: var(--white);    /* --white is remapped to #111 in light mode */
 }
 
 /* — Buttons — */
-[data-theme="light"] .btn-primary {
+.btn-primary {
     background: var(--green);
     color:      #ffffff;
 }
 
-[data-theme="light"] .btn-primary:hover {
+.btn-primary:hover {
     background:  var(--green-dark);
     box-shadow:  0 8px 32px rgba(0, 147, 63, 0.3);
 }
 
-[data-theme="light"] .btn-ghost {
+.btn-ghost {
     color:        var(--white);
     border-color: rgba(0, 0, 0, 0.2);
 }
 
-[data-theme="light"] .btn-ghost:hover {
+.btn-ghost:hover {
     border-color: rgba(0, 0, 0, 0.45);
     background:   rgba(0, 0, 0, 0.04);
 }
 
-[data-theme="light"] .play-icon {
+.play-icon {
     background: var(--white);
 }
 
-[data-theme="light"] .play-icon::after {
+.play-icon::after {
     border-color: transparent transparent transparent #ffffff;
 }
 
 /* — Auth Card — */
-[data-theme="light"] .hero-auth-card {
+.hero-auth-card {
     background:   rgba(255, 255, 255, 0.95);
     border-color: rgba(0, 0, 0, 0.1);
     box-shadow:   0 16px 40px rgba(0, 0, 0, 0.08);
 }
 
-[data-theme="light"] .auth-tabs {
+.auth-tabs {
     border-bottom-color: rgba(0, 0, 0, 0.1);
 }
 
-[data-theme="light"] .auth-tab:hover,
-[data-theme="light"] .auth-tab.active {
+.auth-tab:hover,
+.auth-tab.active {
     color: var(--white);
 }
 
-[data-theme="light"] .form-group input[type="text"],
-[data-theme="light"] .form-group input[type="email"],
-[data-theme="light"] .form-group input[type="password"],
-[data-theme="light"] .form-group input[type="tel"] {
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group input[type="password"],
+.form-group input[type="tel"] {
     background:    #ffffff;
     border-color:  rgba(0, 0, 0, 0.15);
     color:         var(--white);
 }
 
-[data-theme="light"] .form-group input:focus {
+.form-group input:focus {
     border-color: var(--green);
     box-shadow:   0 0 0 2px rgba(0, 147, 63, 0.15);
 }
 
-[data-theme="light"] .radio-label {
+.radio-label {
     color: var(--white);
 }
 
 /* — Testi card quote color — */
-[data-theme="light"] .testi-text {
+.testi-text {
     color: #444444;
 }
 
 /* — CTA section glow — */
-[data-theme="light"] #cta::before {
+#cta::before {
     background: radial-gradient(ellipse, rgba(0, 147, 63, 0.07), transparent 70%);
 }
 
 /* — Nav drawer background — */
-[data-theme="light"] .nav-drawer {
+.nav-drawer {
     background: rgba(247, 246, 242, 0.98);
 }
 
-[data-theme="light"] .nav-drawer a {
+.nav-drawer a {
     color: var(--white);
 }
 
-[data-theme="light"] .nav-drawer a:hover {
+.nav-drawer a:hover {
     color: var(--green);
 }
 
 /* — Price featured card — */
-[data-theme="light"] .price-card.featured-price {
+.price-card.featured-price {
     background: linear-gradient(135deg, #e4e2dc, #dbd9d0);
 }
 
 /* — Features section border — */
-[data-theme="light"] #features {
+#features {
     border-top-color:    rgba(0, 0, 0, 0.07);
     border-bottom-color: rgba(0, 0, 0, 0.07);
 }
 
 /* — Pricing section border — */
-[data-theme="light"] #pricing {
+#pricing {
     border-top-color: rgba(0, 0, 0, 0.07);
     background: linear-gradient(180deg, var(--black) 0%, #eeede8 100%);
 }
 
 /* — Footer border — */
-[data-theme="light"] footer {
+footer {
     border-top-color: rgba(0, 0, 0, 0.08);
 }
 
 /* — Step connector line — */
-[data-theme="light"] .steps-wrap::before {
+.steps-wrap::before {
     background: linear-gradient(90deg, transparent, rgba(0, 147, 63, 0.3), transparent);
 }
 
 /* — Use-card featured border — */
-[data-theme="light"] .use-card.featured {
+.use-card.featured {
     border-color: rgba(0, 147, 63, 0.3);
 }
 
-[data-theme="light"] .use-card::before {
+.use-card::before {
     background: radial-gradient(circle at 80% 0%, rgba(0, 147, 63, 0.05), transparent 60%);
 }
 
 /* — CTA section background — */
-[data-theme="light"] #cta {
+#cta {
     border-top-color: rgba(0, 0, 0, 0.07);
 }

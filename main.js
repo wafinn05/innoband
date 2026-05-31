@@ -85,31 +85,6 @@ function scrollToSection(id) {
     });
 }());
 
-/* ── Dark / Light theme toggle ── */
-(function initTheme() {
-    var btn  = document.getElementById('themeToggle');
-    var body = document.body;
-
-    if (!btn) return;
-
-    /* Apply saved preference from previous visit, default to light */
-    var saved = localStorage.getItem('innoband-theme') || 'light';
-    body.setAttribute('data-theme', saved);
-
-    btn.addEventListener('click', function () {
-        var current = body.getAttribute('data-theme');
-        var next    = current === 'dark' ? 'light' : 'dark';
-
-        body.setAttribute('data-theme', next);
-        localStorage.setItem('innoband-theme', next);
-
-        btn.setAttribute(
-            'aria-label',
-            next === 'dark' ? 'Ganti ke tema terang' : 'Ganti ke tema gelap'
-        );
-    });
-}());
-
 /* ── Auth Tabs Toggle ── */
 (function initAuthTabs() {
     var tabs = document.querySelectorAll('.auth-tab');
@@ -287,3 +262,87 @@ window.orderProduct = function (productKey) {
     window.location.href = 'client.html?action=order&product=' + productKey;
 };
 
+/* User Profile Logic */
+document.addEventListener('DOMContentLoaded', function() {
+    var navProfile = document.querySelector('.nav-profile');
+    var profileModal = document.getElementById('userProfileModal');
+    var profileForm = document.getElementById('userProfileFormIdx');
+    var closeBtn = document.getElementById('closeUserProfileIdx');
+    var delBtn = document.getElementById('btnDeleteAccountIdx');
+
+    if (navProfile) {
+        navProfile.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (localStorage.getItem('innoband-loggedin') === 'true') {
+                var userStr = localStorage.getItem('innoband-user');
+                if (userStr) {
+                    var user = JSON.parse(userStr);
+                    var elEmail = document.getElementById('profileEmailIdx');
+                    var elName = document.getElementById('profileNameIdx');
+                    var elPhone = document.getElementById('profilePhoneIdx');
+                    if(elEmail) elEmail.value = user.email || '';
+                    if(elName) elName.value = user.name || '';
+                    if(elPhone) elPhone.value = user.phone || '';
+                    
+                    if(profileModal) profileModal.style.display = 'flex';
+                }
+            } else {
+                if (typeof window.showAuthCard === 'function') {
+                    window.showAuthCard();
+                }
+            }
+        });
+    }
+
+    if (closeBtn) {
+        closeBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            if(profileModal) profileModal.style.display = 'none';
+        });
+    }
+
+    if (profileForm) {
+        profileForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            var email = document.getElementById('profileEmailIdx').value;
+            var name = document.getElementById('profileNameIdx').value;
+            var phone = document.getElementById('profilePhoneIdx').value;
+            
+            if (typeof window.dbUpdateUser === 'function') {
+                window.dbUpdateUser(email, name, phone).then(function() {
+                    var userStr = localStorage.getItem('innoband-user');
+                    if (userStr) {
+                        var user = JSON.parse(userStr);
+                        user.name = name;
+                        user.phone = phone;
+                        localStorage.setItem('innoband-user', JSON.stringify(user));
+                    }
+                    if(profileModal) profileModal.style.display = 'none';
+                    if (typeof showToast === 'function') {
+                        showToast('Profil berhasil diperbarui!');
+                    } else { alert('Profil berhasil diperbarui!'); }
+                }).catch(function(err) {
+                    alert('Gagal memperbarui profil: ' + err.message);
+                });
+            }
+        });
+    }
+
+    if (delBtn) {
+        delBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (confirm('Apakah Anda yakin ingin menghapus akun? Semua data diri Anda akan hilang secara permanen.')) {
+                var email = document.getElementById('profileEmailIdx').value;
+                if (typeof window.dbDeleteAccount === 'function') {
+                    window.dbDeleteAccount(email).then(function() {
+                        localStorage.removeItem('innoband-loggedin');
+                        localStorage.removeItem('innoband-user');
+                        window.location.reload();
+                    }).catch(function(err) {
+                        alert('Gagal menghapus akun: ' + err.message + '. Anda mungkin perlu logout dan login kembali untuk melakukan aksi ini.');
+                    });
+                }
+            }
+        });
+    }
+});

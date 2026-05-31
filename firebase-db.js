@@ -11,7 +11,8 @@ import {
     createUserWithEmailAndPassword, 
     signInWithEmailAndPassword, 
     signOut,
-    onAuthStateChanged
+    onAuthStateChanged,
+    deleteUser
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { 
     getFirestore, 
@@ -24,7 +25,8 @@ import {
     query, 
     where,
     orderBy,
-    getDoc
+    getDoc,
+    updateDoc
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 // Firebase Configuration
@@ -211,6 +213,8 @@ window.dbSaveProfile = async function(profileData, userEmail) {
         
         if (profileData.registrationId !== undefined) dataToSave.registrationId = profileData.registrationId;
         if (profileData.eventPurpose !== undefined) dataToSave.eventPurpose = profileData.eventPurpose;
+        if (profileData.eventName !== undefined) dataToSave.eventName = profileData.eventName;
+        if (profileData.eventSeat !== undefined) dataToSave.eventSeat = profileData.eventSeat;
         if (profileData.eventGate !== undefined) dataToSave.eventGate = profileData.eventGate;
         if (profileData.eventNumber !== undefined) dataToSave.eventNumber = profileData.eventNumber;
 
@@ -272,6 +276,31 @@ window.dbGetOrders = async function(userEmail) {
 };
 
 /**
+ * Listen to orders in realtime
+ */
+window.dbListenOrders = function(userEmail, callback) {
+    try {
+        const q = query(
+            collection(db, "orders"), 
+            where("userEmail", "==", userEmail)
+        );
+        import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js").then((firestore) => {
+            firestore.onSnapshot(q, (querySnapshot) => {
+                const orders = [];
+                querySnapshot.forEach((doc) => {
+                    orders.push({ id: doc.id, ...doc.data() });
+                });
+                // Sort manually descending by createdAt
+                orders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                callback(orders);
+            });
+        });
+    } catch (error) {
+        console.error("Listen Orders Error:", error);
+    }
+};
+
+/**
  * Save a new order to Firestore
  */
 window.dbSaveOrder = async function(orderData, userEmail) {
@@ -318,6 +347,57 @@ window.dbListenOrder = function(orderId, callback) {
         console.error("Listen Order Error:", error);
     }
 };
+
+/**
+ * Update user profile
+ */
+window.dbUpdateUser = async function(email, name, phone) {
+    try {
+        const q = query(collection(db, "users"), where("email", "==", email));
+        const querySnapshot = await getDocs(q);
+        
+        if (!querySnapshot.empty) {
+            const userDoc = querySnapshot.docs[0];
+            await updateDoc(doc(db, "users", userDoc.id), {
+                name: name,
+                phone: phone,
+                updatedAt: new Date().toISOString()
+            });
+            return true;
+        }
+        throw new Error("User document not found");
+    } catch (error) {
+        console.error("Update User Error:", error);
+        throw error;
+    }
+};
+
+/**
+ * Delete user account
+ */
+window.dbDeleteAccount = async function(email) {
+    try {
+        // Delete Firestore document
+        const q = query(collection(db, "users"), where("email", "==", email));
+        const querySnapshot = await getDocs(q);
+        
+        if (!querySnapshot.empty) {
+            const userDoc = querySnapshot.docs[0];
+            await deleteDoc(doc(db, "users", userDoc.id));
+        }
+
+        // Delete Firebase Auth user
+        if (auth.currentUser) {
+            await deleteUser(auth.currentUser);
+        }
+        
+        return true;
+    } catch (error) {
+        console.error("Delete Account Error:", error);
+        throw error;
+    }
+};
+
 // Monitor Auth State
 onAuthStateChanged(auth, (user) => {
     if (user) {
