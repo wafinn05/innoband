@@ -2536,3 +2536,35 @@ tr.upload-row-err td {
     overflow: hidden;
 }
 
+
+
+/* ============================================================
+   PAYMENT MODAL RESPONSIVE FIX
+   ============================================================ */
+.payment-modal-body {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    overflow-y: auto;
+    flex: 1;
+}
+
+@media (min-width: 769px) {
+    .payment-modal-body {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-areas: 
+            "total methods"
+            "tabs methods"
+            "upload methods"
+            "confirm methods";
+    }
+    
+    .payment-modal-body > .payment-total-banner { grid-area: total; }
+    .payment-modal-body > .payment-tabs { grid-area: tabs; margin-bottom: 0 !important; }
+    .payment-modal-body > .upload-proof-section { grid-area: upload; }
+    .payment-modal-body > .order-confirm-btn-wrap { grid-area: confirm; }
+    .payment-modal-body > .payment-methods { grid-area: methods; margin-bottom: 0 !important; }
+}
+
