@@ -57,6 +57,30 @@ document.addEventListener('DOMContentLoaded', async () => {
             document.getElementById('userEmergencyName').textContent = profileData.emergencyName || '-';
             document.getElementById('userEmergencyPhone').textContent = profileData.emergencyPhone || '';
             document.getElementById('userAddress').textContent = profileData.address || '-';
+            
+            // Render company fields if present
+            if (profileData.registrationId || profileData.eventPurpose) {
+                if (profileData.registrationId) {
+                    document.getElementById('rowRegistration').style.display = 'flex';
+                    document.getElementById('userRegistration').textContent = profileData.registrationId;
+                }
+                if (profileData.eventPurpose) {
+                    document.getElementById('rowEvent').style.display = 'flex';
+                    let purposeDisplay = profileData.eventPurpose === 'konser' ? 'Konser' : (profileData.eventPurpose === 'olahraga' ? 'Event Olahraga' : profileData.eventPurpose);
+                    document.getElementById('userEventPurpose').textContent = purposeDisplay;
+                    
+                    let details = [];
+                    if (profileData.eventGate) details.push(`Gate: ${profileData.eventGate}`);
+                    if (profileData.eventNumber) details.push(`No Peserta: ${profileData.eventNumber}`);
+                    
+                    if (details.length > 0) {
+                        document.getElementById('userEventDetail').textContent = details.join(' | ');
+                        document.getElementById('userEventDetail').style.display = 'block';
+                    } else {
+                        document.getElementById('userEventDetail').style.display = 'none';
+                    }
+                }
+            }
         } else {
             alert("Data profil tidak ditemukan. Mungkin profil sudah dihapus atau pengaturan privasi (Firestore Rules) memblokir akses.");
         }
@@ -96,11 +120,25 @@ document.addEventListener('DOMContentLoaded', async () => {
     async function sendTelegramAlert(lat, lng, data) {
         let mapsLink = "Lokasi tidak diizinkan oleh perangkat penemu.";
         if (lat && lng) {
-            mapsLink = `<a href="https://www.google.com/maps/search/?api=1&query=${lat},${lng}">Lihat Lokasi Penemu di Maps</a>`;
+            mapsLink = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+        }
+        
+        let eventInfo = '';
+        if (data.registrationId || data.eventPurpose) {
+            eventInfo = `<b>Data Registrasi Event:</b>\n`;
+            if (data.registrationId) eventInfo += `• ID Registrasi: ${data.registrationId}\n`;
+            if (data.eventPurpose) {
+                let p = data.eventPurpose === 'konser' ? 'Konser' : (data.eventPurpose === 'olahraga' ? 'Event Olahraga' : data.eventPurpose);
+                eventInfo += `• Keperluan: ${p}\n`;
+            }
+            if (data.eventGate) eventInfo += `• Nomor Gate: ${data.eventGate}\n`;
+            if (data.eventNumber) eventInfo += `• No Punggung/Peserta: ${data.eventNumber}\n`;
+            eventInfo += `\n`;
         }
 
         let message = `🚨 <b>PERINGATAN DARURAT (SOS)</b> 🚨\n\n` +
                       `Gelang INNOBAND atas nama <b>${data.name}</b> telah di-scan!\n\n` +
+                      eventInfo +
                       `<b>Data Medis:</b>\n` +
                       `• Golongan Darah: ${data.blood || '-'}\n` +
                       `• Alergi: ${data.allergy || '-'}\n\n` +
@@ -109,11 +147,34 @@ document.addEventListener('DOMContentLoaded', async () => {
                       `📍 <b>LOKASI PENEMU:</b>\n${mapsLink}\n\n` +
                       `⚠️ <i>Harap CS segera menghubungi kontak darurat atau merespon jika ada telepon masuk!</i>`;
 
+        let emergencyPhone = data.emergencyPhone || '';
+        // Format nomor ke format internasional WA (62) jika berawalan 0
+        if(emergencyPhone.startsWith('0')) {
+            emergencyPhone = '62' + emergencyPhone.substring(1);
+        } else if (!emergencyPhone.startsWith('62') && !emergencyPhone.startsWith('+')) {
+            emergencyPhone = '62' + emergencyPhone;
+        }
+
+        let replyMarkup = {
+            inline_keyboard: [
+                [
+                    { text: "📞 Hubungi Darurat (WA)", url: `https://wa.me/${emergencyPhone}` }
+                ],
+                [
+                    { text: "⚠️ Set Peringatan Dashboard", callback_data: `sos_${profileId}` }
+                ],
+                [
+                    { text: "✅ Selesai (Hapus Peringatan)", callback_data: `fin_${profileId}` }
+                ]
+            ]
+        };
+
         try {
             let formData = new FormData();
             formData.append('chat_id', TELEGRAM_CHAT_ID);
             formData.append('text', message);
             formData.append('parse_mode', 'HTML');
+            formData.append('reply_markup', JSON.stringify(replyMarkup));
 
             let res = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
                 method: 'POST',

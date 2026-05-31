@@ -143,6 +143,31 @@ window.dbGetProfiles = async function(userEmail) {
 };
 
 /**
+ * Listen for real-time profile changes from Firestore
+ */
+window.dbListenProfiles = function(userEmail, callback) {
+    try {
+        const q = query(
+            collection(db, "profiles"), 
+            where("userEmail", "==", userEmail)
+        );
+        import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js").then((firestore) => {
+            firestore.onSnapshot(q, (querySnapshot) => {
+                const profiles = [];
+                querySnapshot.forEach((doc) => {
+                    profiles.push({ id: doc.id, ...doc.data() });
+                });
+                // Sort manually if orderBy index is missing
+                profiles.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                callback(profiles);
+            });
+        });
+    } catch (error) {
+        console.error("Listen Profiles Error:", error);
+    }
+};
+
+/**
  * Get a single profile by document ID (For SOS Feature)
  */
 window.dbGetProfileById = async function(profileId) {
@@ -178,8 +203,16 @@ window.dbSaveProfile = async function(profileData, userEmail) {
             emergencyName: profileData.emergencyName,
             emergencyPhone: profileData.emergencyPhone,
             userEmail: userEmail,
+            isAlert: profileData.isAlert || false,
+            alertTime: profileData.alertTime || null,
+            alertMapsLink: profileData.alertMapsLink || "",
             updatedAt: new Date().toISOString()
         };
+        
+        if (profileData.registrationId !== undefined) dataToSave.registrationId = profileData.registrationId;
+        if (profileData.eventPurpose !== undefined) dataToSave.eventPurpose = profileData.eventPurpose;
+        if (profileData.eventGate !== undefined) dataToSave.eventGate = profileData.eventGate;
+        if (profileData.eventNumber !== undefined) dataToSave.eventNumber = profileData.eventNumber;
 
         if (profileId) {
             // Update existing profile

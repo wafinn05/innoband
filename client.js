@@ -81,6 +81,26 @@ function loadProfilesFromDb() {
     var user = JSON.parse(localStorage.getItem(STORAGE_KEYS.USER) || '{}');
     if (!user.email) return Promise.resolve([]);
     
+    // Set up real-time listener if available
+    if (typeof window.dbListenProfiles === 'function') {
+        window.dbListenProfiles(user.email, function(profiles) {
+            state.profiles = profiles;
+            if (typeof window.renderProfiles === 'function') {
+                window.renderProfiles();
+            } else if (typeof renderProfiles !== 'undefined') {
+                renderProfiles();
+            }
+            
+            // Tutup modal SOS otomatis jika peringatan diselesaikan (isAlert false)
+            if (typeof _currentSosProfileId !== 'undefined' && _currentSosProfileId) {
+                var p = profiles.find(function(item) { return item.id === _currentSosProfileId; });
+                if (p && !p.isAlert) {
+                    closeSosModal();
+                }
+            }
+        });
+    }
+
     if (typeof window.dbGetProfiles === 'function') {
         return window.dbGetProfiles(user.email).then(function(profiles) {
             state.profiles = profiles;
@@ -292,7 +312,12 @@ function renderProfiles() {
     grid.innerHTML = profiles.map(function (p) {
         var initials = p.name ? p.name.split(' ').map(function(w){ return w.charAt(0); }).join('').substring(0, 2).toUpperCase() : '?';
 
-        return '<div class="profile-card">' +
+        var alertClass = p.isAlert ? ' card-alert' : '';
+        var alertHeaderHtml = p.isAlert ? 
+            '<div style="margin-bottom: 1rem;"><button class="btn-danger" style="width:100%; font-weight:bold; display:flex; align-items:center; justify-content:center; gap:0.5rem;" onclick="showSosModal(\'' + p.id + '\')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg> LIHAT LAPORAN DARURAT</button></div>' : '';
+
+        return '<div class="profile-card' + alertClass + '">' +
+            alertHeaderHtml +
             '<div class="profile-card-header">' +
                 '<div class="profile-card-avatar">' + initials + '</div>' +
                 '<div>' +
@@ -353,9 +378,21 @@ function openProfileModal(profileId) {
     var form = document.getElementById('profileForm');
     var title = document.getElementById('modalTitle');
     var saveBtn = document.getElementById('btnSaveProfile');
+    var user = JSON.parse(localStorage.getItem(STORAGE_KEYS.USER) || '{}');
+    var isCompany = user.type === 'perusahaan';
 
     form.reset();
     document.getElementById('profileId').value = '';
+    
+    // Hide event details groups initially
+    if (document.getElementById('groupGate')) document.getElementById('groupGate').style.display = 'none';
+    if (document.getElementById('groupNumber')) document.getElementById('groupNumber').style.display = 'none';
+
+    if (isCompany) {
+        document.getElementById('companyFields').style.display = 'block';
+    } else {
+        document.getElementById('companyFields').style.display = 'none';
+    }
 
     if (profileId) {
         // Edit mode
@@ -372,6 +409,14 @@ function openProfileModal(profileId) {
             document.getElementById('profAllergy').value = profile.allergy || '';
             document.getElementById('profEmergencyName').value = profile.emergencyName || '';
             document.getElementById('profEmergencyPhone').value = profile.emergencyPhone || '';
+            
+            if (isCompany) {
+                document.getElementById('profRegistrationId').value = profile.registrationId || '';
+                document.getElementById('profEventPurpose').value = profile.eventPurpose || '';
+                document.getElementById('profEventGate').value = profile.eventGate || '';
+                document.getElementById('profEventNumber').value = profile.eventNumber || '';
+                toggleEventDetails();
+            }
         }
     } else {
         title.textContent = 'Tambah Data Diri';
@@ -387,6 +432,13 @@ function openProfileModal(profileId) {
     }, 100);
 }
 
+/** Toggle event details based on purpose */
+window.toggleEventDetails = function() {
+    var purpose = document.getElementById('profEventPurpose').value;
+    document.getElementById('groupGate').style.display = purpose === 'konser' ? 'flex' : 'none';
+    document.getElementById('groupNumber').style.display = purpose === 'olahraga' ? 'flex' : 'none';
+};
+
 /** Close profile modal */
 function closeProfileModal() {
     var modal = document.getElementById('profileModal');
@@ -400,6 +452,7 @@ function saveProfile(event) {
 
     var id = document.getElementById('profileId').value;
     var user = JSON.parse(localStorage.getItem(STORAGE_KEYS.USER) || '{}');
+    var isCompany = user.type === 'perusahaan';
 
     var profileData = {
         id: id || null,
@@ -411,6 +464,13 @@ function saveProfile(event) {
         emergencyName:  document.getElementById('profEmergencyName').value.trim(),
         emergencyPhone: document.getElementById('profEmergencyPhone').value.trim()
     };
+    
+    if (isCompany) {
+        profileData.registrationId = document.getElementById('profRegistrationId').value.trim();
+        profileData.eventPurpose = document.getElementById('profEventPurpose').value;
+        profileData.eventGate = document.getElementById('profEventGate').value.trim();
+        profileData.eventNumber = document.getElementById('profEventNumber').value.trim();
+    }
 
     if (typeof window.dbSaveProfile === 'function') {
         window.dbSaveProfile(profileData, user.email)
@@ -1225,6 +1285,87 @@ function initAllQRCodes(profiles) {
     });
 }
 
+var _currentSosProfileId = null;
+
+/** Show the SOS Alert Details Modal */
+window.showSosModal = function(profileId) {
+    var profile = state.profiles.find(function(p) { return p.id === profileId; });
+    if (!profile) return;
+    
+    _currentSosProfileId = profileId;
+    
+    // Format timestamp
+    var alertTimeStr = "-";
+    if (profile.alertTime) {
+        var d;
+        // Check if it's a Firestore Timestamp with toDate function
+        if (typeof profile.alertTime.toDate === 'function') {
+            d = profile.alertTime.toDate();
+        } else {
+            d = new Date(profile.alertTime);
+        }
+        if (!isNaN(d)) {
+            alertTimeStr = d.toLocaleString('id-ID', { dateStyle: 'long', timeStyle: 'short' });
+        }
+    }
+    document.getElementById('sosAlertTime').textContent = alertTimeStr;
+    
+    // Set Maps link and Iframe
+    var mapsLinkBtn = document.getElementById('sosAlertMaps');
+    var mapContainer = document.getElementById('sosMapContainer');
+    
+    if (profile.alertMapsLink) {
+        mapsLinkBtn.href = profile.alertMapsLink;
+        mapsLinkBtn.style.display = 'inline-flex';
+        
+        // Coba ekstrak koordinat (lat,lng) dari link maps
+        var match = profile.alertMapsLink.match(/query=([^&]+)/);
+        if (match && match[1]) {
+            var coords = match[1];
+            mapContainer.innerHTML = '<iframe width="100%" height="100%" frameborder="0" style="border:0" src="https://maps.google.com/maps?q=' + coords + '&hl=id&z=15&output=embed" allowfullscreen></iframe>';
+            mapContainer.style.display = 'block';
+        } else {
+            mapContainer.innerHTML = '';
+            mapContainer.style.display = 'none';
+        }
+    } else {
+        mapsLinkBtn.style.display = 'none';
+        mapContainer.innerHTML = '';
+        mapContainer.style.display = 'none';
+    }
+    
+    document.getElementById('modalSos').style.display = 'flex';
+};
+
+window.closeSosModal = function() {
+    document.getElementById('modalSos').style.display = 'none';
+    _currentSosProfileId = null;
+};
+
+window.resolveSosAlert = async function() {
+    if (!_currentSosProfileId) return;
+    
+    // Nonaktifkan sementara
+    document.body.style.cursor = 'wait';
+    try {
+        var profile = state.profiles.find(function(p) { return p.id === _currentSosProfileId; });
+        if (profile) {
+            profile.isAlert = false;
+            // update in Firebase
+            var user = JSON.parse(localStorage.getItem(STORAGE_KEYS.USER) || '{}');
+            await window.dbSaveProfile(profile, user.email);
+            
+            closeSosModal();
+            renderProfiles();
+            showToast("Peringatan telah diselesaikan.");
+        }
+    } catch(err) {
+        console.error(err);
+        showToast("Gagal menyelesaikan peringatan.", true);
+    }
+    document.body.style.cursor = 'default';
+};
+
 /** Show the full-size QR code modal for a profile */
 window.showQRModal = function(profileId) {
     var profile = state.profiles.find(function(p) { return p.id === profileId; });
@@ -1388,13 +1529,22 @@ window.clearUpload = function() {
 
 /** Download a blank CSV template */
 window.downloadCSVTemplate = function() {
+    var user = JSON.parse(localStorage.getItem(STORAGE_KEYS.USER) || '{}');
+    var isCompany = user.type === 'perusahaan';
+
     var header = 'nama_lengkap,no_telepon,golongan_darah,alamat,alergi,kontak_darurat_nama,kontak_darurat_telepon';
     var example = 'Budi Santoso,08123456789,A,Jl. Merdeka No.1 Jakarta,Tidak ada,Siti Santoso,08198765432';
+
+    if (isCompany) {
+        header += ',id_registrasi,keperluan,nomor_gate,no_punggung';
+        example += ',TKT-123,konser,Gate 1,';
+    }
+
     var csvContent = header + '\n' + example + '\n';
     var blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     var link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = 'template_data_karyawan_innoband.csv';
+    link.download = 'TamplateAktifasiINNOBAND.csv';
     link.click();
 };
 
@@ -1508,7 +1658,11 @@ function normaliseRow(row) {
         address:        pick(row, ['alamat', 'address']),
         allergy:        pick(row, ['alergi', 'kondisi_medis', 'allergy']),
         emergencyName:  pick(row, ['kontak_darurat_nama', 'nama_darurat', 'emergency_name']),
-        emergencyPhone: pick(row, ['kontak_darurat_telepon', 'telp_darurat', 'emergency_phone', 'emergency_tel'])
+        emergencyPhone: pick(row, ['kontak_darurat_telepon', 'telp_darurat', 'emergency_phone', 'emergency_tel']),
+        registrationId: pick(row, ['id_registrasi', 'registration_id', 'id_regis', 'id_peserta']),
+        eventPurpose:   pick(row, ['keperluan', 'event_purpose', 'purpose', 'tujuan', 'jenis_event']),
+        eventGate:      pick(row, ['nomor_gate', 'gate', 'event_gate']),
+        eventNumber:    pick(row, ['no_punggung', 'no_peserta', 'nomor_peserta', 'event_number'])
     };
 }
 
