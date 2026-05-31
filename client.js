@@ -22,14 +22,14 @@ var PRODUCTS = {
     playtime: {
         name: 'Seri Playtime',
         desc: 'Gelang INNOBAND untuk si kecil aktif',
-        price: 'Rp 399.000',
-        priceNum: 399000
+        price: 'Rp 359.000',
+        priceNum: 359000
     },
     minimalist: {
         name: 'Seri Minimalist',
         desc: 'Gelang INNOBAND untuk kenyamanan ekstra',
-        price: 'Rp 899.000',
-        priceNum: 899000
+        price: 'Rp 499.000',
+        priceNum: 499000
     }
 };
 
