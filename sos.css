@@ -16,18 +16,7 @@
     --primary-gradient: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
 }
 
-@media (prefers-color-scheme: dark) {
-    :root {
-        --bg-dark: #111827;
-        --card-bg: #1f2937;
-        --text-main: #f9fafb;
-        --text-muted: #9ca3af;
-        --red-bg: rgba(239, 68, 68, 0.1);
-        --border-color: #374151;
-        --green-wa-bg: rgba(16, 185, 129, 0.1);
-        --green-wa-border: #047857;
-    }
-}
+
 
 * {
     margin: 0;
