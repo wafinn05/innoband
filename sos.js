@@ -54,30 +54,30 @@ document.addEventListener('DOMContentLoaded', async () => {
             document.getElementById('userName').textContent = profileData.name || 'Anonim';
             document.getElementById('userBlood').textContent = profileData.blood || '-';
             document.getElementById('userAllergy').textContent = profileData.allergy || 'Tidak ada';
-            document.getElementById('userEmergencyName').textContent = profileData.emergencyName || '-';
-            document.getElementById('userEmergencyPhone').textContent = profileData.emergencyPhone || '';
             document.getElementById('userAddress').textContent = profileData.address || '-';
             
             // Render company fields if present
             if (profileData.registrationId || profileData.eventPurpose) {
                 if (profileData.registrationId) {
-                    document.getElementById('rowRegistration').style.display = 'flex';
+                    document.getElementById('rowRegistration').style.display = 'block';
                     document.getElementById('userRegistration').textContent = profileData.registrationId;
                 }
                 if (profileData.eventPurpose) {
-                    document.getElementById('rowEvent').style.display = 'flex';
+                    document.getElementById('rowEvent').style.display = 'block';
                     let purposeDisplay = profileData.eventPurpose === 'konser' ? 'Konser' : (profileData.eventPurpose === 'olahraga' ? 'Event Olahraga' : profileData.eventPurpose);
                     document.getElementById('userEventPurpose').textContent = purposeDisplay;
                     
                     let details = [];
+                    if (profileData.eventName) details.push(`Nama Acara: ${profileData.eventName}`);
                     if (profileData.eventGate) details.push(`Gate: ${profileData.eventGate}`);
-                    if (profileData.eventNumber) details.push(`No Peserta: ${profileData.eventNumber}`);
+                    if (profileData.eventSeat) details.push(`Tempat Duduk: ${profileData.eventSeat}`);
+                    if (profileData.eventNumber) details.push(`No Punggung/Peserta: ${profileData.eventNumber}`);
                     
                     if (details.length > 0) {
-                        document.getElementById('userEventDetail').textContent = details.join(' | ');
-                        document.getElementById('userEventDetail').style.display = 'block';
+                        document.getElementById('userEventDetail').innerHTML = details.join('<br>');
+                        document.getElementById('userEventDetailContainer').style.display = 'flex';
                     } else {
-                        document.getElementById('userEventDetail').style.display = 'none';
+                        document.getElementById('userEventDetailContainer').style.display = 'none';
                     }
                 }
             }
@@ -127,10 +127,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (data.registrationId || data.eventPurpose) {
             eventInfo = `<b>Data Registrasi Event:</b>\n`;
             if (data.registrationId) eventInfo += `• ID Registrasi: ${data.registrationId}\n`;
+            if (data.eventName) eventInfo += `• Nama Acara: ${data.eventName}\n`;
             if (data.eventPurpose) {
                 let p = data.eventPurpose === 'konser' ? 'Konser' : (data.eventPurpose === 'olahraga' ? 'Event Olahraga' : data.eventPurpose);
                 eventInfo += `• Keperluan: ${p}\n`;
             }
+            if (data.eventSeat) eventInfo += `• Tempat Duduk: ${data.eventSeat}\n`;
             if (data.eventGate) eventInfo += `• Nomor Gate: ${data.eventGate}\n`;
             if (data.eventNumber) eventInfo += `• No Punggung/Peserta: ${data.eventNumber}\n`;
             eventInfo += `\n`;
@@ -142,8 +144,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                       `<b>Data Medis:</b>\n` +
                       `• Golongan Darah: ${data.blood || '-'}\n` +
                       `• Alergi: ${data.allergy || '-'}\n\n` +
-                      `<b>Kontak Darurat Keluarga:</b>\n` +
-                      `${data.emergencyName || '-'} (${data.emergencyPhone || '-'})\n\n` +
                       `📍 <b>LOKASI PENEMU:</b>\n${mapsLink}\n\n` +
                       `⚠️ <i>Harap CS segera menghubungi kontak darurat atau merespon jika ada telepon masuk!</i>`;
 

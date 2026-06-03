@@ -14,12 +14,12 @@
         <!-- Loading Overlay -->
         <div class="loading-overlay" id="loadingOverlay">
             <div class="spinner"></div>
-            <p style="color: #888;">Mencari data pengguna...</p>
+            <p style="color: var(--text-muted); font-weight: 500;">Menghubungkan ke server...</p>
         </div>
 
         <div class="sos-header">
             <div class="sos-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
                     <line x1="12" y1="9" x2="12" y2="13"></line>
                     <line x1="12" y1="17" x2="12.01" y2="17"></line>
@@ -29,56 +29,82 @@
             <p class="sos-subtitle">Gelang identitas medis ini telah di-scan.</p>
         </div>
 
-        <div class="profile-card" id="profileCard" style="display: none;">
-            <div class="profile-name">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                    <circle cx="12" cy="7" r="4"></circle>
-                </svg>
-                <span id="userName">Nama Pengguna</span>
-            </div>
+        <div class="profile-content" id="profileCard" style="display: none;">
             
-            <div class="info-grid">
-                <div class="info-row" id="rowRegistration" style="display: none; padding-bottom: 0.5rem; margin-bottom: 0.5rem; border-bottom: 1px dashed var(--border-color);">
-                    <span class="info-label" style="color: var(--primary-color);">ID Registrasi / Peserta</span>
-                    <span class="info-value" id="userRegistration" style="font-weight: 600;">-</span>
+            <div class="info-card">
+                <div class="profile-name">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                    <span id="userName">Nama Pengguna</span>
                 </div>
-                <div class="info-row" id="rowEvent" style="display: none; padding-bottom: 0.5rem; margin-bottom: 0.5rem; border-bottom: 1px dashed var(--border-color);">
-                    <span class="info-label" style="color: var(--primary-color);">Keperluan / Event</span>
-                    <span class="info-value" id="userEventPurpose" style="font-weight: 600;">-</span>
-                    <span class="info-value" id="userEventDetail" style="font-size: 0.9rem; margin-top: 0.25rem;">-</span>
+                
+                <div id="rowRegistration" style="display: none;">
+                    <div class="profile-id">ID Registrasi: <span id="userRegistration" style="color:var(--text-main)">-</span></div>
                 </div>
 
-                <div class="info-row">
-                    <span class="info-label">Golongan Darah</span>
-                    <span class="info-value critical" id="userBlood">-</span>
+                <div class="card-header" style="margin-top: 1rem;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+                    </svg>
+                    Data Medis & Info
                 </div>
-                <div class="info-row">
-                    <span class="info-label">Riwayat Penyakit / Alergi</span>
-                    <span class="info-value critical" id="userAllergy">-</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">Kontak Darurat (Keluarga)</span>
-                    <span class="info-value" id="userEmergencyName">-</span>
-                    <span class="info-value" id="userEmergencyPhone" style="font-size: 0.9rem; color: var(--text-muted); margin-top: 0.25rem;">-</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">Alamat Rumah</span>
-                    <span class="info-value" id="userAddress" style="font-size: 0.9rem;">-</span>
+
+                <div class="info-grid">
+                    <div class="info-row">
+                        <span class="info-label">Golongan Darah</span>
+                        <span class="info-value critical" id="userBlood">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Riwayat Penyakit / Alergi</span>
+                        <span class="info-value critical" id="userAllergy">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Alamat Rumah</span>
+                        <span class="info-value" id="userAddress">-</span>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="action-buttons">
-            <button class="btn-sos" id="btnReportSos">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
-                </svg>
-                Kirim Laporan Darurat
-            </button>
-            <a href="#" class="btn-wa" id="btnCallCs" target="_blank">
-                Hubungi Customer Service
-            </a>
+            <!-- Event Card (Muncul Jika Perusahaan) -->
+            <div class="info-card" id="rowEvent" style="display: none;">
+                <div class="card-header">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                    </svg>
+                    Data Acara / Event
+                </div>
+                
+                <div class="info-grid">
+                    <div class="info-row">
+                        <span class="info-label">Keperluan</span>
+                        <span class="info-value" id="userEventPurpose" style="font-weight: 700;">-</span>
+                    </div>
+                    <div class="info-row" id="userEventDetailContainer" style="display: none;">
+                        <span class="info-label">Detail Spesifik</span>
+                        <div class="event-detail-box" id="userEventDetail">-</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn-sos" id="btnReportSos">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                    </svg>
+                    Kirim Peringatan SOS
+                </button>
+                <a href="#" class="btn-wa" id="btnCallCs" target="_blank">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+                    </svg>
+                    Hubungi Customer Service
+                </a>
+            </div>
         </div>
     </div>
 

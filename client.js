@@ -532,11 +532,13 @@ function openProfileModal(profileId) {
     document.getElementById('profileId').value = '';
 
     // Hide event details groups initially
-    if (document.getElementById('groupGate')) document.getElementById('groupGate').style.display = 'none';
-    if (document.getElementById('groupNumber')) document.getElementById('groupNumber').style.display = 'none';
+    if (document.getElementById('eventFieldsContainer')) document.getElementById('eventFieldsContainer').style.display = 'none';
+    if (document.getElementById('groupEventName')) document.getElementById('groupEventName').style.display = 'none';
+    if (document.getElementById('rowKonserDetails')) document.getElementById('rowKonserDetails').style.display = 'none';
+    if (document.getElementById('rowOlahragaDetails')) document.getElementById('rowOlahragaDetails').style.display = 'none';
 
     if (isCompany) {
-        document.getElementById('companyFields').style.display = 'block';
+        document.getElementById('companyFields').style.display = 'flex';
     } else {
         document.getElementById('companyFields').style.display = 'none';
     }
@@ -558,8 +560,10 @@ function openProfileModal(profileId) {
             document.getElementById('profEmergencyPhone').value = profile.emergencyPhone || '';
 
             if (isCompany) {
+                if (document.getElementById('profEventName')) document.getElementById('profEventName').value = profile.eventName || '';
                 document.getElementById('profRegistrationId').value = profile.registrationId || '';
                 document.getElementById('profEventPurpose').value = profile.eventPurpose || '';
+                if (document.getElementById('profEventSeat')) document.getElementById('profEventSeat').value = profile.eventSeat || '';
                 document.getElementById('profEventGate').value = profile.eventGate || '';
                 document.getElementById('profEventNumber').value = profile.eventNumber || '';
                 toggleEventDetails();
@@ -582,8 +586,28 @@ function openProfileModal(profileId) {
 /** Toggle event details based on purpose */
 window.toggleEventDetails = function () {
     var purpose = document.getElementById('profEventPurpose').value;
-    document.getElementById('groupGate').style.display = purpose === 'konser' ? 'flex' : 'none';
-    document.getElementById('groupNumber').style.display = purpose === 'olahraga' ? 'flex' : 'none';
+    
+    var container = document.getElementById('eventFieldsContainer');
+    var groupEventName = document.getElementById('groupEventName');
+    var rowKonser = document.getElementById('rowKonserDetails');
+    var rowOlahraga = document.getElementById('rowOlahragaDetails');
+
+    if (purpose === 'konser') {
+        if (container) container.style.display = 'block';
+        if (groupEventName) groupEventName.style.display = 'grid';
+        if (rowKonser) rowKonser.style.display = 'grid';
+        if (rowOlahraga) rowOlahraga.style.display = 'none';
+    } else if (purpose === 'olahraga') {
+        if (container) container.style.display = 'block';
+        if (groupEventName) groupEventName.style.display = 'grid';
+        if (rowKonser) rowKonser.style.display = 'none';
+        if (rowOlahraga) rowOlahraga.style.display = 'grid';
+    } else {
+        if (container) container.style.display = 'none';
+        if (groupEventName) groupEventName.style.display = 'none';
+        if (rowKonser) rowKonser.style.display = 'none';
+        if (rowOlahraga) rowOlahraga.style.display = 'none';
+    }
 };
 
 /** Close profile modal */
@@ -613,8 +637,10 @@ function saveProfile(event) {
     };
 
     if (isCompany) {
+        profileData.eventName = document.getElementById('profEventName') ? document.getElementById('profEventName').value.trim() : '';
         profileData.registrationId = document.getElementById('profRegistrationId').value.trim();
         profileData.eventPurpose = document.getElementById('profEventPurpose').value;
+        profileData.eventSeat = document.getElementById('profEventSeat') ? document.getElementById('profEventSeat').value.trim() : '';
         profileData.eventGate = document.getElementById('profEventGate').value.trim();
         profileData.eventNumber = document.getElementById('profEventNumber').value.trim();
     }
@@ -1692,8 +1718,8 @@ window.downloadCSVTemplate = function () {
     var example = 'Budi Santoso,08123456789,A,Jl. Merdeka No.1 Jakarta,Tidak ada,Siti Santoso,08198765432';
 
     if (isCompany) {
-        header += ',id_registrasi,keperluan,nomor_gate,no_punggung';
-        example += ',TKT-123,konser,Gate 1,';
+        header += ',nama_acara,id_registrasi,keperluan,tempat_duduk,nomor_gate,no_punggung';
+        example += ',Konser Taylor Swift,TKT-123,konser,VIP Row A,Gate 1,';
     }
 
     var csvContent = header + '\n' + example + '\n';
@@ -1815,8 +1841,10 @@ function normaliseRow(row) {
         allergy: pick(row, ['alergi', 'kondisi_medis', 'allergy']),
         emergencyName: pick(row, ['kontak_darurat_nama', 'nama_darurat', 'emergency_name']),
         emergencyPhone: pick(row, ['kontak_darurat_telepon', 'telp_darurat', 'emergency_phone', 'emergency_tel']),
+        eventName: pick(row, ['nama_acara', 'event_name', 'acara']),
         registrationId: pick(row, ['id_registrasi', 'registration_id', 'id_regis', 'id_peserta']),
         eventPurpose: pick(row, ['keperluan', 'event_purpose', 'purpose', 'tujuan', 'jenis_event']),
+        eventSeat: pick(row, ['tempat_duduk', 'seat', 'event_seat']),
         eventGate: pick(row, ['nomor_gate', 'gate', 'event_gate']),
         eventNumber: pick(row, ['no_punggung', 'no_peserta', 'nomor_peserta', 'event_number'])
     };
