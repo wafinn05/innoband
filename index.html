@@ -16,6 +16,9 @@
         href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400&family=Inter:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
 
+    <!-- Preload hero image for faster LCP -->
+    <link rel="preload" as="image" href="desaingelang.png">
+
     <!-- Page stylesheet -->
     <link rel="stylesheet" href="style.css">
 </head>
@@ -188,11 +191,14 @@
 
         <!-- Right Side of Hero -->
         <div class="hero-right-side"
-            style="display: flex; justify-content: flex-end; align-items: center; position: relative; min-height: 400px; overflow: hidden;">
+            style="display: flex; justify-content: flex-end; align-items: center; position: relative; min-height: 400px; overflow: visible;">
 
             <!-- Product Image -->
-            <img id="heroProductImage" src="desaingelang.png" alt="Desain Gelang INNOBAND"
-                style="width: 130%; max-width: 800px; display: block; object-fit: contain; filter: drop-shadow(0 8px 24px rgba(0,0,0,0.15)); transform: translateX(10%);">
+            <div id="heroImageWrapper" style="width: 130%; max-width: 800px; transform: translateX(10%); display: flex; justify-content: flex-end;">
+                <img id="heroProductImage" src="desaingelang.png" alt="Desain Gelang INNOBAND"
+                    loading="eager" decoding="async" fetchpriority="high"
+                    style="width: 100%; display: block; object-fit: contain; filter: drop-shadow(0 8px 24px rgba(0,0,0,0.15)); animation: fadeUp 0.8s 0.3s ease both;">
+            </div>
 
             <!-- Auth Card (Login & Register) -->
             <div id="heroAuthCard" class="hero-auth-card" style="display: none; width: 100%;">

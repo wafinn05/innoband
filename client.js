@@ -49,6 +49,44 @@ var state = {
     orders: []
 };
 
+/* ── Page Transition Overlay ── */
+(function initPageTransition() {
+    var overlay = document.createElement('div');
+    overlay.className = 'page-transition-overlay';
+    document.body.prepend(overlay);
+
+    requestAnimationFrame(function() {
+        requestAnimationFrame(function() {
+            overlay.classList.add('fade-out');
+        });
+    });
+
+    overlay.addEventListener('transitionend', function() {
+        if (overlay.classList.contains('fade-out')) {
+            overlay.style.display = 'none';
+        }
+    });
+
+    document.addEventListener('click', function(e) {
+        var link = e.target.closest('a[href]');
+        if (!link) return;
+
+        var href = link.getAttribute('href');
+        if (!href || href.startsWith('#') || href.startsWith('javascript:') ||
+            href.startsWith('http') || href.startsWith('mailto:') || href.startsWith('tel:') ||
+            link.target === '_blank') return;
+
+        e.preventDefault();
+        overlay.style.display = '';
+        overlay.classList.remove('fade-out');
+        overlay.classList.add('fade-in');
+
+        setTimeout(function() {
+            window.location.href = href;
+        }, 350);
+    });
+}());
+
 /* ============================================================
    INITIALIZATION
    ============================================================ */
@@ -343,7 +381,8 @@ function renderProfilesGrouped(profiles, grid) {
     var groups = {};
     profiles.forEach(function (p) {
         var key = (p.eventName && p.eventName.trim()) ? p.eventName.trim() : '__no_event__';
-        if (!groups[key]) groups[key] = { eventName: key, purpose: p.eventPurpose, members: [] };
+        var assignedPurpose = (key === '__no_event__') ? '__no_event__' : (p.eventPurpose || '__no_event__');
+        if (!groups[key]) groups[key] = { eventName: key, purpose: assignedPurpose, members: [] };
         groups[key].members.push(p);
     });
 
@@ -1015,11 +1054,23 @@ function renderProfileSelection() {
     var html = '';
 
     if (isCompany && profiles.length > 1) {
-        var isSelectedAll = state.selectedProfileId === 'ALL';
-        html += '<div class="profile-select-card' + (isSelectedAll ? ' selected' : '') + '" onclick="selectProfile(\'ALL\')" style="border: 2px solid var(--primary); background: rgba(44, 255, 110, 0.05);">' +
-            '<div class="profile-select-name"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px; vertical-align: text-bottom;"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg> Pesan Untuk Semua Data (' + profiles.length + ' profil)</div>' +
-            '<div class="profile-select-detail">Buat pesanan untuk seluruh pengguna sekaligus (warna akan sama untuk semua).</div>' +
-            '</div>';
+        var groups = {};
+        profiles.forEach(function (p) {
+            var key = (p.eventName && p.eventName.trim()) ? p.eventName.trim() : 'Data Diri Umum';
+            if (!groups[key]) groups[key] = { eventName: key, members: [] };
+            groups[key].members.push(p);
+        });
+
+        Object.keys(groups).forEach(function (key) {
+            var group = groups[key];
+            if (group.members.length > 0) {
+                var isSelectedGroup = state.selectedProfileId === 'EVENT:' + key;
+                html += '<div class="profile-select-card' + (isSelectedGroup ? ' selected' : '') + '" onclick="selectProfile(\'EVENT:' + escapeAttr(key) + '\')" style="border: 2px solid var(--green); background: rgba(44, 255, 110, 0.05);">' +
+                    '<div class="profile-select-name"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px; vertical-align: text-bottom;"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg> Pesan Untuk Event: ' + escapeHtml(key) + ' (' + group.members.length + ' profil)</div>' +
+                    '<div class="profile-select-detail">Buat pesanan untuk seluruh pengguna pada acara ini sekaligus (warna akan sama untuk semua).</div>' +
+                    '</div>';
+            }
+        });
     }
 
     html += profiles.map(function (p) {
@@ -1104,7 +1155,7 @@ function showStep(num) {
     if (num === 2) {
         var customNameGroup = document.getElementById('customNameGroup');
         if (customNameGroup) {
-            customNameGroup.style.display = state.selectedProfileId === 'ALL' ? 'none' : 'flex';
+            customNameGroup.style.display = (state.selectedProfileId && state.selectedProfileId.startsWith('EVENT:')) ? 'none' : 'flex';
         }
     }
 }
@@ -1136,12 +1187,17 @@ function populateSummary() {
     var customNameText = '';
     var totalText = '-';
 
-    if (state.selectedProfileId === 'ALL') {
-        profileText = 'Semua Pengguna (' + profiles.length + ' profil)';
-        customNameText = '(Tidak tersedia untuk pesanan massal)';
+    if (state.selectedProfileId && state.selectedProfileId.startsWith('EVENT:')) {
+        var eventName = state.selectedProfileId.substring(6);
+        var eventProfiles = profiles.filter(function(p) {
+            var key = (p.eventName && p.eventName.trim()) ? p.eventName.trim() : 'Data Diri Umum';
+            return key === eventName;
+        });
+        profileText = 'Event: ' + eventName + ' (' + eventProfiles.length + ' profil)';
+        customNameText = eventName;
         if (product) {
             var rawPrice = product.priceNum;
-            var total = rawPrice * profiles.length;
+            var total = rawPrice * eventProfiles.length;
             totalText = 'Rp ' + total.toLocaleString('id-ID');
         }
     } else {
@@ -1174,9 +1230,14 @@ function initPaymentStep() {
     var profiles = getProfiles();
     if (product) {
         var totalText = '-';
-        if (state.selectedProfileId === 'ALL') {
+        if (state.selectedProfileId && state.selectedProfileId.startsWith('EVENT:')) {
+            var eventName = state.selectedProfileId.substring(6);
+            var eventProfiles = profiles.filter(function(p) {
+                var key = (p.eventName && p.eventName.trim()) ? p.eventName.trim() : 'Data Diri Umum';
+                return key === eventName;
+            });
             var rawPrice = product.priceNum;
-            var total = rawPrice * profiles.length;
+            var total = rawPrice * eventProfiles.length;
             totalText = 'Rp ' + total.toLocaleString('id-ID');
         } else {
             totalText = product.price;
@@ -1289,22 +1350,27 @@ async function confirmOrder() {
 
     try {
         var savedOrderId = null;
-        if (state.selectedProfileId === 'ALL') {
-            // Bulk order creation - Single order entry
+        if (state.selectedProfileId && state.selectedProfileId.startsWith('EVENT:')) {
+            var eventName = state.selectedProfileId.substring(6);
+            var eventProfiles = profiles.filter(function(p) {
+                var key = (p.eventName && p.eventName.trim()) ? p.eventName.trim() : 'Data Diri Umum';
+                return key === eventName;
+            });
+            // Bulk order creation - Single order entry for event
             var rawPrice = product ? product.priceNum : 0;
-            var total = rawPrice * profiles.length;
+            var total = rawPrice * eventProfiles.length;
             var totalFormatted = 'Rp ' + total.toLocaleString('id-ID');
 
             var order = {
                 product: state.orderProduct,
                 productName: product ? product.name : '',
-                profileId: 'BULK',
-                profileName: 'Pesanan Massal (' + profiles.length + ' data)',
+                profileId: 'EVENT:' + eventName,
+                profileName: 'Pesanan Event: ' + eventName + ' (' + eventProfiles.length + ' data)',
                 color: state.selectedColor,
-                customName: '-', // Blank for mass order
+                customName: eventName,
                 price: totalFormatted,
                 isBulk: true,
-                quantity: profiles.length,
+                quantity: eventProfiles.length,
                 shipping: shippingData,
                 paymentMethod: state.paymentMethod,
                 paymentProof: state.paymentProofFile ? state.paymentProofFile.name : null
@@ -1334,7 +1400,15 @@ async function confirmOrder() {
                 var formData = new FormData();
                 formData.append('chat_id', TELEGRAM_CHAT_ID);
 
-                var qty = state.selectedProfileId === 'ALL' ? profiles.length : 1;
+                var qty = 1;
+                if (state.selectedProfileId && state.selectedProfileId.startsWith('EVENT:')) {
+                    var eventName = state.selectedProfileId.substring(6);
+                    var eventProfiles = profiles.filter(function(p) {
+                        var key = (p.eventName && p.eventName.trim()) ? p.eventName.trim() : 'Data Diri Umum';
+                        return key === eventName;
+                    });
+                    qty = eventProfiles.length;
+                }
                 var caption = "🔔 <b>PESANAN BARU (MENUNGGU ACC)</b>\n" +
                     "━━━━━━━━━━━━━━━━━━━━\n" +
                     "<b>ID Pesanan:</b> <code>" + savedOrderId + "</code>\n" +
@@ -1843,7 +1917,12 @@ function normaliseRow(row) {
         emergencyPhone: pick(row, ['kontak_darurat_telepon', 'telp_darurat', 'emergency_phone', 'emergency_tel']),
         eventName: pick(row, ['nama_acara', 'event_name', 'acara']),
         registrationId: pick(row, ['id_registrasi', 'registration_id', 'id_regis', 'id_peserta']),
-        eventPurpose: pick(row, ['keperluan', 'event_purpose', 'purpose', 'tujuan', 'jenis_event']),
+        eventPurpose: (function() {
+            var raw = pick(row, ['keperluan', 'event_purpose', 'purpose', 'tujuan', 'jenis_event']).toLowerCase();
+            if (raw.indexOf('konser') !== -1 || raw.indexOf('musik') !== -1) return 'konser';
+            if (raw.indexOf('olahraga') !== -1 || raw.indexOf('sport') !== -1 || raw.indexOf('lari') !== -1 || raw.indexOf('marathon') !== -1) return 'olahraga';
+            return raw ? 'olahraga' : '';
+        })(),
         eventSeat: pick(row, ['tempat_duduk', 'seat', 'event_seat']),
         eventGate: pick(row, ['nomor_gate', 'gate', 'event_gate']),
         eventNumber: pick(row, ['no_punggung', 'no_peserta', 'nomor_peserta', 'event_number'])

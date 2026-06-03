@@ -1,4 +1,4 @@
-﻿/* ============================================================
+/* ============================================================
    INNOBAND — Landing Page Stylesheet
    File  : style.css
    Desc  : Global design tokens, component styles, animations,
@@ -12,6 +12,25 @@
     box-sizing: border-box;
     margin: 0;
     padding: 0;
+}
+
+/* ── PAGE TRANSITION OVERLAY ── */
+.page-transition-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    background: var(--black, #f7f6f2);
+    opacity: 1;
+    pointer-events: none;
+    transition: opacity 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.page-transition-overlay.fade-out {
+    opacity: 0;
+}
+
+.page-transition-overlay.fade-in {
+    opacity: 1;
 }
 
 :root {
@@ -45,6 +64,8 @@
 
 html {
     scroll-behavior: smooth;
+    /* Smoother momentum scrolling on iOS */
+    -webkit-overflow-scrolling: touch;
 }
 
 body {
@@ -56,6 +77,8 @@ body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     overflow-x:        hidden;
+    /* Smooth rendering for all transitions */
+    text-rendering: optimizeLegibility;
 }
 
 /* ============================================================
@@ -73,7 +96,11 @@ nav {
     padding:         1.2rem 3rem;
     background:      var(--nav-bg);
     border-bottom:   1px solid var(--nav-border);
-    transition:      background 0.3s ease, border-color 0.3s ease;
+    transition:      background 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                     border-color 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                     box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
+    backface-visibility: hidden;
 }
 
 .nav-logo {
@@ -380,13 +407,22 @@ nav {
     font-size:      0.9375rem;
     letter-spacing: 0.01em;
     cursor:         pointer;
-    transition:     transform 0.15s, background 0.2s, box-shadow 0.2s;
+    transition:     transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+                    background 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                    box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
+    backface-visibility: hidden;
 }
 
 .btn-primary:hover {
     background:  #45ff85;
-    transform:   translateY(-2px);
+    transform:   translateY(-2px) scale(1.02);
     box-shadow:  0 8px 32px rgba(44, 255, 110, 0.3);
+}
+
+.btn-primary:active {
+    transform:   translateY(0) scale(0.98);
+    transition:  transform 0.1s ease;
 }
 
 .btn-ghost {
@@ -400,15 +436,25 @@ nav {
     font-size:      0.9375rem;
     letter-spacing: 0.01em;
     cursor:         pointer;
-    transition:     border-color 0.2s, background 0.2s;
+    transition:     border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                    background 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                    transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     display:        flex;
     align-items:    center;
     gap:            8px;
+    will-change: transform;
+    backface-visibility: hidden;
 }
 
 .btn-ghost:hover {
     border-color: rgba(255, 255, 255, 0.4);
     background:   rgba(255, 255, 255, 0.04);
+    transform:    translateY(-1px);
+}
+
+.btn-ghost:active {
+    transform:   translateY(0) scale(0.98);
+    transition:  transform 0.1s ease;
 }
 
 /* Play icon (CSS-only triangle) */
@@ -723,13 +769,18 @@ nav {
     padding:     2.5rem;
     position:    relative;
     overflow:    hidden;
-    transition:  border-color 0.3s, transform 0.3s;
+    transition:  border-color 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                 transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+                 box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     cursor:      default;
+    will-change: transform;
+    backface-visibility: hidden;
 }
 
 .use-card:hover {
     border-color: rgba(44, 255, 110, 0.25);
-    transform:    translateY(-4px);
+    transform:    translateY(-6px);
+    box-shadow:   0 12px 40px rgba(0, 0, 0, 0.08);
 }
 
 .use-card::before {
@@ -823,11 +874,17 @@ nav {
     padding:       2rem;
     border:        1px solid rgba(255, 255, 255, 0.06);
     border-radius: 16px;
-    transition:    border-color 0.3s;
+    transition:    border-color 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                   transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+                   box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
+    backface-visibility: hidden;
 }
 
 .feat-item:hover {
     border-color: rgba(44, 255, 110, 0.2);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
 }
 
 .feat-icon {
@@ -956,11 +1013,16 @@ nav {
     border:        1px solid rgba(255, 255, 255, 0.07);
     border-radius: 20px;
     padding:       2.5rem;
-    transition:    transform 0.3s;
+    transition:    transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+                   box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                   border-color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
+    backface-visibility: hidden;
 }
 
 .price-card:hover {
-    transform: translateY(-4px);
+    transform: translateY(-6px);
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.08);
 }
 
 .price-card.featured-price {
@@ -1238,11 +1300,11 @@ footer {
 @keyframes fadeUp {
     from {
         opacity:   0;
-        transform: translateY(24px);
+        transform: translate3d(0, 24px, 0);
     }
     to {
         opacity:   1;
-        transform: translateY(0);
+        transform: translate3d(0, 0, 0);
     }
 }
 
@@ -1252,21 +1314,52 @@ footer {
 }
 
 @keyframes floatY {
-    0%, 100% { transform: translateY(0);    }
-    50%       { transform: translateY(-12px); }
+    0%, 100% { transform: translate3d(0, 0, 0);    }
+    50%       { transform: translate3d(0, -12px, 0); }
 }
 
-/* Scroll-reveal utility */
+/* Scroll-reveal utility — GPU-accelerated */
 .reveal {
     opacity:    0;
-    transform:  translateY(30px);
-    transition: opacity 0.6s ease, transform 0.6s ease;
+    transform:  translate3d(0, 30px, 0);
+    transition: opacity 0.7s cubic-bezier(0.4, 0, 0.2, 1),
+                transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: opacity, transform;
+    backface-visibility: hidden;
 }
 
 .reveal.visible {
     opacity:   1;
-    transform: translateY(0);
+    transform: translate3d(0, 0, 0);
 }
+
+/* Staggered reveal for child elements */
+.reveal.visible:nth-child(1) { transition-delay: 0s; }
+.reveal.visible:nth-child(2) { transition-delay: 0.08s; }
+.reveal.visible:nth-child(3) { transition-delay: 0.16s; }
+.reveal.visible:nth-child(4) { transition-delay: 0.24s; }
+.reveal.visible:nth-child(5) { transition-delay: 0.32s; }
+.reveal.visible:nth-child(6) { transition-delay: 0.4s; }
+
+/* Use-case cards staggered */
+.use-grid .use-card.reveal.visible:nth-child(1) { transition-delay: 0s; }
+.use-grid .use-card.reveal.visible:nth-child(2) { transition-delay: 0.1s; }
+.use-grid .use-card.reveal.visible:nth-child(3) { transition-delay: 0.2s; }
+
+/* Feature items staggered */
+.feat-grid .feat-item.reveal.visible:nth-child(1) { transition-delay: 0s; }
+.feat-grid .feat-item.reveal.visible:nth-child(2) { transition-delay: 0.1s; }
+.feat-grid .feat-item.reveal.visible:nth-child(3) { transition-delay: 0.2s; }
+
+/* Steps staggered */
+.steps-wrap .step.reveal.visible:nth-child(1) { transition-delay: 0s; }
+.steps-wrap .step.reveal.visible:nth-child(2) { transition-delay: 0.1s; }
+.steps-wrap .step.reveal.visible:nth-child(3) { transition-delay: 0.2s; }
+.steps-wrap .step.reveal.visible:nth-child(4) { transition-delay: 0.3s; }
+
+/* Pricing cards staggered */
+.pricing-grid .price-card.reveal.visible:nth-child(1) { transition-delay: 0s; }
+.pricing-grid .price-card.reveal.visible:nth-child(2) { transition-delay: 0.12s; }
 
 /* ============================================================
    RESPONSIVE — Tablet (max-width: 900px)

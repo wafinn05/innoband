@@ -11,6 +11,44 @@ const TELEGRAM_CHAT_ID = '-1003922553114';
 const NOMOR_CS_WHATSAPP = '6281234567890'; // Ganti dengan nomor asli nanti
 
 document.addEventListener('DOMContentLoaded', async () => {
+    /* ── Page Transition Overlay ── */
+    (function initPageTransition() {
+        var overlay = document.createElement('div');
+        overlay.className = 'page-transition-overlay';
+        document.body.prepend(overlay);
+
+        requestAnimationFrame(function() {
+            requestAnimationFrame(function() {
+                overlay.classList.add('fade-out');
+            });
+        });
+
+        overlay.addEventListener('transitionend', function() {
+            if (overlay.classList.contains('fade-out')) {
+                overlay.style.display = 'none';
+            }
+        });
+
+        document.addEventListener('click', function(e) {
+            var link = e.target.closest('a[href]');
+            if (!link) return;
+
+            var href = link.getAttribute('href');
+            if (!href || href.startsWith('#') || href.startsWith('javascript:') ||
+                href.startsWith('http') || href.startsWith('mailto:') || href.startsWith('tel:') ||
+                link.target === '_blank') return;
+
+            e.preventDefault();
+            overlay.style.display = '';
+            overlay.classList.remove('fade-out');
+            overlay.classList.add('fade-in');
+
+            setTimeout(function() {
+                window.location.href = href;
+            }, 350);
+        });
+    }());
+
     const urlParams = new URLSearchParams(window.location.search);
     const profileId = urlParams.get('id');
 

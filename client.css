@@ -14,6 +14,37 @@
     padding: 0;
 }
 
+/* ── PAGE TRANSITION OVERLAY ── */
+.page-transition-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    background: var(--black, #f7f6f2);
+    opacity: 1;
+    pointer-events: none;
+    transition: opacity 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.page-transition-overlay.fade-out {
+    opacity: 0;
+}
+
+.page-transition-overlay.fade-in {
+    opacity: 1;
+}
+
+/* ── KEYFRAMES ── */
+@keyframes fadeUp {
+    from {
+        opacity:   0;
+        transform: translate3d(0, 24px, 0);
+    }
+    to {
+        opacity:   1;
+        transform: translate3d(0, 0, 0);
+    }
+}
+
 :root {
     --black:      #f7f6f2;
     --white:      #111111;
@@ -66,6 +97,8 @@ body {
     min-height:  100vh;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    /* Smooth rendering */
+    text-rendering: optimizeLegibility;
 }
 
 a {
@@ -283,7 +316,9 @@ a {
 /* ── Tab Panels ── */
 .tab-panel {
     display: none;
-    animation: fadeUp 0.4s ease both;
+    animation: fadeUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) both;
+    will-change: opacity, transform;
+    backface-visibility: hidden;
 }
 
 .tab-panel.active {
@@ -333,16 +368,25 @@ a {
     font-size:      0.9rem;
     letter-spacing: 0.01em;
     cursor:         pointer;
-    transition:     transform 0.15s, background 0.2s, box-shadow 0.2s;
+    transition:     transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+                    background 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                    box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display:        inline-flex;
     align-items:    center;
     gap:            8px;
+    will-change: transform;
+    backface-visibility: hidden;
 }
 
 .btn-primary:hover {
     background:  #45ff85;
-    transform:   translateY(-2px);
+    transform:   translateY(-2px) scale(1.02);
     box-shadow:  0 6px 24px rgba(44, 255, 110, 0.25);
+}
+
+.btn-primary:active {
+    transform:   translateY(0) scale(0.98);
+    transition:  transform 0.1s ease;
 }
 
 .btn-primary {
@@ -364,15 +408,25 @@ a {
     font-weight:    500;
     font-size:      0.875rem;
     cursor:         pointer;
-    transition:     border-color 0.2s, background 0.2s;
+    transition:     border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                    background 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                    transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     display:        inline-flex;
     align-items:    center;
     gap:            6px;
+    will-change: transform;
+    backface-visibility: hidden;
 }
 
 .btn-secondary:hover {
     border-color: var(--green);
     background:   var(--green-dim);
+    transform:    translateY(-1px);
+}
+
+.btn-secondary:active {
+    transform:   translateY(0) scale(0.98);
+    transition:  transform 0.1s ease;
 }
 
 .btn-danger {
@@ -416,14 +470,18 @@ a {
     border-radius: 10px;
     padding:       1.8rem;
     position:      relative;
-    transition:    border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+    transition:    border-color 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                   transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+                   box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     cursor:        default;
+    will-change: transform;
+    backface-visibility: hidden;
 }
 
 .profile-card:hover {
-    border-color: rgba(44, 255, 110, 0.2);
-    transform:    translateY(-2px);
-    box-shadow:   0 8px 24px rgba(0, 0, 0, 0.15);
+    border-color: rgba(44, 255, 110, 0.25);
+    transform:    translateY(-4px);
+    box-shadow:   0 12px 30px rgba(0, 0, 0, 0.1);
 }
 
 .profile-card-header {

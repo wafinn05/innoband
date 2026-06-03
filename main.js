@@ -7,6 +7,52 @@
 
 'use strict';
 
+/* ── Page Transition Overlay ── */
+(function initPageTransition() {
+    // Create the overlay element for smooth page transitions
+    var overlay = document.createElement('div');
+    overlay.className = 'page-transition-overlay';
+    document.body.prepend(overlay);
+
+    // Fade out overlay on page load
+    requestAnimationFrame(function() {
+        requestAnimationFrame(function() {
+            overlay.classList.add('fade-out');
+        });
+    });
+
+    // Remove overlay from DOM flow after fade completes
+    overlay.addEventListener('transitionend', function() {
+        if (overlay.classList.contains('fade-out')) {
+            overlay.style.display = 'none';
+        }
+    });
+
+    // Intercept internal navigation links for smooth exit transition
+    document.addEventListener('click', function(e) {
+        var link = e.target.closest('a[href]');
+        if (!link) return;
+
+        var href = link.getAttribute('href');
+        // Only intercept local page navigation (not anchors, external links, or javascript:)
+        if (!href || href.startsWith('#') || href.startsWith('javascript:') ||
+            href.startsWith('http') || href.startsWith('mailto:') || href.startsWith('tel:') ||
+            link.target === '_blank') return;
+
+        // Don't intercept if there's a custom onclick preventing default
+        if (link.id === 'clientDrawerLink') return;
+
+        e.preventDefault();
+        overlay.style.display = '';
+        overlay.classList.remove('fade-out');
+        overlay.classList.add('fade-in');
+
+        setTimeout(function() {
+            window.location.href = href;
+        }, 350);
+    });
+}());
+
 /* ── Scroll-reveal ── */
 (function initReveal() {
     var reveals  = document.querySelectorAll('.reveal');
@@ -19,7 +65,7 @@
                 }
             });
         },
-        { threshold: 0.12 }
+        { threshold: 0.08, rootMargin: '0px 0px -40px 0px' }
     );
 
     reveals.forEach(function (el) {
@@ -35,7 +81,7 @@
 function scrollToSection(id) {
     var target = document.getElementById(id);
     if (target) {
-        target.scrollIntoView({ behavior: 'smooth' });
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 }
 
